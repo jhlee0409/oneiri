@@ -1,7 +1,7 @@
 {
-  "name": "Oneiri - AI 꿈 이야기",
+  "name": "Oneiri - 간밤의 꿈, 한 편의 이야기가 되다",
   "short_name": "Oneiri",
-  "description": "AI가 엮어주는 나만의 꿈 이야기",
+  "description": "간밤의 꿈, 한 편의 이야기가 되다",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

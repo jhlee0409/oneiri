@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   // 브라우저 탭에 표시될 제목 형식 (예: "나의 꿈 서재 | Oneiri")
   title: {
     template: "%s | Oneiri",
-    default: "Oneiri: AI가 엮어주는 나만의 꿈 이야기", // 홈페이지 등 기본 제목
+    default: "Oneiri: 간밤의 꿈, 한 편의 이야기가 되다", // 홈페이지 등 기본 제목
   },
 
   // 기본 설명 (모든 페이지에 적용될 수 있는, 검색 결과에 표시될 문구)
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     // 공유 시 보일 기본 이미지 (로고나 메인 비주얼)
     images: [
       {
-        url: "/og-image.jpg", // public 폴더에 위치한 이미지 경로
+        url: "/og-image.png", // public 폴더에 위치한 이미지 경로
         width: 1200,
         height: 630,
         alt: "Oneiri Logo and concept art",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     title: "Oneiri: 간밤의 꿈, 한 편의 이야기가 되다",
     description:
       "당신의 흩어진 꿈 조각으로, AI와 함께 세상에 없던 이야기를 만들어보세요.",
-    images: ["/og-image.jpg"], // 위 og:image와 동일한 경로 사용
+    images: ["/og-image.png"], // 위 og:image와 동일한 경로 사용
   },
 
   // 추가 SEO 설정
