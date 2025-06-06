@@ -1,79 +1,77 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Copy, Check } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import { ArrowLeft, Copy, Check } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface StoryData {
-  id: string
-  title: string
-  dreamText: string
-  keywords: string[]
-  emotion: string
-  vibe: string
-  createdAt: string
+  id: string;
+  title: string;
+  dreamText: string;
+  keywords: string[];
+  emotion: string;
+  vibe: string;
+  createdAt: string;
 }
 
 interface DreamStoryDisplayProps {
-  storyId: string
+  storyId: string;
 }
 
 export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
-  const [storyData, setStoryData] = useState<StoryData | null>(null)
-  const [copied, setCopied] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [regenerating, setRegenerating] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const [storyData, setStoryData] = useState<StoryData | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const loadStory = () => {
-      const savedDreams = localStorage.getItem("userDreams")
+      const savedDreams = localStorage.getItem("userDreams");
       if (savedDreams) {
-        const dreams = JSON.parse(savedDreams)
-        const story = dreams.find((dream: any) => dream.id === storyId)
+        const dreams = JSON.parse(savedDreams);
+        const story = dreams.find((dream: any) => dream.id === storyId);
         if (story) {
-          setStoryData(story)
+          setStoryData(story);
         } else {
-          router.push("/journal")
+          router.push("/journal");
         }
       } else {
-        router.push("/journal")
+        router.push("/journal");
       }
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    loadStory()
-  }, [storyId, router])
+    loadStory();
+  }, [storyId, router]);
 
-
-
-    const handleCopyStory = async () => {
+  const handleCopyStory = async () => {
     try {
       // await navigator.clipboard.writeText(storyData.story)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("텍스트 복사 실패: ", err)
+      console.error("텍스트 복사 실패: ", err);
     }
-  }
+  };
 
   const handleSaveToJournal = async () => {
-    setSaving(true)
+    setSaving(true);
     // API 호출 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setSaving(false)
-    alert("이야기가 꿈 일기에 저장되었습니다!")
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setSaving(false);
+    alert("이야기가 서재에 보관되었습니다!");
+  };
 
   const handleTryAnotherVersion = async () => {
-    setRegenerating(true)
+    setRegenerating(true);
     // API 호출 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setRegenerating(false)
-    alert("새로운 버전의 꿈 이야기를 생성하고 있습니다...")
-  }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setRegenerating(false);
+    alert("꿈의 다른 해석을 찾고 있습니다...");
+  };
 
   if (isLoading) {
     return (
@@ -82,24 +80,31 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-900"></div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!storyData) {
-    return null
+    return null;
   }
 
-   return (
+  return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* 뒤로 가기 네비게이션 */}
         <nav className="flex gap-6 mb-12 pb-6 border-b border-gray-100">
-          <Link href="/journal" className="inline-flex items-center text-gray-600 hover:text-black transition-colors">
+          <Link
+            href="/journal"
+            className="inline-flex items-center text-gray-600 hover:text-black transition-colors"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            일기로 돌아가기
+            서재로 돌아가기
           </Link>
-          <Link href="/" className="inline-flex items-center text-gray-600 hover:text-black transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" />새 꿈 기록하기
+          <Link
+            href="/"
+            className="inline-flex items-center text-gray-600 hover:text-black transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            새로운 꿈 조각 기록하기
           </Link>
         </nav>
 
@@ -116,10 +121,14 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             {storyData.emotion && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">{storyData.emotion}</span>
-                <span>감정</span>
+                <span>여운</span>
               </span>
             )}
-            {storyData.vibe && <span className="text-gray-900 font-medium">{storyData.vibe}</span>}
+            {storyData.vibe && (
+              <span className="text-gray-900 font-medium">
+                {storyData.vibe}
+              </span>
+            )}
             {storyData.keywords.length > 0 && (
               <div className="flex gap-2">
                 {storyData.keywords.map((keyword, index) => (
@@ -136,8 +145,8 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-500 mb-12">
           <div className="text-center">
             <div className="text-2xl mb-2">🎨</div>
-            <div className="font-medium">꿈 이미지 영역</div>
-            <div className="text-sm">AI 생성 아트워크 준비 중</div>
+            <div className="font-medium">꿈의 풍경을 그리는 중...</div>
+            <div className="text-sm">(AI 아티스트가 영감을 얻고 있습니다)</div>
           </div>
         </div>
 
@@ -156,7 +165,7 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         <section className="bg-gray-50 p-6 mb-12">
           <h2 className="font-['Inter'] text-lg font-medium text-gray-900 mb-3 flex items-center">
             <span className="text-xl mr-2">💭</span>
-            당신의 원본 꿈
+            당신이 속삭여준 꿈의 조각들
           </h2>
           {/* <p className="text-gray-700 leading-relaxed italic">"{storyData.originalDream}"</p> */}
         </section>
@@ -171,10 +180,10 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             {saving ? (
               <span className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                저장 중...
+                보관하는 중...
               </span>
             ) : (
-              "꿈 일기에 저장"
+              "내 서재에 보관하기"
             )}
           </button>
 
@@ -186,10 +195,10 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             {regenerating ? (
               <span className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-transparent mr-2"></div>
-                재생성 중...
+                다른 해석을 찾는 중...
               </span>
             ) : (
-              "다른 버전 시도"
+              "꿈의 다른 해석 보기"
             )}
           </button>
 
@@ -200,12 +209,12 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             {copied ? (
               <>
                 <Check className="w-4 h-4 mr-2" />
-                복사됨!
+                담아갔어요!
               </>
             ) : (
               <>
                 <Copy className="w-4 h-4 mr-2" />
-                이야기 텍스트 복사
+                이야기 담아가기
               </>
             )}
           </button>
@@ -217,5 +226,5 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         </footer>
       </div>
     </div>
-  )
+  );
 }

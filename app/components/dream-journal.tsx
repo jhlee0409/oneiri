@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Calendar, ImageIcon, Plus, BookOpen } from "lucide-react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Calendar, ImageIcon, Plus, BookOpen } from "lucide-react";
 
 interface DreamEntry {
-  id: string
-  title: string
-  createdAt: string
-  preview: string
-  dreamText: string
-  emotion: string
-  vibe: string
-  keywords: string[]
-  hasImage: boolean
+  id: string;
+  title: string;
+  createdAt: string;
+  preview: string;
+  dreamText: string;
+  emotion: string;
+  vibe: string;
+  keywords: string[];
+  hasImage: boolean;
 }
 
 function DreamEntryCard({ entry }: { entry: DreamEntry }) {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "long",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   return (
     <Link href={`/story/${entry.id}`} className="block group">
@@ -57,12 +57,14 @@ function DreamEntryCard({ entry }: { entry: DreamEntry }) {
             </div>
 
             {/* 스토리 미리보기 */}
-            <p className="text-gray-700 text-base leading-relaxed mb-4 line-clamp-2">{entry.preview}</p>
+            <p className="text-gray-700 text-base leading-relaxed mb-4 line-clamp-2">
+              {entry.preview}
+            </p>
 
             {/* 메타데이터 */}
             <div className="flex items-center gap-3">
               {entry.emotion && (
-                <span className="text-lg" title="꿈의 감정">
+                <span className="text-lg" title="꿈의 여운">
                   {entry.emotion}
                 </span>
               )}
@@ -79,41 +81,45 @@ function DreamEntryCard({ entry }: { entry: DreamEntry }) {
         </div>
       </article>
     </Link>
-  )
+  );
 }
 
 function EmptyState() {
   return (
     <div className="text-center py-24">
       <div className="text-4xl mb-6 text-gray-400">📖</div>
-      <h2 className="font-['Inter'] text-2xl font-medium text-gray-900 mb-3">꿈 일기가 비어있습니다</h2>
-      <p className="text-gray-600 mb-8 max-w-md mx-auto">첫 번째 꿈을 기록하여 AI가 생성한 이야기를 확인해보세요</p>
+      <h2 className="font-['Inter'] text-2xl font-medium text-gray-900 mb-3">
+        아직 서재가 비어있네요.
+      </h2>
+      <p className="text-gray-600 mb-8 max-w-md mx-auto">
+        당신의 첫 번째 꿈 이야기로 이 서재의 첫 페이지를 장식해주세요.
+      </p>
       <Link
         href="/"
         className="inline-flex items-center bg-black hover:bg-gray-800 text-white font-medium py-3 px-6 transition-colors"
       >
-        <Plus className="w-5 h-5 mr-2" />첫 번째 꿈 기록하기
+        <Plus className="w-5 h-5 mr-2" />첫 이야기의 씨앗 심기
       </Link>
     </div>
-  )
+  );
 }
 
 export default function DreamJournal() {
-  const [dreamEntries, setDreamEntries] = useState<DreamEntry[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [dreamEntries, setDreamEntries] = useState<DreamEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // localStorage에서 사용자의 꿈 일기 불러오기
     const loadDreams = () => {
-      const savedDreams = localStorage.getItem("userDreams")
+      const savedDreams = localStorage.getItem("userDreams");
       if (savedDreams) {
-        setDreamEntries(JSON.parse(savedDreams))
+        setDreamEntries(JSON.parse(savedDreams));
       }
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    loadDreams()
-  }, [])
+    loadDreams();
+  }, []);
 
   if (isLoading) {
     return (
@@ -122,26 +128,35 @@ export default function DreamJournal() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-900"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
       {/* 헤더 */}
       <header className="mb-16">
-        <h1 className="font-['Inter'] text-4xl md:text-5xl font-medium text-gray-900 mb-4">나의 꿈 일기</h1>
+        <h1 className="font-['Inter'] text-4xl md:text-5xl font-medium text-gray-900 mb-4">
+          나의 꿈 서재
+        </h1>
         <p className="text-gray-600 text-lg">
-          {dreamEntries.length > 0 ? `${dreamEntries.length}개의 꿈 이야기가 저장됨` : "AI가 생성한 꿈 이야기 컬렉션"}
+          {dreamEntries.length > 0
+            ? `${dreamEntries.length}개의 꿈 이야기가 서재에 보관됨`
+            : "밤의 기억들이 모이는 공간"}
         </p>
       </header>
 
       {/* 네비게이션 */}
       <nav className="flex justify-between items-center mb-12 pb-6 border-b border-gray-100">
-        <Link href="/" className="text-gray-600 hover:text-black font-medium transition-colors">
-          ← 꿈 입력으로 돌아가기
+        <Link
+          href="/"
+          className="text-gray-600 hover:text-black font-medium transition-colors"
+        >
+          ← 새로운 꿈 조각으로 돌아가기
         </Link>
 
-        {dreamEntries.length > 0 && <div className="text-sm text-gray-500">최신순 정렬</div>}
+        {dreamEntries.length > 0 && (
+          <div className="text-sm text-gray-500">최신순 정렬</div>
+        )}
       </nav>
 
       {/* 꿈 일기 목록 또는 빈 상태 */}
@@ -159,7 +174,8 @@ export default function DreamJournal() {
       {dreamEntries.length > 0 && (
         <footer className="mt-16 pt-8 border-t border-gray-100 text-center">
           <p className="text-sm text-gray-500">
-            총 {dreamEntries.length}개의 꿈을 기록했습니다 • 계속해서 무의식을 탐험해보세요
+            총 {dreamEntries.length}개의 꿈을 기록했습니다 • 계속해서 무의식의
+            서재를 채워가세요
           </p>
         </footer>
       )}
@@ -168,10 +184,10 @@ export default function DreamJournal() {
       <Link
         href="/"
         className="fixed bottom-8 right-8 bg-black hover:bg-gray-800 text-white w-14 h-14 rounded-full flex items-center justify-center transition-colors shadow-sm"
-        title="새 꿈 기록하기"
+        title="새로운 꿈 조각 기록하기"
       >
         <Plus className="w-6 h-6" />
       </Link>
     </div>
-  )
+  );
 }

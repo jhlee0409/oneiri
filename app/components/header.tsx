@@ -48,7 +48,7 @@ export default function Header({ user: initialUser }: Props) {
             href="/"
             className="font-['Inter'] text-xl font-medium text-gray-900"
           >
-            꿈 일기
+            Oneiri
           </Link>
 
           <div className="flex items-center gap-4">
@@ -56,7 +56,7 @@ export default function Header({ user: initialUser }: Props) {
               href="/journal"
               className="text-gray-600 hover:text-black transition-colors"
             >
-              내 일기
+              내 서재
             </Link>
             <div className="flex items-center gap-3">
               <Image
