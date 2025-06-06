@@ -1,23 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { supabase } from "@/utils/supabase/client";
 
-export default function Header() {
-  // get
-  const [user, setUser] = useState(() => {
-    if (typeof window !== "undefined") {
-      const userData = localStorage.getItem("user");
-      return userData ? JSON.parse(userData) : null;
-    }
-    return null;
-  });
+type Props = {
+  user: User | null;
+};
+
+export default function Header({ user }: Props) {
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     router.push("/login");
   };
 
@@ -42,7 +39,13 @@ export default function Header() {
               내 일기
             </Link>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">{user.name}</span>
+              <Image
+                src={user.user_metadata.avatar_url}
+                alt="Profile"
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
               <button
                 onClick={handleLogout}
                 className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
