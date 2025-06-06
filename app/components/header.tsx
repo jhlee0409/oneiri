@@ -2,6 +2,7 @@
 
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/utils/supabase/client";
@@ -10,13 +11,34 @@ type Props = {
   user: User | null;
 };
 
-export default function Header({ user }: Props) {
+export default function Header({ user: initialUser }: Props) {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(initialUser);
+
+  useEffect(() => {
+    // 초기 사용자 상태 설정
+    setUser(initialUser);
+
+    // 인증 상태 변화 감지
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+      } else if (event === "SIGNED_IN" && session?.user) {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [initialUser]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
   };
+
+  console.log(user);
 
   if (!user) return null;
 

@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header";
 import { createClient } from "@/utils/supabase/server";
+import AuthGuard from "./components/auth-guard";
 
 const inter = Inter({ subsets: ["latin"] });
 
