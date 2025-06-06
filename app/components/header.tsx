@@ -38,8 +38,6 @@ export default function Header({ user: initialUser }: Props) {
     router.push("/login");
   };
 
-  console.log(user);
-
   if (!user) return null;
 
   return (
