@@ -1,38 +1,37 @@
-"use client"
+"use client";
+import { supabase } from "@/utils/supabase/client";
+import { useState } from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+const getURL = () => {
+  let url =
+    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
+    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
+    "http://localhost:3000/";
+  // Make sure to include `https://` when not localhost.
+  url = url.startsWith("http") ? url : `https://${url}`;
+  // Make sure to include a trailing `/`.
+  url = url.endsWith("/") ? url : `${url}/`;
+  return url;
+};
 
 export default function GoogleLoginForm() {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true)
-
-    // 구글 로그인 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-
-    // 로그인 상태를 localStorage에 저장
-    localStorage.setItem("isLoggedIn", "true")
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        name: "사용자",
-        email: "user@example.com",
-        picture: "https://via.placeholder.com/40",
-      }),
-    )
-
-    setIsLoading(false)
-    router.push("/")
+  async function signInWithGoogle() {
+    setIsLoading(true);
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: getURL() + "auth/callback",
+      },
+    });
+    setIsLoading(false);
   }
 
   return (
     <div className="space-y-6">
       <button
-        onClick={handleGoogleLogin}
-        disabled={isLoading}
+        onClick={signInWithGoogle}
         className="w-full bg-white hover:bg-gray-50 disabled:bg-gray-100 text-gray-900 font-['Inter'] font-medium py-4 px-6 border border-gray-200 transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-3"
       >
         {isLoading ? (
@@ -65,9 +64,10 @@ export default function GoogleLoginForm() {
       <div className="text-center text-xs text-gray-500">
         <p>
           계속 진행하면 <span className="underline">서비스 약관</span> 및{" "}
-          <span className="underline">개인정보 처리방침</span>에 동의하는 것으로 간주됩니다.
+          <span className="underline">개인정보 처리방침</span>에 동의하는 것으로
+          간주됩니다.
         </p>
       </div>
     </div>
-  )
+  );
 }
