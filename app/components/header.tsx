@@ -46,8 +46,15 @@ export default function Header({ user: initialUser }: Props) {
         <div className="flex justify-between items-center">
           <Link
             href="/"
-            className="font-['Inter'] text-xl font-medium text-gray-900"
+            className="font-['Inter'] text-xl font-medium text-gray-900 flex items-center gap-2"
           >
+            <Image
+              src="/oneiri_logo.png"
+              alt="Oneiri"
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
             Oneiri
           </Link>
 
