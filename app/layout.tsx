@@ -7,7 +7,7 @@ import Footer from "./components/footer";
 import { createClient } from "@/utils/supabase/server";
 import QueryProvider from "@/components/query-provider";
 import { Toaster } from "@/components/ui/sonner";
-
+import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -94,6 +94,7 @@ export default async function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
           <Toaster />
+          <Analytics />
         </QueryProvider>
       </body>
     </html>
