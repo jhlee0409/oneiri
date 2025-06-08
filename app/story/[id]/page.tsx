@@ -4,9 +4,9 @@ import DreamStoryDisplay from "../../components/dream-story-display";
 import { createClient } from "@/utils/supabase/server";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // DB에서 스토리 데이터를 가져오는 함수
@@ -32,11 +32,12 @@ async function getStoryData(storyId: string) {
 }
 
 // generateMetadata 함수를 사용하여 동적으로 메타데이터를 생성
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const story = await getStoryData(params.id);
 
   if (!story) {
@@ -97,7 +98,8 @@ function isValidUUID(uuid: string): boolean {
   return uuidRegex.test(uuid);
 }
 
-export default function StoryDetailPage({ params }: PageProps) {
+export default async function StoryDetailPage(props: PageProps) {
+  const params = await props.params;
   // UUID 형식이 아닌 경우 에러 페이지 표시
   if (!isValidUUID(params.id)) {
     return (
