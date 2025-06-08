@@ -8,27 +8,85 @@ import {
   useDailyWeavingStatus,
 } from "@/hooks/use-dream-api";
 import { AlertTriangle, BookOpen, Clock } from "lucide-react";
+import { toast } from "sonner";
 
-const emotions = [
-  { emoji: "😊", label: "행복" },
-  { emoji: "😢", label: "슬픔" },
-  { emoji: "😠", label: "화남" },
-  { emoji: "😮", label: "놀람" },
-  { emoji: "🤔", label: "생각" },
-  { emoji: "😴", label: "평화" },
-  { emoji: "😰", label: "불안" },
-  { emoji: "🥰", label: "사랑" },
+const genreOptions = [
+  // 일상 및 드라마 계열
+  { value: "slice-of-life", label: "일상" },
+  { value: "drama", label: "드라마" },
+  { value: "coming-of-age", label: "성장" },
+
+  // 판타지 및 초현실 계열
+  { value: "fantasy", label: "판타지" },
+  { value: "fairy-tale", label: "동화" },
+  { value: "sci-fi", label: "SF (공상과학)" },
+
+  // 긴장 및 공포 계열
+  { value: "mystery", label: "미스터리" },
+  { value: "thriller", label: "스릴러" },
+  { value: "horror", label: "호러 (공포)" },
+
+  // 기타 장르
+  { value: "adventure", label: "모험" },
+  { value: "romance", label: "로맨스" },
+  { value: "comedy", label: "코미디" },
 ];
 
-const vibeOptions = [
-  "신비로운",
-  "모험적인",
-  "따뜻한",
-  "약간 긴장감 있는",
-  "놀라운",
-  "로맨틱한",
-  "신비한",
-  "희망적인",
+const moodOptions = [
+  // 긍정적이고 밝은 분위기
+  { value: "warm and heartwarming", label: "따뜻하고 마음이 편안해지는" },
+  { value: "cheerful and lively", label: "발랄하고 경쾌한" }, // 사용자가 원했던 키워드
+  { value: "hopeful and bright", label: "희망차고 밝은" },
+  { value: "pleasant and comical", label: "유쾌하고 코믹한" },
+  { value: "fluffy and heart-fluttering", label: "몽글몽글하고 설레는" },
+
+  // 신비롭고 몽환적인 분위기
+  { value: "mysterious and dreamlike", label: "신비롭고 몽환적인" },
+  { value: "grand and epic", label: "장엄하고 서사적인" },
+  { value: "calm and introspective", label: "차분하고 성찰적인" },
+
+  // 부정적이고 어두운 분위기
+  { value: "dark and gloomy", label: "어둡고 음산한" }, // 사용자가 원했던 키워드
+  { value: "tense and suspenseful", label: "긴장감 넘치고 서스펜스 있는" },
+  { value: "urgent and desperate", label: "긴박하고 절박한" },
+  { value: "tragic and sorrowful", label: "비극적이고 애상적인" },
+  { value: "bizarre and unsettling", label: "기괴하고 불쾌한" },
+];
+
+const emotionOptions = [
+  // 긍정적 감정
+  { emoji: "😊", value: "happy and fulfilled", label: "행복하고 충만한" },
+  {
+    emoji: "🥰",
+    value: "heart-fluttering and excited",
+    label: "설레고 두근거리는",
+  },
+  { emoji: "😌", value: "peaceful and stable", label: "평화롭고 안정적인" },
+  { emoji: "🥳", value: "joyful and liberated", label: "기쁘고 해방되는" },
+
+  // 부정적 감정
+  {
+    emoji: "😢",
+    value: "sad and with a sense of loss",
+    label: "슬프고 상실감 있는",
+  },
+  { emoji: "😨", value: "fearful and terrified", label: "두렵고 공포스러운" }, // 불안을 넘어선 공포
+  { emoji: "😠", value: "angry and unfair", label: "분노와 억울함" },
+  { emoji: "😥", value: "anxious and restless", label: "불안하고 초조한" }, // 기존 불안을 구체화
+
+  // 복합적/기타 감정
+  {
+    emoji: "😮",
+    value: "awestruck and overwhelmed",
+    label: "경이롭고 압도되는",
+  }, // 놀람을 긍정적으로
+  {
+    emoji: "🤯",
+    value: "confused and bewildered",
+    label: "혼란스럽고 어리둥절한",
+  },
+  { emoji: "🤔", value: "curious and questioning", label: "호기심과 의문" }, // 생각을 구체화
+  { emoji: "😐", value: "empty and numb", label: "공허하고 무감각한" },
 ];
 
 export default function DreamForm() {
@@ -36,6 +94,7 @@ export default function DreamForm() {
   const [keywords, setKeywords] = useState("");
   const [selectedEmotion, setSelectedEmotion] = useState("");
   const [selectedVibe, setSelectedVibe] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("");
   const router = useRouter();
 
   const { mutateAsync: generateStory, isPending: isSubmitting } =
@@ -55,6 +114,7 @@ export default function DreamForm() {
 
     // 제한 확인
     if (weavingStatus?.weaving_status?.has_reached_limit) {
+      toast.error("오늘 만든 이야기 개수를 초과했습니다.");
       return; // 제한에 도달한 경우 제출하지 않음
     }
 
@@ -68,8 +128,8 @@ export default function DreamForm() {
       dream_keywords: keywordArray.length > 0 ? keywordArray : undefined,
       dream_emotion: selectedEmotion || undefined,
       story_preference_mood: selectedVibe || undefined,
-      story_preference_genre: "fantasy", // 기본값
-      story_preference_length: "medium", // 기본값
+      story_preference_genre: selectedGenre || undefined, // 기본값
+      story_preference_length: undefined, // 기본값
     };
 
     const result = await generateStory(dreamRequest);
@@ -265,8 +325,8 @@ export default function DreamForm() {
             꿈이 남긴 여운{" "}
             <span className="text-gray-500 font-normal">(선택사항)</span>
           </label>
-          <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
-            {emotions.map((emotion) => (
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+            {emotionOptions.map((emotion) => (
               <button
                 key={emotion.emoji}
                 type="button"
@@ -278,7 +338,7 @@ export default function DreamForm() {
                 className={`p-3 text-2xl transition-colors flex flex-col items-center justify-center ${
                   selectedEmotion === emotion.emoji
                     ? "bg-black text-white"
-                    : "bg-gray-50 hover:bg-gray-100 text-gray-700"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-700"
                 } ${isFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 title={emotion.label}
                 disabled={isFormDisabled}
@@ -286,6 +346,129 @@ export default function DreamForm() {
                 {emotion.emoji} <span className="text-xs">{emotion.label}</span>
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* 🆕 이야기의 장르 선택 */}
+        <div className="space-y-4">
+          <label className="block font-['Inter'] text-lg font-medium text-gray-900">
+            이야기의 장르{" "}
+            <span className="text-gray-500 font-normal">(선택사항)</span>
+          </label>
+
+          {/* 장르 그룹별 분류 */}
+          <div className="space-y-6">
+            {/* 일상 및 드라마 계열 */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-1">
+                일상 및 드라마 계열
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {genreOptions.slice(0, 3).map((genre) => (
+                  <button
+                    key={genre.value}
+                    type="button"
+                    onClick={() =>
+                      setSelectedGenre(
+                        selectedGenre === genre.value ? "" : genre.value
+                      )
+                    }
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedGenre === genre.value
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    } ${isFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={isFormDisabled}
+                  >
+                    {genre.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 판타지 및 초현실 계열 */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-1">
+                판타지 및 초현실 계열
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {genreOptions.slice(3, 6).map((genre) => (
+                  <button
+                    key={genre.value}
+                    type="button"
+                    onClick={() =>
+                      setSelectedGenre(
+                        selectedGenre === genre.value ? "" : genre.value
+                      )
+                    }
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedGenre === genre.value
+                        ? "bg-purple-600 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    } ${isFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={isFormDisabled}
+                  >
+                    {genre.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 긴장 및 공포 계열 */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-1">
+                긴장 및 공포 계열
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {genreOptions.slice(6, 9).map((genre) => (
+                  <button
+                    key={genre.value}
+                    type="button"
+                    onClick={() =>
+                      setSelectedGenre(
+                        selectedGenre === genre.value ? "" : genre.value
+                      )
+                    }
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedGenre === genre.value
+                        ? "bg-red-600 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    } ${isFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={isFormDisabled}
+                  >
+                    {genre.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 기타 장르 */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-1">
+                기타 장르
+              </h4>
+              <div className="grid grid-cols-3 gap-2">
+                {genreOptions.slice(9).map((genre) => (
+                  <button
+                    key={genre.value}
+                    type="button"
+                    onClick={() =>
+                      setSelectedGenre(
+                        selectedGenre === genre.value ? "" : genre.value
+                      )
+                    }
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      selectedGenre === genre.value
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    } ${isFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={isFormDisabled}
+                  >
+                    {genre.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -306,9 +489,9 @@ export default function DreamForm() {
             disabled={isFormDisabled}
           >
             <option value="">이야기의 색채를 선택하세요...</option>
-            {vibeOptions.map((vibe) => (
-              <option key={vibe} value={vibe}>
-                {vibe}
+            {moodOptions.map((mood) => (
+              <option key={mood.value} value={mood.value}>
+                {mood.label}
               </option>
             ))}
           </select>
