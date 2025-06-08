@@ -4,12 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 
 const getURL = () => {
-  // 브라우저 환경에서 현재 origin 사용
-  if (typeof window !== "undefined") {
-    return window.location.origin + "/";
-  }
-
-  // 서버 환경에서는 환경변수 사용
   let url =
     process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
     process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
