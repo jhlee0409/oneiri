@@ -9,7 +9,7 @@ import QueryProvider from "@/components/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-
+import { GoogleAnalytics } from "@next/third-parties/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -98,6 +98,7 @@ export default async function RootLayout({
           <Toaster />
           <Analytics />
           <SpeedInsights />
+          <GoogleAnalytics gaId="G-ZLXEKL2EZJ" />
         </QueryProvider>
       </body>
     </html>
