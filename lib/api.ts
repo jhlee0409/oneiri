@@ -8,8 +8,76 @@ import {
   APIResponse,
 } from "@/types/supabase";
 
+// 일일 꿈 생성 상태 타입 정의
+export interface DailyWeavingStatus {
+  weaving_status: {
+    current_count: number;
+    daily_limit: number;
+    remaining: number;
+    has_reached_limit: boolean;
+    next_reset: string;
+    hours_until_reset: number;
+  };
+  oneiri_message: {
+    title: string;
+    content: string;
+    encouragement?: string;
+    hours_until_reset?: number;
+  };
+  todays_dreams: Array<{
+    id: string;
+    title: string;
+    created_at: string;
+  }>;
+  total_dreams: number;
+  next_action: "visit_library" | "create_final_dream" | "create_dream";
+}
+
 /**
- * AI 꿈 스토리 생성 API 호출
+ * 🌙 일일 꿈 생성 상태 조회
+ */
+export async function getDailyWeavingStatus(): Promise<
+  APIResponse<DailyWeavingStatus>
+> {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error("로그인이 필요합니다");
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-daily-weaving-status`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "꿈 생성 상태 조회에 실패했습니다");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Get daily weaving status failed:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다",
+    };
+  }
+}
+
+/**
+ * AI 꿈 스토리 생성 API 호출 (제한 로직 포함)
  */
 export async function generateDreamStory(
   dreamData: DreamRequest
@@ -35,6 +103,17 @@ export async function generateDreamStory(
     );
 
     const result = await response.json();
+
+    // 429 상태 코드 (일일 제한 초과) 특별 처리
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: result.error || "일일 꿈 생성 제한에 도달했습니다",
+        errorCode: "daily_weaving_limit_reached",
+        oneiriMessage: result.oneiri_message,
+        weavingStatus: result.weaving_status,
+      };
+    }
 
     if (!result.success) {
       throw new Error(result.error || "스토리 생성에 실패했습니다");

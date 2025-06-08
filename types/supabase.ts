@@ -600,6 +600,17 @@ export interface DreamResponse {
     processing_time_ms: number;
   };
   error?: string;
+  // Oneiri 관련 추가 필드들
+  oneiri_message?: {
+    title: string;
+    content: string;
+  };
+  weaving_status?: {
+    current_count: number;
+    daily_limit: number;
+    remaining: number;
+    next_reset: string;
+  };
 }
 
 export interface UserAnalytics {
@@ -665,4 +676,18 @@ export interface APIResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
+  // 일일 꿈 생성 제한 관련 필드들 (선택적)
+  errorCode?: "daily_weaving_limit_reached" | string;
+  oneiriMessage?: {
+    title: string;
+    content: string;
+    encouragement?: string;
+    hours_until_reset?: number;
+  };
+  weavingStatus?: {
+    current_count: number;
+    daily_limit: number;
+    remaining: number;
+    reset_time: string;
+  };
 }
