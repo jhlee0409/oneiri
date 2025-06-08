@@ -1,3 +1,4 @@
+import Image from "next/image";
 import GoogleLoginForm from "../components/google-login-form";
 
 export default function LoginPage() {
@@ -5,6 +6,13 @@ export default function LoginPage() {
     <div className="min-h-screen bg-white flex items-center justify-center">
       <div className="max-w-md w-full px-6">
         <div className="text-center mb-12">
+          <Image
+            src="/oneiri_logo.png"
+            alt="Oneiri"
+            width={100}
+            height={100}
+            className="mx-auto mb-4 rounded-full"
+          />
           <h1 className="font-['Inter'] text-4xl font-medium text-gray-900 mb-4">
             Oneiri
           </h1>

@@ -1,6 +1,7 @@
 "use client";
 import { supabase } from "@/utils/supabase/client";
 import { useState } from "react";
+import Link from "next/link";
 
 const getURL = () => {
   let url =
@@ -63,9 +64,21 @@ export default function GoogleLoginForm() {
 
       <div className="text-center text-xs text-gray-500">
         <p>
-          계속 진행하면 <span className="underline">서비스 약관</span> 및{" "}
-          <span className="underline">개인정보 처리방침</span>에 동의하는 것으로
-          간주됩니다.
+          계속 진행하면{" "}
+          <Link
+            href="/terms"
+            className="underline hover:text-gray-700 transition-colors"
+          >
+            서비스 약관
+          </Link>{" "}
+          및{" "}
+          <Link
+            href="/privacy"
+            className="underline hover:text-gray-700 transition-colors"
+          >
+            개인정보 처리방침
+          </Link>
+          에 동의하는 것으로 간주됩니다.
         </p>
       </div>
     </div>

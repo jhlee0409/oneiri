@@ -77,22 +77,22 @@ export default function Footer() {
               지원
             </h4>
             <ul className="space-y-3">
-              <li>
+              {/* <li>
                 <Link
                   href="/help"
                   className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   도움말
                 </Link>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <Link
                   href="/about"
                   className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   소개
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   href="/privacy"
@@ -134,12 +134,12 @@ export default function Footer() {
               >
                 이용약관
               </Link>
-              <Link
+              {/* <Link
                 href="/contact"
                 className="hover:text-gray-700 transition-colors"
               >
                 문의하기
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
