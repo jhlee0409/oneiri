@@ -29,7 +29,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         router.push("/login");
       }
       // 로그인 상태에서 로그인 페이지로 갈시 / 로 리다이렉트
-      console.log(pathname);
       if (loggedIn && pathname === "/login") {
         router.push("/");
       }
