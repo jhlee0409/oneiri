@@ -191,7 +191,7 @@ export default function DreamForm() {
       {/* 🌙 꿈 생성 상태 표시 */}
       {weavingStatus && !weavingStatus.weaving_status?.has_reached_limit && (
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-100">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="space-y-1">
               <h3 className="font-['Inter'] font-medium text-gray-900">
                 {weavingStatus.oneiri_message?.title ||
@@ -207,7 +207,7 @@ export default function DreamForm() {
                 </p>
               )}
             </div>
-            <div className="text-right">
+            <div className="text-right flex flex-col w-full">
               <div className="text-2xl font-bold text-blue-600">
                 {remainingCount}
               </div>

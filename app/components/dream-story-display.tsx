@@ -140,7 +140,7 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
 
         {/* 꿈 메타데이터 */}
         <div className="mb-12 pb-6 border-b border-gray-100">
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
             {dream.dream_emotion && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">{dream.dream_emotion}</span>
