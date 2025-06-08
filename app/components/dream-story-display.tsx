@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Copy, Check, Heart, HeartOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import {
   useDreamById,
   useFavoriteToggle,
   useDeleteDream,
+  useGenerateDreamImage,
 } from "@/hooks/use-dream-api";
 
 interface DreamStoryDisplayProps {
@@ -18,10 +19,30 @@ interface DreamStoryDisplayProps {
 export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
+  const hasTriggeredImageGeneration = useRef(false);
 
   const { data: dream, isLoading, error } = useDreamById(storyId);
   const { toggleFavorite, isLoading: isToggling } = useFavoriteToggle();
   const { mutate: deleteDream, isPending: isDeleting } = useDeleteDream();
+  const { mutate: generateImage, isPending: isGeneratingImage } =
+    useGenerateDreamImage();
+
+  // 이미지가 없고 프롬프트가 있을 때 자동으로 이미지 생성 (한 번만)
+  useEffect(() => {
+    if (
+      dream?.id &&
+      dream.generated_image_prompt &&
+      !dream.generated_image_url &&
+      !isGeneratingImage &&
+      !hasTriggeredImageGeneration.current
+    ) {
+      hasTriggeredImageGeneration.current = true;
+      generateImage({
+        dreamId: dream.id,
+        imagePrompt: dream.generated_image_prompt,
+      });
+    }
+  }, [dream, generateImage, isGeneratingImage]);
 
   const handleCopyStory = async () => {
     if (!dream?.generated_story_content) return;
@@ -171,19 +192,62 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         {/* 생성된 이미지 */}
         {dream.generated_image_url ? (
           <div className="mb-12">
-            <img
-              src={dream.generated_image_url}
-              alt={dream.generated_story_title || "꿈의 풍경"}
-              className="w-full h-64 object-cover rounded-lg"
-            />
+            <div className="relative group">
+              <img
+                src={dream.generated_image_url}
+                alt={dream.generated_story_title || "꿈의 풍경"}
+                className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform group-hover:scale-[1.02]"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+              {dream.generated_image_prompt && (
+                <div className="mt-3 text-sm text-gray-500 italic">
+                  🎨 이미지 프롬프트: {dream.generated_image_prompt}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : dream.generated_image_prompt ? (
+          <div className="mb-12">
+            <div className="h-96 bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center text-gray-500 rounded-lg border-2 border-dashed border-gray-200">
+              <div className="text-center p-8">
+                <div className="text-4xl mb-4">
+                  {isGeneratingImage ? (
+                    <div className="animate-spin">🎨</div>
+                  ) : (
+                    "🎨"
+                  )}
+                </div>
+                <div className="font-medium text-lg mb-2">
+                  {isGeneratingImage
+                    ? "꿈의 풍경을 그리는 중..."
+                    : "이미지를 준비하고 있어요..."}
+                </div>
+                <div className="text-sm mb-4">
+                  AI 아티스트가 당신의 꿈에서 영감을 얻고 있습니다
+                </div>
+                {isGeneratingImage && (
+                  <div className="flex justify-center mb-4">
+                    <div className="animate-pulse flex space-x-1">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    </div>
+                  </div>
+                )}
+                <div className="text-xs text-gray-400 italic max-w-md">
+                  "{dream.generated_image_prompt}"
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="h-64 bg-gray-100 flex items-center justify-center text-gray-500 mb-12 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl mb-2">🎨</div>
-              <div className="font-medium">꿈의 풍경을 그리는 중...</div>
+              <div className="text-2xl mb-2">📖</div>
+              <div className="font-medium">이미지 없는 꿈 이야기</div>
               <div className="text-sm">
-                (AI 아티스트가 영감을 얻고 있습니다)
+                상상 속에서 펼쳐지는 이야기를 즐겨보세요
               </div>
             </div>
           </div>

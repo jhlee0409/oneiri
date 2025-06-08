@@ -380,3 +380,69 @@ export function usePublicToggle() {
     isLoading: updateDreamMutation.isPending,
   };
 }
+
+/**
+ * 꿈 이미지 생성 Hook
+ */
+export function useGenerateDreamImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      dreamId,
+      imagePrompt,
+    }: {
+      dreamId: string;
+      imagePrompt: string;
+    }) => {
+      const { supabase } = await import("@/utils/supabase/client");
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Authentication required");
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-dream-image`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            dreamId,
+            imagePrompt,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to generate image");
+      }
+
+      return await response.json();
+    },
+    onSuccess: (response, { dreamId }) => {
+      if (response.success) {
+        toast.success("✨ 꿈의 이미지가 성공적으로 생성되었습니다!");
+        // 관련 캐시 무효화하여 UI 자동 업데이트
+        queryClient.invalidateQueries({ queryKey: ["dream", dreamId] });
+        queryClient.invalidateQueries({ queryKey: ["user-dreams"] });
+      } else {
+        toast.error(response.error || "이미지 생성에 실패했습니다.");
+      }
+    },
+    onError: (error) => {
+      console.error("Image generation error:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "이미지 생성 중 오류가 발생했습니다."
+      );
+    },
+  });
+}
