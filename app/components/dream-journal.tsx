@@ -13,6 +13,7 @@ import {
 import { useUserDreams } from "@/hooks/use-dream-api";
 import type { DreamRecord } from "@/types/supabase";
 import Image from "next/image";
+import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 
 function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   const formatDate = (dateString: string | null) => {
@@ -89,7 +90,9 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
               )}
               {entry.story_preference_mood && (
                 <span className="text-sm text-oneiri-violet whitespace-nowrap">
-                  {entry.story_preference_mood}
+                  {MOOD_OPTIONS.find(
+                    (mood) => mood.value === entry.story_preference_mood
+                  )?.label || entry.story_preference_mood}
                 </span>
               )}
               {entry.dream_keywords && entry.dream_keywords.length > 0 && (

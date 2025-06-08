@@ -168,11 +168,9 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             {dream.dream_emotion && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">
-                  {
-                    EMOTION_OPTIONS.find(
-                      (emotion) => emotion.emoji === dream.dream_emotion
-                    )?.emoji
-                  }
+                  {EMOTION_OPTIONS.find(
+                    (emotion) => emotion.emoji === dream.dream_emotion
+                  )?.emoji || dream.dream_emotion}
                 </span>
                 <span>
                   {
@@ -185,11 +183,9 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             )}
             {dream.story_preference_mood && (
               <span className="oneiri-text-primary font-medium">
-                {
-                  MOOD_OPTIONS.find(
-                    (mood) => mood.value === dream.story_preference_mood
-                  )?.label
-                }
+                {MOOD_OPTIONS.find(
+                  (mood) => mood.value === dream.story_preference_mood
+                )?.label || dream.story_preference_mood}
               </span>
             )}
             {dream.dream_keywords && dream.dream_keywords.length > 0 && (
