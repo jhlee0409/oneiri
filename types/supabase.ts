@@ -636,3 +636,33 @@ export interface UserAnalytics {
     notifications: boolean;
   };
 }
+
+// 추가 타입 정의
+
+// DreamRecord는 실제로 dreams_with_details 뷰에서 가져오는 데이터 타입
+export type DreamRecord = Tables<"dreams_with_details">;
+
+// 기본 Dreams 테이블 타입 (INSERT/UPDATE용)
+export type DreamTable = Tables<"dreams">;
+
+// 다른 테이블 타입들
+export type TagRecord = Tables<"tags">;
+export type UserProfile = Tables<"user_profiles">;
+
+// Edge Function 응답 타입들
+export interface DreamsListResponse {
+  dreams: DreamRecord[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
+// API 응답 래퍼 타입 (lib/api.ts에서 사용)
+export interface APIResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
