@@ -243,12 +243,6 @@ export function useFavoriteToggle() {
   const updateDreamMutation = useUpdateDream();
 
   const toggleFavorite = (dreamId: string, currentFavorite: boolean) => {
-    console.log("Toggle favorite called:", {
-      dreamId,
-      currentFavorite,
-      newValue: !currentFavorite,
-    });
-
     updateDreamMutation.mutate({
       dreamId,
       updates: { is_favorite: !currentFavorite },

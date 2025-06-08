@@ -4,8 +4,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header";
 import { createClient } from "@/utils/supabase/server";
-import AuthGuard from "./components/auth-guard";
-import QueryProvider from "./components/query-provider";
+import QueryProvider from "@/components/query-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -91,6 +91,7 @@ export default async function RootLayout({
         <QueryProvider>
           <Header user={user} />
           {children}
+          <Toaster />
         </QueryProvider>
       </body>
     </html>
