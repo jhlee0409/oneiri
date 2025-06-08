@@ -8,6 +8,8 @@ import { createClient } from "@/utils/supabase/server";
 import QueryProvider from "@/components/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -95,6 +97,7 @@ export default async function RootLayout({
           <Footer />
           <Toaster />
           <Analytics />
+          <SpeedInsights />
         </QueryProvider>
       </body>
     </html>
