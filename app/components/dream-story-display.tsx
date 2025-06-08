@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, Copy, Check, Heart, HeartOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   useDreamById,
   useFavoriteToggle,
@@ -41,13 +42,26 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
 
   const handleDelete = () => {
     if (!dream?.id) return;
-    if (confirm("이 꿈 이야기를 삭제하시겠습니까?")) {
-      deleteDream(dream.id, {
-        onSuccess: () => {
-          router.push("/journal");
+
+    const dreamId = dream.id;
+
+    toast("이 꿈 이야기를 삭제하시겠습니까?", {
+      description: "삭제된 이야기는 복구할 수 없습니다.",
+      action: {
+        label: "삭제",
+        onClick: () => {
+          deleteDream(dreamId, {
+            onSuccess: () => {
+              router.push("/journal");
+            },
+          });
         },
-      });
-    }
+      },
+      cancel: {
+        label: "취소",
+        onClick: () => console.log("삭제 취소됨"),
+      },
+    });
   };
 
   if (isLoading) {
