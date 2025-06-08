@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useUserDreams } from "@/hooks/use-dream-api";
 import type { DreamRecord } from "@/types/supabase";
+import Image from "next/image";
 
 function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   const formatDate = (dateString: string | null) => {
@@ -26,17 +27,28 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
 
   return (
     <Link href={`/story/${entry.id}`} className="block group">
-      <article className="bg-white border-b border-gray-100 py-8 transition-colors hover:bg-gray-50">
+      <article className="bg-white border-b border-gray-100 py-8 transition-colors hover:bg-gray-50 px-4 rounded-lg">
         <div className="flex gap-6">
           {/* 썸네일/아이콘 영역 */}
           <div className="flex-shrink-0">
             {entry.generated_image_url ? (
-              <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
-                <ImageIcon className="w-6 h-6 text-white" />
+              <div className="w-16 h-16 rounded-lg overflow-hidden shadow-sm">
+                <Image
+                  src={entry.generated_image_url}
+                  alt={entry.generated_story_title || "꿈의 풍경"}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  loading="lazy"
+                  width={64}
+                  height={64}
+                />
+              </div>
+            ) : entry.generated_image_prompt ? (
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
+                <ImageIcon className="w-8 h-8 text-purple-600" />
               </div>
             ) : (
-              <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-gray-600" />
+              <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-8 h-8 text-gray-600" />
               </div>
             )}
           </div>

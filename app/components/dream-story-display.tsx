@@ -11,7 +11,9 @@ import {
   useDeleteDream,
   useGenerateDreamImage,
 } from "@/hooks/use-dream-api";
-
+import Image from "next/image";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 interface DreamStoryDisplayProps {
   storyId: string;
 }
@@ -192,19 +194,17 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         {/* 생성된 이미지 */}
         {dream.generated_image_url ? (
           <div className="mb-12">
-            <div className="relative group">
-              <img
-                src={dream.generated_image_url}
-                alt={dream.generated_story_title || "꿈의 풍경"}
-                className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform group-hover:scale-[1.02]"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-              {dream.generated_image_prompt && (
-                <div className="mt-3 text-sm text-gray-500 italic">
-                  🎨 이미지 프롬프트: {dream.generated_image_prompt}
-                </div>
-              )}
+            <div className="relative group flex justify-center">
+              <Zoom>
+                <Image
+                  src={dream.generated_image_url}
+                  alt={dream.generated_story_title || "꿈의 풍경"}
+                  className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform"
+                  loading="lazy"
+                  width={1024}
+                  height={1024}
+                />
+              </Zoom>
             </div>
           </div>
         ) : dream.generated_image_prompt ? (
@@ -235,9 +235,6 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
                     </div>
                   </div>
                 )}
-                <div className="text-xs text-gray-400 italic max-w-md">
-                  "{dream.generated_image_prompt}"
-                </div>
               </div>
             </div>
           </div>
