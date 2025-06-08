@@ -30,7 +30,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
       <article className="bg-white border-b border-gray-100 py-8 transition-colors hover:bg-gray-50 px-4 rounded-lg">
         <div className="flex gap-6">
           {/* 썸네일/아이콘 영역 */}
-          <div className="flex-shrink-0">
+          {/* <div className="flex-shrink-0">
             {entry.generated_image_url ? (
               <div className="w-16 h-16 rounded-lg overflow-hidden shadow-sm">
                 <Image
@@ -51,7 +51,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
                 <BookOpen className="w-8 h-8 text-gray-600" />
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* 콘텐츠 영역 */}
           <div className="flex-1 min-w-0">
