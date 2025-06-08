@@ -145,48 +145,7 @@ export const arrayUtils = {
   },
 };
 
-// Local storage utilities with error handling
-export const storage = {
-  set(key: string, value: any): boolean {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch (error) {
-      console.warn("Failed to save to localStorage:", error);
-      return false;
-    }
-  },
-
-  get<T>(key: string, defaultValue: T): T {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch (error) {
-      console.warn("Failed to read from localStorage:", error);
-      return defaultValue;
-    }
-  },
-
-  remove(key: string): boolean {
-    try {
-      localStorage.removeItem(key);
-      return true;
-    } catch (error) {
-      console.warn("Failed to remove from localStorage:", error);
-      return false;
-    }
-  },
-
-  clear(): boolean {
-    try {
-      localStorage.clear();
-      return true;
-    } catch (error) {
-      console.warn("Failed to clear localStorage:", error);
-      return false;
-    }
-  },
-};
+// Note: localStorage utilities removed - using Supabase for data persistence
 
 // Clipboard utilities
 export const clipboard = {

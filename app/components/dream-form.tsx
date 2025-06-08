@@ -3,6 +3,7 @@
 import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useGenerateDreamStory } from "@/hooks/use-dream-api";
 
 const emotions = [
   { emoji: "😊", label: "행복" },
@@ -31,45 +32,32 @@ export default function DreamForm() {
   const [keywords, setKeywords] = useState("");
   const [selectedEmotion, setSelectedEmotion] = useState("");
   const [selectedVibe, setSelectedVibe] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  const { mutateAsync: generateStory, isPending: isSubmitting } =
+    useGenerateDreamStory();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    const formData = {
-      dreamText,
-      keywords: keywords
-        .split(",")
-        .map((k) => k.trim())
-        .filter((k) => k),
-      emotion: selectedEmotion,
-      vibe: selectedVibe,
-      createdAt: new Date().toISOString(),
+    if (!dreamText.trim()) return;
+
+    const keywordArray = keywords
+      .split(",")
+      .map((k) => k.trim())
+      .filter((k) => k);
+
+    const dreamRequest = {
+      dream_input_text: dreamText,
+      dream_keywords: keywordArray.length > 0 ? keywordArray : undefined,
+      dream_emotion: selectedEmotion || undefined,
+      story_preference_mood: selectedVibe || undefined,
+      story_preference_genre: "fantasy", // 기본값
+      story_preference_length: "medium", // 기본값
     };
 
-    // AI 스토리 생성 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await generateStory(dreamRequest);
 
-    // 생성된 스토리를 localStorage에 저장
-    const existingDreams = JSON.parse(
-      localStorage.getItem("userDreams") || "[]"
-    );
-    const newDream = {
-      id: Date.now().toString(),
-      title: "새로운 꿈 이야기",
-      ...formData,
-      preview: dreamText.substring(0, 150) + "...",
-      hasImage: Math.random() > 0.5,
-    };
-
-    existingDreams.unshift(newDream);
-    localStorage.setItem("userDreams", JSON.stringify(existingDreams));
-
-    setIsSubmitting(false);
-
-    // 꿈 일기 리스트 페이지로 이동
     router.push("/journal");
   };
 
@@ -181,7 +169,7 @@ export default function DreamForm() {
           {isSubmitting ? (
             <span className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-              꿈의 조각들을 엮고 있어요...
+              AI가 꿈의 조각들을 엮고 있어요...
             </span>
           ) : (
             "내 꿈 이야기 엮어보기"

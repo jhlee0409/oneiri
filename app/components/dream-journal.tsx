@@ -1,23 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Calendar, ImageIcon, Plus, BookOpen } from "lucide-react";
+import {
+  Calendar,
+  ImageIcon,
+  Plus,
+  BookOpen,
+  Heart,
+  Search,
+} from "lucide-react";
+import { useUserDreams } from "@/hooks/use-dream-api";
+import type { DreamRecord } from "@/types/supabase";
 
-interface DreamEntry {
-  id: string;
-  title: string;
-  createdAt: string;
-  preview: string;
-  dreamText: string;
-  emotion: string;
-  vibe: string;
-  keywords: string[];
-  hasImage: boolean;
-}
-
-function DreamEntryCard({ entry }: { entry: DreamEntry }) {
-  const formatDate = (dateString: string) => {
+function DreamEntryCard({ entry }: { entry: DreamRecord }) {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "날짜 없음";
     const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -32,7 +30,7 @@ function DreamEntryCard({ entry }: { entry: DreamEntry }) {
         <div className="flex gap-6">
           {/* 썸네일/아이콘 영역 */}
           <div className="flex-shrink-0">
-            {entry.hasImage ? (
+            {entry.generated_image_url ? (
               <div className="w-12 h-12 bg-gray-900 rounded flex items-center justify-center">
                 <ImageIcon className="w-6 h-6 text-white" />
               </div>
@@ -45,37 +43,69 @@ function DreamEntryCard({ entry }: { entry: DreamEntry }) {
 
           {/* 콘텐츠 영역 */}
           <div className="flex-1 min-w-0">
-            {/* 제목과 날짜 */}
+            {/* 제목과 날짜, 즐겨찾기 */}
             <div className="mb-3">
-              <h2 className="font-['Inter'] text-xl font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                {entry.title}
-              </h2>
-              <div className="flex items-center text-sm text-gray-500">
-                <Calendar className="w-4 h-4 mr-2" />
-                {formatDate(entry.createdAt)}
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h2 className="font-['Inter'] text-xl font-medium text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                    {entry.generated_story_title || "무제"}
+                  </h2>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {formatDate(entry.created_at)}
+                  </div>
+                </div>
+                {entry.is_favorite && (
+                  <Heart className="w-5 h-5 text-red-500 fill-current flex-shrink-0 mt-1" />
+                )}
               </div>
             </div>
 
             {/* 스토리 미리보기 */}
             <p className="text-gray-700 text-base leading-relaxed mb-4 line-clamp-2">
-              {entry.preview}
+              {entry.generated_story_content
+                ? entry.generated_story_content.substring(0, 150) + "..."
+                : (entry.dream_input_text || "").substring(0, 150) + "..."}
             </p>
 
             {/* 메타데이터 */}
             <div className="flex items-center gap-3">
-              {entry.emotion && (
+              {entry.dream_emotion && (
                 <span className="text-lg" title="꿈의 여운">
-                  {entry.emotion}
+                  {entry.dream_emotion}
                 </span>
               )}
-              <span className="text-sm text-gray-600">{entry.vibe}</span>
-              <div className="flex gap-2">
-                {entry.keywords.slice(0, 3).map((keyword, index) => (
-                  <span key={index} className="text-xs text-gray-500">
-                    #{keyword}
-                  </span>
-                ))}
-              </div>
+              {entry.story_preference_mood && (
+                <span className="text-sm text-gray-600">
+                  {entry.story_preference_mood}
+                </span>
+              )}
+              {entry.dream_keywords && entry.dream_keywords.length > 0 && (
+                <div className="flex gap-2">
+                  {entry.dream_keywords.slice(0, 3).map((keyword, index) => (
+                    <span key={index} className="text-xs text-gray-500">
+                      #{keyword}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {entry.processing_status && (
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    entry.processing_status === "completed"
+                      ? "bg-green-100 text-green-700"
+                      : entry.processing_status === "processing"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {entry.processing_status === "completed"
+                    ? "완료"
+                    : entry.processing_status === "processing"
+                    ? "처리중"
+                    : entry.processing_status}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -105,27 +135,57 @@ function EmptyState() {
 }
 
 export default function DreamJournal() {
-  const [dreamEntries, setDreamEntries] = useState<DreamEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
-  useEffect(() => {
-    // localStorage에서 사용자의 꿈 일기 불러오기
-    const loadDreams = () => {
-      const savedDreams = localStorage.getItem("userDreams");
-      if (savedDreams) {
-        setDreamEntries(JSON.parse(savedDreams));
-      }
-      setIsLoading(false);
-    };
+  const { data: dreamsData, isLoading, error, refetch } = useUserDreams();
 
-    loadDreams();
-  }, []);
+  // Edge Function이 실제로는 data: dreams (배열)을 직접 반환함
+  const dreamEntries = Array.isArray(dreamsData) ? dreamsData : [];
+
+  // 필터링된 꿈 목록
+  const filteredDreams = dreamEntries.filter((dream) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      dream.generated_story_title
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      dream.dream_input_text
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      dream.dream_keywords?.some((keyword: string) =>
+        keyword.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    const matchesFavorites = !showFavoritesOnly || dream.is_favorite;
+
+    return matchesSearch && matchesFavorites;
+  });
 
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="flex justify-center items-center py-24">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-900"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="text-center py-24">
+          <h2 className="text-xl font-medium text-gray-900 mb-4">
+            꿈 서재를 불러올 수 없습니다
+          </h2>
+          <p className="text-gray-600 mb-6">잠시 후 다시 시도해주세요.</p>
+          <button
+            onClick={() => refetch()}
+            className="bg-black hover:bg-gray-800 text-white px-6 py-3 transition-colors"
+          >
+            다시 시도
+          </button>
         </div>
       </div>
     );
@@ -145,6 +205,42 @@ export default function DreamJournal() {
         </p>
       </header>
 
+      {/* 검색 및 필터 */}
+      {dreamEntries.length > 0 && (
+        <div className="mb-8 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="꿈 이야기 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 focus:border-black focus:outline-none text-gray-900 placeholder-gray-400"
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${
+                showFavoritesOnly
+                  ? "bg-red-100 text-red-700 border border-red-200"
+                  : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
+              }`}
+            >
+              <Heart
+                className={`w-4 h-4 ${showFavoritesOnly ? "fill-current" : ""}`}
+              />
+              즐겨찾기만 보기
+            </button>
+
+            <span className="text-sm text-gray-500">
+              {filteredDreams.length}개 표시 중
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* 네비게이션 */}
       <nav className="flex justify-between items-center mb-12 pb-6 border-b border-gray-100">
         <Link
@@ -160,14 +256,31 @@ export default function DreamJournal() {
       </nav>
 
       {/* 꿈 일기 목록 또는 빈 상태 */}
-      {dreamEntries.length > 0 ? (
+      {filteredDreams.length > 0 ? (
         <main>
-          {dreamEntries.map((entry) => (
+          {filteredDreams.map((entry) => (
             <DreamEntryCard key={entry.id} entry={entry} />
           ))}
         </main>
-      ) : (
+      ) : dreamEntries.length === 0 ? (
         <EmptyState />
+      ) : (
+        <div className="text-center py-24">
+          <div className="text-4xl mb-6 text-gray-400">🔍</div>
+          <h2 className="font-['Inter'] text-2xl font-medium text-gray-900 mb-3">
+            검색 결과가 없습니다
+          </h2>
+          <p className="text-gray-600 mb-8">다른 키워드로 검색해보세요.</p>
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setShowFavoritesOnly(false);
+            }}
+            className="text-black hover:text-gray-700 transition-colors"
+          >
+            전체 서재 보기
+          </button>
+        </div>
       )}
 
       {/* 통계 푸터 */}
