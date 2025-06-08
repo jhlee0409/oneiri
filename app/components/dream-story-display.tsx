@@ -36,7 +36,7 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
 
   const handleToggleFavorite = () => {
     if (!dream?.id) return;
-    toggleFavorite(dream.id, !dream.is_favorite);
+    toggleFavorite(dream.id, dream.is_favorite || false);
   };
 
   const handleDelete = () => {
