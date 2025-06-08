@@ -83,40 +83,26 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
             {/* 메타데이터 */}
             <div className="flex items-center gap-3">
               {entry.dream_emotion && (
-                <span className="text-lg" title="꿈의 여운">
+                <span className="text-lg whitespace-nowrap" title="꿈의 여운">
                   {entry.dream_emotion}
                 </span>
               )}
               {entry.story_preference_mood && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 whitespace-nowrap">
                   {entry.story_preference_mood}
                 </span>
               )}
               {entry.dream_keywords && entry.dream_keywords.length > 0 && (
                 <div className="flex gap-2">
                   {entry.dream_keywords.slice(0, 3).map((keyword, index) => (
-                    <span key={index} className="text-xs text-gray-500">
+                    <span
+                      key={index}
+                      className="text-xs text-gray-500 whitespace-nowrap"
+                    >
                       #{keyword}
                     </span>
                   ))}
                 </div>
-              )}
-              {entry.processing_status && (
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    entry.processing_status === "completed"
-                      ? "bg-green-100 text-green-700"
-                      : entry.processing_status === "processing"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {entry.processing_status === "completed"
-                    ? "완료"
-                    : entry.processing_status === "processing"
-                    ? "처리중"
-                    : entry.processing_status}
-                </span>
               )}
             </div>
           </div>
