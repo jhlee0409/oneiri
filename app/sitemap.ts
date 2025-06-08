@@ -6,7 +6,7 @@ async function getAllStoryIds() {
   try {
     const supabase = await createClient();
     const { data: stories, error } = await supabase
-      .from("stories")
+      .from("dreams")
       .select("id, updated_at")
       .eq("is_public", true); // 공개된 스토리만
 

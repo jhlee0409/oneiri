@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "./components/header";
 import { createClient } from "@/utils/supabase/server";
 import AuthGuard from "./components/auth-guard";
+import QueryProvider from "./components/query-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -87,8 +88,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Header user={user} />
-        {children}
+        <QueryProvider>
+          <Header user={user} />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );
