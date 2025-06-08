@@ -10,6 +10,8 @@ import {
   getUserAnalytics,
   getTags,
   getPopularTags,
+  getDailyWeavingStatus,
+  DailyWeavingStatus,
 } from "@/lib/api";
 import {
   DreamRequest,
@@ -19,7 +21,80 @@ import {
 } from "@/types/supabase";
 
 /**
- * 꿈 스토리 생성 Hook
+ * 🌙 일일 꿈 생성 상태 조회 Hook
+ */
+export function useDailyWeavingStatus() {
+  return useQuery<
+    APIResponse<DailyWeavingStatus>,
+    Error,
+    DailyWeavingStatus | null
+  >({
+    queryKey: ["daily-weaving-status"],
+    queryFn: getDailyWeavingStatus,
+    select: (response) => {
+      if (!response.success || !response.data) {
+        console.warn("Daily weaving status API failed:", response.error);
+        // Fallback 데이터 제공 (KST 기준 다음 자정까지의 정확한 시간 계산)
+        const now = new Date();
+        const kstOffset = 9 * 60; // UTC+9 (분 단위)
+        const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000);
+
+        const tomorrow = new Date(kstTime);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // KST 기준 다음 자정으로 설정
+
+        const msUntilReset = tomorrow.getTime() - kstTime.getTime();
+        const hoursUntilReset = Math.ceil(msUntilReset / (1000 * 60 * 60));
+
+        return {
+          weaving_status: {
+            current_count: 0,
+            daily_limit: 2,
+            remaining: 2,
+            has_reached_limit: false,
+            next_reset: tomorrow.toISOString(),
+            hours_until_reset: hoursUntilReset,
+          },
+          oneiri_message: {
+            title: "오늘의 꿈 이야기를 기다리고 있어요",
+            content: "어떤 꿈의 조각들이 당신을 찾아왔나요?",
+            encouragement:
+              "가장 사소한 조각이 가장 특별한 이야기가 되기도 해요. ✨",
+          },
+          todays_dreams: [],
+          total_dreams: 0,
+          next_action: "create_dream" as const,
+        };
+      }
+      return response.data;
+    },
+    staleTime: (query) => {
+      // KST 기준 자정 근처(23:30-00:30)에는 짧은 캐싱, 평소에는 긴 캐싱
+      const now = new Date();
+      const kstOffset = 9 * 60; // UTC+9 (분 단위)
+      const kstTime = new Date(now.getTime() + kstOffset * 60 * 1000);
+      const currentHour = kstTime.getHours();
+      const currentMinute = kstTime.getMinutes();
+
+      // KST 23:30~00:30 구간에는 1분 캐싱
+      if (
+        (currentHour === 23 && currentMinute >= 30) ||
+        (currentHour === 0 && currentMinute <= 30)
+      ) {
+        return 1 * 60 * 1000; // 1분
+      }
+
+      // 평상시에는 10분 캐싱
+      return 10 * 60 * 1000;
+    },
+    refetchOnWindowFocus: false, // 포커스 시 재요청 비활성화
+    retry: 3, // 3번 재시도
+    retryDelay: 1000, // 1초 간격
+  });
+}
+
+/**
+ * 꿈 스토리 생성 Hook (제한 로직 포함)
  */
 export function useGenerateDreamStory() {
   const queryClient = useQueryClient();
@@ -28,10 +103,42 @@ export function useGenerateDreamStory() {
     mutationFn: generateDreamStory,
     onSuccess: (response) => {
       if (response.success) {
-        toast.success("꿈 이야기가 성공적으로 생성되었습니다! ✨");
-        // 사용자 꿈 목록 캐시 무효화
+        // 성공적인 꿈 생성 완료
+        const remainingCount = response.data?.weaving_status?.remaining || 0;
+
+        if (remainingCount > 0) {
+          toast.success(
+            `✨ 새로운 꿈 이야기가 당신의 서재에 담겼습니다! 오늘 ${remainingCount}편을 더 엮어낼 수 있어요.`
+          );
+        } else {
+          toast.success(
+            "✨ 오늘의 마지막 꿈 이야기가 완성되었어요! 내일 밤, 다시 별빛과 함께 찾아뵐게요. 🌙"
+          );
+        }
+
+        // 관련 캐시 무효화
         queryClient.invalidateQueries({ queryKey: ["user-dreams"] });
         queryClient.invalidateQueries({ queryKey: ["user-analytics"] });
+        queryClient.invalidateQueries({ queryKey: ["daily-weaving-status"] });
+      } else if (response.errorCode === "daily_weaving_limit_reached") {
+        // 일일 제한 도달 시 감성의 메시지 표시
+        const oneiriMsg = response.oneiriMessage;
+        if (oneiriMsg) {
+          toast.error(oneiriMsg.title, {
+            description: oneiriMsg.content,
+            duration: 6000,
+            action: {
+              label: "내 꿈 서재 둘러보기",
+              onClick: () => {
+                window.location.href = "/journal";
+              },
+            },
+          });
+        } else {
+          toast.error(
+            "오늘의 꿈 이야기는 모두 서재에 담겼습니다. 내일 밤 다시 만나요! 🌙"
+          );
+        }
       } else {
         toast.error(response.error || "스토리 생성에 실패했습니다.");
       }
