@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/utils/supabase/client";
+import ThemeToggle from "./theme-toggle";
 
 type Props = {
   user: User | null;
@@ -41,12 +42,12 @@ export default function Header({ user: initialUser }: Props) {
   if (!user) return null;
 
   return (
-    <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <header className="oneiri-bg-secondary border-b border-text-secondary/20 sticky top-0 z-50">
       <div className="max-w-4xl mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           <Link
             href="/"
-            className="font-['Inter'] text-xl font-medium text-gray-900 flex items-center gap-2"
+            className="font-['Inter'] text-xl font-medium oneiri-accent flex items-center gap-2"
           >
             <Image
               src="/oneiri_logo.png"
@@ -61,10 +62,13 @@ export default function Header({ user: initialUser }: Props) {
           <div className="flex items-center gap-4">
             <Link
               href="/journal"
-              className="text-gray-600 hover:text-black transition-colors"
+              className="oneiri-text-secondary hover:oneiri-accent transition-colors"
             >
               내 서재
             </Link>
+
+            <ThemeToggle />
+
             <div className="flex items-center gap-3">
               <Image
                 src={user.user_metadata.avatar_url}
@@ -75,7 +79,7 @@ export default function Header({ user: initialUser }: Props) {
               />
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-sm oneiri-text-secondary hover:oneiri-text-primary transition-colors"
               >
                 로그아웃
               </button>

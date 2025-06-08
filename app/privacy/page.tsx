@@ -7,14 +7,14 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12">
+    <div className="min-h-screen oneiri-bg-primary py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <div className="oneiri-bg-secondary rounded-lg shadow-lg p-8 md:p-12">
+          <h1 className="text-3xl font-bold oneiri-text-primary mb-8 text-center">
             개인정보처리방침
           </h1>
 
-          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+          <div className="prose prose-lg max-w-none oneiri-text-primary/90 leading-relaxed">
             <p className="mb-6">
               Oneiri(이하 "Oneiri"라 합니다)는 이용자의 개인정보를 중요하게
               생각하며, 『개인정보 보호법』 등 관련 법령을 준수하여 안전하게
@@ -25,23 +25,23 @@ export default function PrivacyPage() {
             </p>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
                 1. 수집하는 개인정보 항목 및 수집 방법
               </h2>
 
               <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                <h3 className="text-xl font-semibold oneiri-text-primary mb-3">
                   [1] 수집 항목
                 </h3>
                 <div className="pl-4">
-                  <h4 className="font-semibold text-gray-700 mb-2">
+                  <h4 className="font-semibold oneiri-text-primary mb-2">
                     • 필수 정보
                   </h4>
                   <p className="mb-3 pl-4">
                     이메일 주소: 회원 가입, 로그인, 계정 관리, 본인 확인
                   </p>
 
-                  <h4 className="font-semibold text-gray-700 mb-2">
+                  <h4 className="font-semibold oneiri-text-primary mb-2">
                     • Google 계정 연동 시 수집 정보
                   </h4>
                   <div className="pl-4 mb-3">
@@ -54,13 +54,13 @@ export default function PrivacyPage() {
                     <p className="mb-1">
                       - 프로필 정보 (선택사항): 이름, 프로필 사진 등
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm oneiri-text-secondary">
                       ※ Google에서 제공하는 정보만 수집되며, Oneiri가 직접
                       Google 계정에 접근하지 않습니다.
                     </p>
                   </div>
 
-                  <h4 className="font-semibold text-gray-700 mb-2">
+                  <h4 className="font-semibold oneiri-text-primary mb-2">
                     • 자동 수집 정보
                   </h4>
                   <p className="mb-3 pl-4">
@@ -68,14 +68,14 @@ export default function PrivacyPage() {
                     정보: 보안 강화, 서비스 개선, 이용자 통계 분석 등
                   </p>
                 </div>
-                <p className="text-sm text-gray-600 italic">
+                <p className="text-sm oneiri-text-secondary italic">
                   ※ 현재 선택 정보는 수집하지 않으나, 추후 서비스 확장 시
                   최소한의 항목만 별도 동의 후 수집할 수 있습니다.
                 </p>
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                <h3 className="text-xl font-semibold oneiri-text-primary mb-3">
                   [2] 수집 방법
                 </h3>
                 <ul className="list-disc pl-8 space-y-1">
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
                 2. 개인정보의 이용 목적
               </h2>
               <p className="mb-3">
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
                 3. 개인정보의 보유 및 이용 기간
               </h2>
               <p className="mb-3">
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
                 4. 개인정보의 제3자 제공
               </h2>
               <p className="mb-3">
@@ -160,7 +160,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
                 5. 개인정보 처리 위탁
               </h2>
               <p className="mb-4">
@@ -168,11 +168,11 @@ export default function PrivacyPage() {
                 위탁하고 있습니다.
               </p>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                <h4 className="font-semibold text-gray-800 mb-3">
+              <div className="oneiri-bg-primary border border-text-secondary/20 rounded-lg p-6">
+                <h4 className="font-semibold oneiri-text-primary mb-3">
                   위탁 업체: Supabase Inc.
                 </h4>
-                <div className="space-y-2 text-sm text-gray-700">
+                <div className="space-y-2 text-sm oneiri-text-secondary">
                   <div>
                     <strong>위탁 업무:</strong>
                     <ul className="list-disc pl-6 mt-1 space-y-1">
@@ -198,7 +198,7 @@ export default function PrivacyPage() {
                       href="https://supabase.com/privacy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-purple-600 hover:text-purple-800 underline ml-1"
+                      className="oneiri-accent underline hover:text-accent-primary/80"
                     >
                       https://supabase.com/privacy
                     </a>
@@ -265,192 +265,160 @@ export default function PrivacyPage() {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
-                6. 이용자의 권리 및 행사 방법
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
+                6. 이용자의 권리와 행사 방법
               </h2>
               <p className="mb-3">
-                이용자는 언제든지 다음의 권리를 행사할 수 있습니다.
+                이용자는 언제든지 다음과 같은 개인정보 보호 관련 권리를 행사할
+                수 있습니다.
               </p>
-              <ul className="list-disc pl-8 space-y-1 mb-3">
-                <li>본인의 개인정보 열람, 수정, 삭제 요청</li>
-                <li>개인정보 처리 정지 요청</li>
-                <li>동의 철회 및 계정 탈퇴 요청</li>
+              <ul className="list-disc pl-8 space-y-2">
+                <li>
+                  <strong>개인정보 열람권:</strong> 본인의 개인정보 처리 현황을
+                  확인할 권리
+                </li>
+                <li>
+                  <strong>정정·삭제권:</strong> 개인정보의 오류에 대한 정정 또는
+                  삭제를 요구할 권리
+                </li>
+                <li>
+                  <strong>처리정지권:</strong> 개인정보의 처리를 정지하도록
+                  요구할 권리
+                </li>
+                <li>
+                  <strong>손해배상청구권:</strong> 개인정보의 오·남용으로 인한
+                  손해의 배상을 요구할 권리
+                </li>
               </ul>
-              <p>
-                해당 권리 행사는 이메일(
-                <a
-                  href="mailto:relee6203@gmail.com"
-                  className="text-purple-600 hover:text-purple-800"
-                >
-                  relee6203@gmail.com
-                </a>
-                )을 통해 접수하실 수 있으며, Oneiri는 요청을 신속하고 성실하게
-                처리하겠습니다.
+              <p className="mt-4 text-sm oneiri-text-secondary">
+                권리 행사 방법: 개인정보보호법 시행령 제41조에 따라 서면, 전화,
+                전자우편 등을 통하여 하실 수 있으며, Oneiri는 이에 대해 지체
+                없이 조치하겠습니다.
               </p>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
-                7. 개인정보의 파기 절차 및 방법
-              </h2>
-              <p className="mb-3">
-                Oneiri는 개인정보 보유 기간이 경과하거나 처리 목적이 달성된
-                경우에는 지체 없이 다음과 같은 방법으로 파기합니다.
-              </p>
-              <ul className="list-disc pl-8 space-y-1">
-                <li>
-                  파기 절차: 내부 검토 후 개인정보 보호책임자의 승인 하에 파기
-                </li>
-                <li>
-                  파기 방법:
-                  <ul className="list-disc pl-8 mt-1 space-y-1">
-                    <li>전자적 파일: 복구 불가능한 기술적 방법으로 삭제</li>
-                    <li>문서 출력물: 분쇄 또는 소각</li>
-                  </ul>
-                </li>
-              </ul>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
-                8. 쿠키(Cookie)의 운영
-              </h2>
-              <p className="mb-3">
-                Oneiri는 맞춤형 서비스 제공을 위해 쿠키를 사용합니다.
-              </p>
-              <ul className="list-disc pl-8 space-y-1">
-                <li>
-                  쿠키 사용 목적: 방문 이력 분석, 이용자 선호 기반 콘텐츠 제공
-                </li>
-                <li>
-                  쿠키 거부 방법: 브라우저 설정에서 쿠키 저장 거부 설정 가능
-                  <br />
-                  <span className="text-sm text-gray-600">
-                    (단, 쿠키 비활성화 시 일부 서비스 이용에 제한이 있을 수
-                    있습니다)
-                  </span>
-                </li>
-              </ul>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
-                9. Google 계정 연동 서비스
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
+                7. 개인정보의 파기
               </h2>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">
-                    연동 목적
+                  <h4 className="font-semibold oneiri-text-primary mb-2">
+                    파기 절차
                   </h4>
-                  <p className="pl-4 text-gray-700">
-                    Oneiri는 이용자의 편의를 위해 Google 계정을 통한 간편 로그인
-                    서비스를 제공합니다.
+                  <p>
+                    이용자가 입력한 정보는 목적 달성 후 별도의 DB에
+                    옮겨져(종이의 경우 별도의 서류함) 내부 방침 및 기타 관련
+                    법령에 따라 일정 기간 저장된 후 혹은 즉시 파기됩니다.
                   </p>
                 </div>
-
                 <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">
-                    권한 및 범위
+                  <h4 className="font-semibold oneiri-text-primary mb-2">
+                    파기 방법
                   </h4>
-                  <ul className="list-disc pl-8 space-y-1 text-gray-700">
-                    <li>이메일 주소 조회 (로그인 및 계정 식별 목적)</li>
-                    <li>기본 프로필 정보 조회 (선택사항)</li>
+                  <ul className="list-disc pl-8 space-y-1">
                     <li>
-                      Oneiri는 Google 계정의 다른 정보에 접근하지 않습니다
+                      전자적 파일 형태: 기록을 재생할 수 없도록 안전한 방법으로
+                      삭제
+                    </li>
+                    <li>
+                      종이에 출력된 개인정보: 분쇄기로 분쇄하거나 소각하여 파기
                     </li>
                   </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">
-                    연동 해제
-                  </h4>
-                  <p className="pl-4 text-gray-700">
-                    이용자는 언제든지 다음 방법으로 Google 계정 연동을 해제할 수
-                    있습니다:
-                  </p>
-                  <ul className="list-disc pl-8 mt-2 space-y-1 text-gray-700">
-                    <li>
-                      Google 계정 설정 → 보안 → 제3자 앱 액세스 → Oneiri 연동
-                      해제
-                    </li>
-                    <li>
-                      Oneiri 고객지원(
-                      <a
-                        href="mailto:relee6203@gmail.com"
-                        className="text-purple-600 hover:text-purple-800"
-                      >
-                        relee6203@gmail.com
-                      </a>
-                      )을 통한 연동 해제 요청
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>참고:</strong> Google 계정 연동 시 Google의
-                    개인정보처리방침도 함께 적용됩니다. Google
-                    개인정보처리방침은{" "}
-                    <a
-                      href="https://policies.google.com/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline hover:text-blue-900"
-                    >
-                      https://policies.google.com/privacy
-                    </a>
-                    에서 확인하실 수 있습니다.
-                  </p>
                 </div>
               </div>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
-                10. 개인정보 보호책임자
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
+                8. 개인정보의 안전성 확보 조치
               </h2>
-              <p className="mb-2">
-                Oneiri는 개인정보 보호를 위한 전담 책임자를 지정하고 있습니다.
+              <p className="mb-3">
+                Oneiri는 개인정보보호법 제29조에 따라 다음과 같이 안전성 확보에
+                필요한 기술적/관리적 및 물리적 조치를 하고 있습니다.
               </p>
-              <ul className="list-disc pl-8 space-y-1">
-                <li>개인정보 보호책임자: 이재혁 (relee6203@gmail.com)</li>
+              <ul className="list-disc pl-8 space-y-2">
                 <li>
-                  이메일 주소:{" "}
-                  <a
-                    href="mailto:relee6203@gmail.com"
-                    className="text-purple-600 hover:text-purple-800"
-                  >
-                    relee6203@gmail.com
-                  </a>
+                  <strong>개인정보 취급 담당자의 최소화 및 교육:</strong>{" "}
+                  개인정보를 취급하는 담당자를 지정하고 최소화하여 개인정보를
+                  관리하는 대책을 시행하고 있습니다.
+                </li>
+                <li>
+                  <strong>정기적인 자체 감사:</strong> 개인정보 취급 관련 안정성
+                  확보를 위해 정기적(분기 1회 이상)으로 자체 감사를 실시하고
+                  있습니다.
+                </li>
+                <li>
+                  <strong>개인정보의 암호화:</strong> 이용자의 개인정보는
+                  비밀번호는 암호화되어 저장 및 관리되고 있어, 본인만이 알 수
+                  있으며 중요한 데이터는 파일 및 전송 데이터를 암호화하거나 파일
+                  잠금 기능을 사용하는 등의 별도 보안기능을 사용하고 있습니다.
+                </li>
+                <li>
+                  <strong>해킹 등에 대비한 기술적 대책:</strong> Oneiri는
+                  해킹이나 컴퓨터 바이러스 등에 의한 개인정보 유출 및 훼손을
+                  막기 위하여 보안프로그램을 설치하고 주기적인 갱신·점검을 하며
+                  외부로부터 접근이 통제된 구역에 시스템을 설치하고
+                  기술적/물리적으로 감시 및 차단하고 있습니다.
+                </li>
+                <li>
+                  <strong>개인정보에 대한 접근 제한:</strong> 개인정보를
+                  처리하는 데이터베이스시스템에 대한 접근권한의 부여, 변경,
+                  말소를 통하여 개인정보에 대한 접근통제를 위하여 필요한 조치를
+                  하고 있으며 침입차단시스템을 이용하여 외부로부터의 무단 접근을
+                  통제하고 있습니다.
                 </li>
               </ul>
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b-2 border-purple-200 pb-2">
-                11. 개인정보처리방침 변경
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
+                9. 개인정보 보호책임자
               </h2>
-              <p className="mb-3">
-                Oneiri는 관련 법령의 개정이나 서비스 변경에 따라
-                개인정보처리방침을 수정할 수 있으며, 변경 시 사전 고지합니다.
-              </p>
-              <ul className="list-disc pl-8 space-y-1">
-                <li>시행일: 2025년 6월 8일</li>
-                <li>최초 제정일: 2025년 6월 8일</li>
-              </ul>
+              <div className="oneiri-bg-primary border border-text-secondary/20 rounded-lg p-6">
+                <p className="mb-4 oneiri-text-primary">
+                  Oneiri는 개인정보 처리에 관한 업무를 총괄해서 책임지고,
+                  개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을
+                  위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
+                </p>
+                <div className="space-y-2 text-sm oneiri-text-secondary">
+                  <div>
+                    <strong>개인정보 보호책임자:</strong> Oneiri 개발팀
+                  </div>
+                  <div>
+                    <strong>연락처:</strong> relee6203@gmail.com
+                  </div>
+                  <div>
+                    <strong>처리 시간:</strong> 평일 09:00~18:00 (주말 및 공휴일
+                    제외)
+                  </div>
+                </div>
+                <p className="mt-4 text-sm oneiri-text-secondary">
+                  정보주체께서는 Oneiri의 서비스를 이용하시면서 발생한 모든
+                  개인정보 보호 관련 문의, 불만처리, 피해구제 등에 관한 사항을
+                  개인정보 보호책임자에게 문의하실 수 있습니다. Oneiri는
+                  정보주체의 문의에 대해 지체 없이 답변 및 처리해드릴 것입니다.
+                </p>
+              </div>
             </section>
 
-            <div className="text-center pt-8 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
-                문의사항이 있으시면{" "}
-                <a
-                  href="mailto:relee6203@gmail.com"
-                  className="text-purple-600 hover:text-purple-800"
-                >
-                  relee6203@gmail.com
-                </a>
-                으로 연락주시기 바랍니다.
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
+                10. 개인정보 처리방침 변경
+              </h2>
+              <p className="mb-3">
+                이 개인정보처리방침은 시행일로부터 적용되며, 법령 및 방침에 따른
+                변경내용의 추가, 삭제 및 정정이 있는 경우에는 변경사항의 시행
+                7일 전부터 공지사항을 통하여 고지할 것입니다.
+              </p>
+            </section>
+
+            <div className="mt-8 p-6 bg-accent-primary/10 border border-accent-primary/20 rounded-lg text-center">
+              <p className="oneiri-text-primary font-medium">
+                본 개인정보처리방침은 2024년 1월 1일부터 시행됩니다.
+              </p>
+              <p className="text-sm oneiri-text-secondary mt-2">
+                개인정보 보호 관련 문의사항이 있으시면 언제든지 연락해 주세요.
               </p>
             </div>
           </div>

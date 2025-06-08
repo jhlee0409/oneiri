@@ -57,7 +57,7 @@ export async function generateMetadata({
   return {
     title: story.generated_story_title || "무제",
     description: description,
-    keywords: story.dream_keywords || ["꿈", "이야기", "AI", "창작"], // 검색엔진을 위한 키워드
+    keywords: story.dream_keywords || [], // 검색엔진을 위한 키워드
 
     // 이 페이지에 특화된 소셜 공유 정보
     openGraph: {
@@ -101,20 +101,20 @@ export default function StoryDetailPage({ params }: PageProps) {
   // UUID 형식이 아닌 경우 에러 페이지 표시
   if (!isValidUUID(params.id)) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen oneiri-bg-primary">
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className="text-center py-24">
-            <h2 className="text-xl font-medium text-gray-900 mb-4">
+            <h2 className="text-xl font-medium oneiri-text-primary mb-4">
               잘못된 링크입니다
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="oneiri-text-secondary mb-6">
               올바른 꿈 이야기 링크가 아닙니다.
             </p>
             <a
-              href="/test-api"
-              className="inline-flex items-center text-black hover:text-gray-700 transition-colors"
+              href="/journal"
+              className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
             >
-              API 테스트 페이지로 이동
+              꿈 서재로 돌아가기
             </a>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function StoryDetailPage({ params }: PageProps) {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen oneiri-bg-primary">
         <DreamStoryDisplay storyId={params.id} />
       </div>
     </AuthGuard>

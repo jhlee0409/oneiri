@@ -14,6 +14,13 @@ body {
 
 @layer base {
   :root {
+    /* Oneiri Brand Theme Variables - 라이트 테마 (새벽의 양피지) */
+    --bg-primary: #fdfbf6; /* 양피지 크림 */
+    --bg-secondary: #ffffff; /* 깨끗한 종이 */
+    --text-primary: #333333; /* 목탄 잉크 */
+    --text-secondary: #9e9e9e; /* 옅은 잉크 */
+    --accent-primary: #b8860b; /* 앤틱 골드 */
+
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -48,7 +55,15 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   .dark {
+    /* Oneiri Brand Theme Variables - 다크 테마 (별이 빛나는 밤의 서재) */
+    --bg-primary: #0d0d1a; /* 심연 네이비 */
+    --bg-secondary: #1a1a2e; /* 밤하늘 네이비 */
+    --text-primary: #f0f0f0; /* 별빛 화이트 */
+    --text-secondary: #8a8a9e; /* 그림자 그레이 */
+    --accent-primary: #d4af37; /* 금빛 실타래 */
+
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -89,6 +104,120 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-bg-primary text-text-primary;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Oneiri 브랜드 전용 유틸리티 클래스 */
+@layer utilities {
+  .oneiri-bg-primary {
+    background-color: var(--bg-primary);
+  }
+
+  .oneiri-bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+
+  .oneiri-text-primary {
+    color: var(--text-primary);
+  }
+
+  .oneiri-text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .oneiri-accent {
+    color: var(--accent-primary);
+  }
+
+  .oneiri-accent-bg {
+    background-color: var(--accent-primary);
+  }
+
+  /* 호버 상태 유틸리티 */
+  .hover\:oneiri-accent:hover {
+    color: var(--accent-primary);
+  }
+
+  .hover\:oneiri-text-primary:hover {
+    color: var(--text-primary);
+  }
+
+  .hover\:text-accent-primary\/80:hover {
+    color: color-mix(in srgb, var(--accent-primary) 80%, transparent);
+  }
+
+  .hover\:bg-accent-primary\/90:hover {
+    background-color: color-mix(
+      in srgb,
+      var(--accent-primary) 90%,
+      transparent
+    );
+  }
+
+  .hover\:bg-bg-secondary\/80:hover {
+    background-color: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
+  }
+
+  /* 투명도 유틸리티 */
+  .text-bg-primary {
+    color: var(--bg-primary);
+  }
+
+  .bg-accent-primary\/20 {
+    background-color: color-mix(
+      in srgb,
+      var(--accent-primary) 20%,
+      transparent
+    );
+  }
+
+  .border-accent-primary\/50 {
+    border-color: color-mix(in srgb, var(--accent-primary) 50%, transparent);
+  }
+
+  .border-text-secondary\/30 {
+    border-color: color-mix(in srgb, var(--text-secondary) 30%, transparent);
+  }
+
+  .border-text-secondary\/20 {
+    border-color: color-mix(in srgb, var(--text-secondary) 20%, transparent);
+  }
+
+  .focus\:border-accent-primary:focus {
+    border-color: var(--accent-primary);
+  }
+
+  .placeholder\:oneiri-text-secondary::placeholder {
+    color: var(--text-secondary);
+  }
+
+  .oneiri-text-primary\/80 {
+    color: color-mix(in srgb, var(--text-primary) 80%, transparent);
+  }
+
+  .border-t-accent-primary {
+    border-top-color: var(--accent-primary);
+  }
+
+  .text-oneiri-violet {
+    color: #9370db;
+  }
+
+  .text-oneiri-garnet {
+    color: #c70039;
+  }
+
+  .bg-text-secondary\/20 {
+    background-color: color-mix(
+      in srgb,
+      var(--text-secondary) 20%,
+      transparent
+    );
+  }
+
+  .hover\:bg-bg-primary\/10:hover {
+    background-color: color-mix(in srgb, var(--bg-primary) 10%, transparent);
   }
 }
