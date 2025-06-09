@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
+import UpdateBanner from "./components/update-banner";
 import { createClient } from "@/utils/supabase/server";
 import QueryProvider from "@/components/query-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -92,6 +93,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.className} flex flex-col min-h-screen`}>
         <QueryProvider>
+          <UpdateBanner />
           <Header user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
