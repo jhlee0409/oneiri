@@ -527,7 +527,7 @@ export async function getPublicDreams(
         try {
           // 작성자 이름 가져오기
           const nameResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-display-name?user_id=${dream.user_id}`,
+            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-profile?user_id=${dream.user_id}`,
             {
               method: "GET",
               headers: {

@@ -49,24 +49,40 @@ export function UserAvatar({
       }
 
       try {
-        // user_profiles에서 아바타 URL 가져오기
-        const { data: profile, error } = await supabase
-          .from("user_profiles")
-          .select("avatar_url")
-          .eq("id", targetUserId)
-          .single();
+        // Edge Function을 사용해서 프로필 정보 가져오기 (게스트도 접근 가능)
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-profile?user_id=${targetUserId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-        if (!error && profile?.avatar_url) {
-          // 1순위: 사용자가 업로드한 아바타
-          setAvatarUrl(profile.avatar_url);
-        } else if (user?.user_metadata?.avatar_url) {
-          // 2순위: Google OAuth 아바타
-          setAvatarUrl(user.user_metadata.avatar_url);
-        } else if (fallbackUrl) {
-          // 3순위: 제공된 fallback URL
-          setAvatarUrl(fallbackUrl);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.avatar_url) {
+            // 1순위: 사용자가 업로드한 아바타
+            setAvatarUrl(data.avatar_url);
+          } else if (user?.user_metadata?.avatar_url) {
+            // 2순위: Google OAuth 아바타
+            setAvatarUrl(user.user_metadata.avatar_url);
+          } else if (fallbackUrl) {
+            // 3순위: 제공된 fallback URL
+            setAvatarUrl(fallbackUrl);
+          } else {
+            setAvatarUrl(null);
+          }
         } else {
-          setAvatarUrl(null);
+          // Edge Function 실패 시 fallback 시도
+          if (user?.user_metadata?.avatar_url) {
+            setAvatarUrl(user.user_metadata.avatar_url);
+          } else if (fallbackUrl) {
+            setAvatarUrl(fallbackUrl);
+          } else {
+            setAvatarUrl(null);
+          }
         }
       } catch (error) {
         console.error("아바타 로드 오류:", error);

@@ -156,10 +156,10 @@ export default function SharedDreamDisplay({
 
         setGuestLikesCount(guestLikesCountData || 0);
 
-        // 작성자 정보 로드 - Edge Function 사용 (게스트도 접근 가능)
+        // 작성자 정보 로드 - 새로운 Edge Function 사용 (게스트도 접근 가능)
         try {
           const response = await fetch(
-            `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-display-name?user_id=${dream.user_id}`,
+            `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-profile?user_id=${dream.user_id}`,
             {
               method: "GET",
               headers: {
@@ -202,7 +202,7 @@ export default function SharedDreamDisplay({
 
               try {
                 const response = await fetch(
-                  `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-display-name?user_id=${comment.user_id}`,
+                  `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-profile?user_id=${comment.user_id}`,
                   {
                     method: "GET",
                     headers: {
@@ -341,7 +341,7 @@ export default function SharedDreamDisplay({
 
       // Edge Function을 사용해 현재 사용자의 display_name 가져오기
       const response = await fetch(
-        `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-display-name?user_id=${user.id}`,
+        `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-profile?user_id=${user.id}`,
         {
           method: "GET",
           headers: {
