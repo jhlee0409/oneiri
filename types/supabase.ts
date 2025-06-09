@@ -63,6 +63,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      daily_weaving_counts: {
+        Row: {
+          count: number;
+          created_at: string | null;
+          id: string;
+          updated_at: string | null;
+          user_id: string;
+          weaving_date: string;
+        };
+        Insert: {
+          count?: number;
+          created_at?: string | null;
+          id?: string;
+          updated_at?: string | null;
+          user_id: string;
+          weaving_date: string;
+        };
+        Update: {
+          count?: number;
+          created_at?: string | null;
+          id?: string;
+          updated_at?: string | null;
+          user_id?: string;
+          weaving_date?: string;
+        };
+        Relationships: [];
+      };
       dream_analytics: {
         Row: {
           analysis_period_end: string;
@@ -110,6 +137,48 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
+      };
+      dream_comments: {
+        Row: {
+          content: string;
+          created_at: string | null;
+          dream_id: string;
+          id: string;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          created_at?: string | null;
+          dream_id: string;
+          id?: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          created_at?: string | null;
+          dream_id?: string;
+          id?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "dream_comments_dream_id_fkey";
+            columns: ["dream_id"];
+            isOneToOne: false;
+            referencedRelation: "dreams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "dream_comments_dream_id_fkey";
+            columns: ["dream_id"];
+            isOneToOne: false;
+            referencedRelation: "dreams_with_details";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       dream_feedback: {
         Row: {
@@ -168,6 +237,42 @@ export type Database = {
           }
         ];
       };
+      dream_likes: {
+        Row: {
+          created_at: string | null;
+          dream_id: string;
+          id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          dream_id: string;
+          id?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          dream_id?: string;
+          id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "dream_likes_dream_id_fkey";
+            columns: ["dream_id"];
+            isOneToOne: false;
+            referencedRelation: "dreams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "dream_likes_dream_id_fkey";
+            columns: ["dream_id"];
+            isOneToOne: false;
+            referencedRelation: "dreams_with_details";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       dream_tags: {
         Row: {
           created_at: string | null;
@@ -210,6 +315,7 @@ export type Database = {
       };
       dreams: {
         Row: {
+          comments_count: number | null;
           created_at: string | null;
           dream_characters: string[] | null;
           dream_emotion: string | null;
@@ -226,6 +332,7 @@ export type Database = {
           id: string;
           is_favorite: boolean | null;
           is_public: boolean | null;
+          likes_count: number | null;
           processing_status: string | null;
           raw_gemini_response: Json | null;
           story_preference_genre: string | null;
@@ -235,6 +342,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          comments_count?: number | null;
           created_at?: string | null;
           dream_characters?: string[] | null;
           dream_emotion?: string | null;
@@ -251,6 +359,7 @@ export type Database = {
           id?: string;
           is_favorite?: boolean | null;
           is_public?: boolean | null;
+          likes_count?: number | null;
           processing_status?: string | null;
           raw_gemini_response?: Json | null;
           story_preference_genre?: string | null;
@@ -260,6 +369,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          comments_count?: number | null;
           created_at?: string | null;
           dream_characters?: string[] | null;
           dream_emotion?: string | null;
@@ -276,6 +386,7 @@ export type Database = {
           id?: string;
           is_favorite?: boolean | null;
           is_public?: boolean | null;
+          likes_count?: number | null;
           processing_status?: string | null;
           raw_gemini_response?: Json | null;
           story_preference_genre?: string | null;
@@ -357,6 +468,7 @@ export type Database = {
       dreams_with_details: {
         Row: {
           avg_quality_rating: number | null;
+          comments_count: number | null;
           created_at: string | null;
           dream_characters: string[] | null;
           dream_emotion: string | null;
@@ -374,6 +486,7 @@ export type Database = {
           id: string | null;
           is_favorite: boolean | null;
           is_public: boolean | null;
+          likes_count: number | null;
           processing_status: string | null;
           raw_gemini_response: Json | null;
           story_preference_genre: string | null;

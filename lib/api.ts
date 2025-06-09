@@ -193,7 +193,7 @@ export async function getUserDreams(
 }
 
 /**
- * 특정 꿈 상세 정보 조회
+ * 특정 꿈 상세 정보 조회 (공개 꿈도 게스트가 접근 가능)
  */
 export async function getDreamById(
   dreamId: string
@@ -203,27 +203,46 @@ export async function getDreamById(
       data: { session },
     } = await supabase.auth.getSession();
 
-    if (!session) {
-      throw new Error("로그인이 필요합니다");
-    }
+    // 로그인된 사용자는 기존 방식으로 처리 (본인 꿈 포함)
+    if (session) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-dreams?id=${dreamId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-dreams?id=${dreamId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "꿈 정보 조회에 실패했습니다");
       }
-    );
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error || "꿈 정보 조회에 실패했습니다");
+      return result;
     }
 
-    return result;
+    // 게스트 사용자는 공개 꿈만 조회 가능
+    const { data: dream, error } = await supabase
+      .from("dreams")
+      .select("*")
+      .eq("id", dreamId)
+      .eq("is_public", true)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        throw new Error("공개된 꿈을 찾을 수 없습니다");
+      }
+      throw new Error("꿈 정보 조회에 실패했습니다");
+    }
+
+    return {
+      success: true,
+      data: dream,
+    };
   } catch (error) {
     console.error("Get dream by id failed:", error);
     return {
@@ -452,6 +471,144 @@ export async function getPopularTags(
         error instanceof Error
           ? error.message
           : "인기 태그 조회에 실패했습니다",
+    };
+  }
+}
+
+/**
+ * 공개된 꿈들 조회 (페이지네이션 지원)
+ */
+export async function getPublicDreams(
+  options: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    emotion?: string;
+    genre?: string;
+    sort?: string;
+    order?: "asc" | "desc";
+  } = {}
+): Promise<APIResponse<DreamsListResponse>> {
+  try {
+    const { page = 1, limit = 12, ...filters } = options;
+    const offset = (page - 1) * limit;
+
+    let query = supabase
+      .from("dreams")
+      .select("*")
+      .eq("is_public", true)
+      .range(offset, offset + limit - 1)
+      .order("created_at", { ascending: false });
+
+    // 필터 적용
+    if (filters.search) {
+      query = query.or(
+        `generated_story_title.ilike.%${filters.search}%,generated_story_content.ilike.%${filters.search}%,dream_input_text.ilike.%${filters.search}%`
+      );
+    }
+
+    if (filters.emotion) {
+      query = query.eq("dream_emotion", filters.emotion);
+    }
+
+    if (filters.genre) {
+      query = query.eq("story_preference_genre", filters.genre);
+    }
+
+    const { data: dreams, error, count } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    // 각 꿈의 작성자 display_name과 총 좋아요 수 (일반 + 게스트) 계산
+    const dreamsWithEnhancedData = await Promise.all(
+      (dreams || []).map(async (dream) => {
+        try {
+          // 작성자 이름 가져오기
+          const nameResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-display-name?user_id=${dream.user_id}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          let userDisplayName = "익명의 꿈꾸는자";
+          if (nameResponse.ok) {
+            const nameData = await nameResponse.json();
+            userDisplayName = nameData.display_name || "익명의 꿈꾸는자";
+          }
+
+          // 게스트 좋아요 수 가져오기
+          const { count: guestLikesCount } = await supabase
+            .from("guest_likes")
+            .select("*", { count: "exact", head: true })
+            .eq("dream_id", dream.id);
+
+          // 총 좋아요 수 계산 (일반 좋아요 + 게스트 좋아요)
+          const totalLikes = (dream.likes_count || 0) + (guestLikesCount || 0);
+
+          return {
+            ...dream,
+            user_display_name: userDisplayName,
+            total_likes_count: totalLikes,
+          };
+        } catch (error) {
+          console.error(`꿈 ${dream.id} 데이터 로드 실패:`, error);
+          return {
+            ...dream,
+            user_display_name: "익명의 꿈꾸는자",
+            total_likes_count: dream.likes_count || 0,
+          };
+        }
+      })
+    );
+
+    // 전체 공개 꿈 개수 조회 (필터 적용된 상태)
+    let countQuery = supabase
+      .from("dreams")
+      .select("*", { count: "exact", head: true })
+      .eq("is_public", true);
+
+    if (filters.search) {
+      countQuery = countQuery.or(
+        `generated_story_title.ilike.%${filters.search}%,generated_story_content.ilike.%${filters.search}%,dream_input_text.ilike.%${filters.search}%`
+      );
+    }
+
+    if (filters.emotion) {
+      countQuery = countQuery.eq("dream_emotion", filters.emotion);
+    }
+
+    if (filters.genre) {
+      countQuery = countQuery.eq("story_preference_genre", filters.genre);
+    }
+
+    const { count: totalCount } = await countQuery;
+
+    return {
+      success: true,
+      data: {
+        dreams: dreamsWithEnhancedData,
+        pagination: {
+          page,
+          limit,
+          total: totalCount || 0,
+          pages: Math.ceil((totalCount || 0) / limit),
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Get public dreams failed:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다",
     };
   }
 }
