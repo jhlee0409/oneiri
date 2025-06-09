@@ -17,14 +17,16 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 interface DreamStoryDisplayProps {
-  storyId: string;
+  dreamId: string;
 }
 
-export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
+export default function DreamSharedDisplay({
+  dreamId,
+}: DreamStoryDisplayProps) {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
   const hasTriggeredImageGeneration = useRef(false);
-  const { data: dream, isLoading, error } = useDreamById(storyId);
+  const { data: dream, isLoading, error } = useDreamById(dreamId);
   const { toggleFavorite, isLoading: isToggling } = useFavoriteToggle();
   const { togglePublic, isLoading: isTogglingPublic } = usePublicToggle();
   const { mutate: deleteDream, isPending: isDeleting } = useDeleteDream();

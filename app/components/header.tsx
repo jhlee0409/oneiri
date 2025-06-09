@@ -66,6 +66,12 @@ export default function Header({ user: initialUser }: Props) {
             >
               내 서재
             </Link>
+            <Link
+              href="/dreams"
+              className="oneiri-text-secondary hover:oneiri-accent transition-colors"
+            >
+              탐험하기
+            </Link>
 
             <ThemeToggle />
 

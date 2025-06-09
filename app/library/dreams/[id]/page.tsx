@@ -32,11 +32,9 @@ async function getStoryData(storyId: string) {
 }
 
 // generateMetadata 함수를 사용하여 동적으로 메타데이터를 생성
-export async function generateMetadata(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
   const params = await props.params;
   const story = await getStoryData(params.id);
 
@@ -127,7 +125,7 @@ export default async function DreamStoryDetailPage(props: PageProps) {
   return (
     <AuthGuard>
       <div className="min-h-screen oneiri-bg-primary">
-        <DreamStoryDisplay storyId={params.id} />
+        <DreamStoryDisplay dreamId={params.id} />
       </div>
     </AuthGuard>
   );
