@@ -27,7 +27,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   };
 
   return (
-    <Link href={`/story/${entry.id}`} className="block group">
+    <Link href={`/library/dreams/${entry.id}`} className="block group">
       <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-8 transition-colors hover:bg-bg-secondary/80 px-4 rounded-lg">
         <div className="flex gap-6">
           {/* 썸네일/아이콘 영역 */}

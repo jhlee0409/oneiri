@@ -61,7 +61,7 @@ export default function Header({ user: initialUser }: Props) {
 
           <div className="flex items-center gap-4">
             <Link
-              href="/journal"
+              href="/library/dreams"
               className="oneiri-text-secondary hover:oneiri-accent transition-colors"
             >
               내 서재

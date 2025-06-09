@@ -82,7 +82,7 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         onClick: () => {
           deleteDream(dreamId, {
             onSuccess: () => {
-              router.push("/journal");
+              router.push("/library/dreams");
             },
           });
         },
@@ -115,7 +115,7 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             요청하신 꿈 이야기가 존재하지 않거나 삭제되었습니다.
           </p>
           <Link
-            href="/journal"
+            href="/library/dreams"
             className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -132,7 +132,7 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
         {/* 뒤로 가기 네비게이션 */}
         <nav className="flex gap-6 mb-12 pb-6 border-b border-text-secondary/20">
           <Link
-            href="/journal"
+            href="/library/dreams"
             className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

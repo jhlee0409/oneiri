@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 개별 스토리 페이지들의 사이트맵 엔트리
   const storyEntries: MetadataRoute.Sitemap = stories.map(
     ({ id, updated_at }) => ({
-      url: `https://oneiri.vercel.app/story/${id}`,
+      url: `https://oneiri.vercel.app/library/dreams/${id}`,
       lastModified: new Date(updated_at),
       changeFrequency: "weekly" as const,
       priority: 0.8,

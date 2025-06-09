@@ -130,7 +130,7 @@ export function useGenerateDreamStory() {
             action: {
               label: "내 꿈 서재 둘러보기",
               onClick: () => {
-                window.location.href = "/journal";
+                window.location.href = "/library/dreams";
               },
             },
           });

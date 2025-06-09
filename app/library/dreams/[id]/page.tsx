@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import AuthGuard from "../../components/auth-guard";
-import DreamStoryDisplay from "../../components/dream-story-display";
+import AuthGuard from "../../../components/auth-guard";
+import DreamStoryDisplay from "../../../components/dream-story-display";
 import { createClient } from "@/utils/supabase/server";
 
 interface PageProps {
@@ -98,7 +98,7 @@ function isValidUUID(uuid: string): boolean {
   return uuidRegex.test(uuid);
 }
 
-export default async function StoryDetailPage(props: PageProps) {
+export default async function DreamStoryDetailPage(props: PageProps) {
   const params = await props.params;
   // UUID 형식이 아닌 경우 에러 페이지 표시
   if (!isValidUUID(params.id)) {
@@ -113,7 +113,7 @@ export default async function StoryDetailPage(props: PageProps) {
               올바른 꿈 이야기 링크가 아닙니다.
             </p>
             <a
-              href="/journal"
+              href="/library/dreams"
               className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
             >
               꿈 서재로 돌아가기

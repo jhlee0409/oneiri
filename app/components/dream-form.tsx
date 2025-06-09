@@ -136,7 +136,7 @@ export default function DreamForm() {
 
     // 성공 시에만 페이지 이동
     if (result.success) {
-      router.push("/journal");
+      router.push("/library/dreams");
     }
   };
 
@@ -209,7 +209,7 @@ export default function DreamForm() {
 
           <div className="space-y-3">
             <button
-              onClick={() => router.push("/journal")}
+              onClick={() => router.push("/library/dreams")}
               className="w-full oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary font-['Inter'] font-medium py-3 px-6 rounded-lg transition-colors"
             >
               내 꿈 서재 둘러보기
@@ -225,7 +225,7 @@ export default function DreamForm() {
                     <div
                       key={dream.id}
                       className="text-sm oneiri-text-secondary p-2 oneiri-bg-secondary rounded cursor-pointer hover:bg-bg-secondary/80"
-                      onClick={() => router.push(`/story/${dream.id}`)}
+                      onClick={() => router.push(`/library/dreams/${dream.id}`)}
                     >
                       ✨ {dream.title}
                     </div>

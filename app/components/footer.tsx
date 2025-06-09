@@ -62,7 +62,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/journal"
+                  href="/library/dreams"
                   className="oneiri-text-secondary hover:oneiri-text-primary transition-colors"
                 >
                   꿈 일기
