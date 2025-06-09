@@ -179,17 +179,24 @@ export default function SharedDreamDisplay({
           setAuthorDisplayName("익명의 꿈꾸는자");
         }
 
-        // 댓글 로드 (display_name이 이미 저장되어 있음)
+        // 댓글 로드 (익명화된 댓글 포함)
         const { data: commentsData, error: commentsError } = await supabase
-          .from("dream_comments")
-          .select("id, content, created_at, updated_at, user_id, display_name")
+          .from("dream_comments_with_author")
+          .select(
+            "id, content, created_at, updated_at, user_id, display_author_name, is_anonymous"
+          )
           .eq("dream_id", dream.id)
           .order("created_at", { ascending: true });
 
         if (commentsError) {
           console.error("댓글 로드 실패:", commentsError);
         } else if (commentsData) {
-          setComments(commentsData);
+          // 기존 Comment 타입과 호환되도록 매핑
+          const mappedComments = commentsData.map((comment) => ({
+            ...comment,
+            display_name: comment.display_author_name,
+          }));
+          setComments(mappedComments);
         }
       } catch (error) {
         console.error("소셜 데이터 로드 실패:", error);
@@ -298,21 +305,28 @@ export default function SharedDreamDisplay({
         console.error("사용자 정보 로드 실패:", response.status);
       }
 
-      // 댓글과 display_name 함께 저장
+      // 댓글과 author_nickname_snapshot 함께 저장
       const { data, error } = await supabase
         .from("dream_comments")
         .insert({
           dream_id: dream.id,
           user_id: user.id,
           content: commentText.trim(),
-          display_name: displayName,
+          author_nickname_snapshot: displayName,
         })
-        .select("id, content, created_at, updated_at, user_id, display_name")
+        .select(
+          "id, content, created_at, updated_at, user_id, author_nickname_snapshot"
+        )
         .single();
 
       if (error) throw error;
 
-      setComments((prev) => [...prev, data]);
+      // 작성된 댓글을 기존 타입과 호환되도록 변환하여 추가
+      const newComment = {
+        ...data,
+        display_name: data.author_nickname_snapshot,
+      };
+      setComments((prev) => [...prev, newComment]);
       setCommentsCount((prev) => prev + 1);
       setCommentText("");
       toast.success("댓글이 작성되었습니다.");

@@ -145,7 +145,8 @@ export type Database = {
           dream_id: string;
           id: string;
           updated_at: string | null;
-          user_id: string;
+          user_id: string | null;
+          author_nickname_snapshot: string | null;
         };
         Insert: {
           content: string;
@@ -154,6 +155,7 @@ export type Database = {
           id?: string;
           updated_at?: string | null;
           user_id: string;
+          author_nickname_snapshot?: string | null;
         };
         Update: {
           content?: string;
@@ -161,7 +163,8 @@ export type Database = {
           dream_id?: string;
           id?: string;
           updated_at?: string | null;
-          user_id?: string;
+          user_id?: string | null;
+          author_nickname_snapshot?: string | null;
         };
         Relationships: [
           {
@@ -242,7 +245,7 @@ export type Database = {
           created_at: string | null;
           dream_id: string;
           id: string;
-          user_id: string;
+          user_id: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -254,7 +257,7 @@ export type Database = {
           created_at?: string | null;
           dream_id?: string;
           id?: string;
-          user_id?: string;
+          user_id?: string | null;
         };
         Relationships: [
           {
@@ -436,6 +439,8 @@ export type Database = {
           preferred_story_length: string | null;
           timezone: string | null;
           updated_at: string | null;
+          status: string | null;
+          deleted_at: string | null;
         };
         Insert: {
           avatar_url?: string | null;
@@ -448,6 +453,8 @@ export type Database = {
           preferred_story_length?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
+          status?: string | null;
+          deleted_at?: string | null;
         };
         Update: {
           avatar_url?: string | null;
@@ -460,6 +467,32 @@ export type Database = {
           preferred_story_length?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
+          status?: string | null;
+          deleted_at?: string | null;
+        };
+        Relationships: [];
+      };
+      deleted_emails: {
+        Row: {
+          id: string;
+          email: string;
+          deleted_at: string | null;
+          expires_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          deleted_at?: string | null;
+          expires_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+          deleted_at?: string | null;
+          expires_at?: string | null;
+          created_at?: string | null;
         };
         Relationships: [];
       };
@@ -497,6 +530,63 @@ export type Database = {
           updated_at: string | null;
           user_display_name: string | null;
           user_id: string | null;
+        };
+        Relationships: [];
+      };
+      dream_comments_with_author: {
+        Row: {
+          id: string | null;
+          dream_id: string | null;
+          user_id: string | null;
+          content: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+          display_name: string | null;
+          is_anonymous: boolean | null;
+        };
+        Insert: {
+          id?: string | null;
+          dream_id?: string | null;
+          user_id?: string | null;
+          content?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          display_name?: string | null;
+          is_anonymous?: boolean | null;
+        };
+        Update: {
+          id?: string | null;
+          dream_id?: string | null;
+          user_id?: string | null;
+          content?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          display_name?: string | null;
+          is_anonymous?: boolean | null;
+        };
+        Relationships: [];
+      };
+      dream_likes_with_author: {
+        Row: {
+          id: string | null;
+          dream_id: string | null;
+          user_id: string | null;
+          created_at: string | null;
+          is_anonymous: boolean | null;
+        };
+        Insert: {
+          id?: string | null;
+          dream_id?: string | null;
+          user_id?: string | null;
+          created_at?: string | null;
+          is_anonymous?: boolean | null;
+        };
+        Update: {
+          id?: string | null;
+          dream_id?: string | null;
+          user_id?: string | null;
+          created_at?: string | null;
+          is_anonymous?: boolean | null;
         };
         Relationships: [];
       };

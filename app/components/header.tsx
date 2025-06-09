@@ -34,11 +34,6 @@ export default function Header({ user: initialUser }: Props) {
     return () => subscription.unsubscribe();
   }, [initialUser]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
-
   if (!user) return null;
 
   return (
@@ -76,19 +71,15 @@ export default function Header({ user: initialUser }: Props) {
             <ThemeToggle />
 
             <div className="flex items-center gap-3">
-              <Image
-                src={user.user_metadata.avatar_url}
-                alt="Profile"
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
-              <button
-                onClick={handleLogout}
-                className="text-sm oneiri-text-secondary hover:oneiri-text-primary transition-colors"
-              >
-                로그아웃
-              </button>
+              <Link href="/settings">
+                <Image
+                  src={user.user_metadata.avatar_url}
+                  alt="Profile"
+                  width={32}
+                  height={32}
+                  className="rounded-full hover:opacity-80 transition-opacity"
+                />
+              </Link>
             </div>
           </div>
         </div>
