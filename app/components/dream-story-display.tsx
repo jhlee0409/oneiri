@@ -10,6 +10,7 @@ import {
   useFavoriteToggle,
   useDeleteDream,
   useGenerateDreamImage,
+  usePublicToggle,
 } from "@/hooks/use-dream-api";
 import Image from "next/image";
 import Zoom from "react-medium-image-zoom";
@@ -23,9 +24,9 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
   const hasTriggeredImageGeneration = useRef(false);
-
   const { data: dream, isLoading, error } = useDreamById(storyId);
   const { toggleFavorite, isLoading: isToggling } = useFavoriteToggle();
+  const { togglePublic, isLoading: isTogglingPublic } = usePublicToggle();
   const { mutate: deleteDream, isPending: isDeleting } = useDeleteDream();
   const { mutate: generateImage, isPending: isGeneratingImage } =
     useGenerateDreamImage();
@@ -57,6 +58,11 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
     } catch (err) {
       console.error("텍스트 복사 실패: ", err);
     }
+  };
+
+  const handleTogglePublic = async () => {
+    if (!dream?.id) return;
+    togglePublic(dream.id, dream.is_public || false);
   };
 
   const handleToggleFavorite = () => {
@@ -203,7 +209,36 @@ export default function DreamStoryDisplay({ storyId }: DreamStoryDisplayProps) {
             </span>
           </div>
         </div>
-
+        {/* 공개여부 설정 */}
+        <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-['Inter'] text-lg font-medium oneiri-text-primary mb-1">
+                공개 설정
+              </h2>
+              <p className="text-sm oneiri-text-secondary">
+                {dream.is_public
+                  ? "다른 사용자들이 이 꿈 이야기를 볼 수 있습니다"
+                  : "나만 볼 수 있는 비공개 꿈 이야기입니다"}
+              </p>
+            </div>
+            <button
+              onClick={handleTogglePublic}
+              disabled={isTogglingPublic}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                dream.is_public
+                  ? "oneiri-accent-bg"
+                  : "bg-gray-300 dark:bg-text-secondary/70 border border-gray-400 dark:border-text-secondary/50"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  dream.is_public ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+        </section>
         {/* 생성된 이미지 */}
         {/* {dream.generated_image_url ? (
           <div className="mb-12">

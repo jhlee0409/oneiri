@@ -60,9 +60,21 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
             <div className="mb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h2 className="font-['Inter'] text-xl font-medium oneiri-text-primary mb-2 group-hover:oneiri-accent transition-colors">
-                    {entry.generated_story_title || "무제"}
-                  </h2>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="font-['Inter'] text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors">
+                      {entry.generated_story_title || "무제"}
+                    </h2>
+                    {/* 공개 상태 뱃지 */}
+                    <span
+                      className={`text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap ${
+                        entry.is_public
+                          ? "bg-oneiri-violet/20 text-oneiri-violet"
+                          : "bg-text-secondary/20 oneiri-text-secondary"
+                      }`}
+                    >
+                      {entry.is_public ? "공개됨" : "비공개"}
+                    </span>
+                  </div>
                   <div className="flex items-center text-sm oneiri-text-secondary">
                     <Calendar className="w-4 h-4 mr-2" />
                     {formatDate(entry.created_at)}
