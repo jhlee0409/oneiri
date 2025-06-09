@@ -5,6 +5,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ interface AuthGuardProps {
 export default function AuthGuard({ children }: AuthGuardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isValidUser, setIsValidUser] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -23,11 +25,41 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       } = await supabase.auth.getUser();
       const loggedIn = user !== null;
       setIsLoggedIn(loggedIn);
-      setIsLoading(false);
 
       if (!loggedIn) {
+        setIsLoading(false);
         router.push("/login");
+        return;
       }
+
+      // 탈퇴 회원 체크
+      if (user) {
+        const { data: profile, error: profileError } = await supabase
+          .from("user_profiles")
+          .select("status")
+          .eq("id", user.id)
+          .single();
+
+        // 탈퇴된 회원이라면 로그아웃 처리
+        if (
+          !profileError &&
+          profile &&
+          (profile.status === "DELETED_PENDING" || profile.status === "DELETED")
+        ) {
+          await supabase.auth.signOut();
+          toast.error("탈퇴된 계정입니다. 다시 로그인해주세요.");
+          setIsLoggedIn(false);
+          setIsValidUser(false);
+          setIsLoading(false);
+          router.push("/login?error=withdrawn_user");
+          return;
+        }
+
+        setIsValidUser(true);
+      }
+
+      setIsLoading(false);
+
       // 로그인 상태에서 로그인 페이지로 갈시 / 로 리다이렉트
       if (loggedIn && pathname === "/login") {
         router.push("/");
@@ -45,7 +77,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn || !isValidUser) {
     return null;
   }
 
