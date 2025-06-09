@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -11,9 +11,15 @@ import {
   Shield,
   LogOut,
   Info,
+  Camera,
+  Upload,
+  X,
+  RotateCcw,
 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/supabase";
+import { useUserAvatar } from "@/hooks/use-user-avatar";
+import Image from "next/image";
 
 export default function UserSettings() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -26,7 +32,16 @@ export default function UserSettings() {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  // 아바타 관련 상태
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [shouldDeleteAvatar, setShouldDeleteAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const router = useRouter();
+
+  // 아바타 훅 사용
+  const { avatarUrl, refetch: refetchAvatar } = useUserAvatar(user);
 
   useEffect(() => {
     loadUserData();
@@ -64,29 +79,146 @@ export default function UserSettings() {
     }
   };
 
-  const handleUpdateProfile = async () => {
+  const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 파일 크기 검증 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("파일 크기는 5MB 이하여야 합니다.");
+      return;
+    }
+
+    // 파일 타입 검증
+    if (!file.type.startsWith("image/")) {
+      toast.error("이미지 파일만 업로드 가능합니다.");
+      return;
+    }
+
+    setAvatarFile(file);
+    setShouldDeleteAvatar(false); // 새 파일 선택 시 삭제 플래그 해제
+
+    // 미리보기 생성
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setAvatarPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarDelete = () => {
+    // 즉시 삭제하지 않고 플래그만 설정
+    setShouldDeleteAvatar(true);
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const cancelAvatarChanges = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setShouldDeleteAvatar(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // 통합된 프로필 저장 함수
+  const handleSaveProfile = async () => {
     if (!user || !profile) return;
 
     setIsUpdatingProfile(true);
     try {
-      const { error } = await supabase
+      let newAvatarUrl = profile.avatar_url;
+
+      // 1. 아바타 삭제 처리
+      if (shouldDeleteAvatar && profile.avatar_url) {
+        const avatarPath = profile.avatar_url.split("/").pop();
+        if (avatarPath) {
+          await supabase.storage
+            .from("avatars")
+            .remove([`${user.id}/${avatarPath}`]);
+        }
+        newAvatarUrl = null;
+      }
+
+      // 2. 새 아바타 업로드 처리
+      if (avatarFile) {
+        // 기존 아바타 삭제 (있는 경우)
+        if (profile.avatar_url && !shouldDeleteAvatar) {
+          const oldAvatarPath = profile.avatar_url.split("/").pop();
+          if (oldAvatarPath) {
+            await supabase.storage
+              .from("avatars")
+              .remove([`${user.id}/${oldAvatarPath}`]);
+          }
+        }
+
+        // 새 아바타 업로드
+        const fileExt = avatarFile.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, avatarFile);
+
+        if (uploadError) throw uploadError;
+
+        // 공개 URL 생성
+        const { data: urlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(filePath);
+
+        newAvatarUrl = urlData.publicUrl;
+      }
+
+      // 3. 프로필 업데이트 (닉네임 + 아바타 URL)
+      const { error: updateError } = await supabase
         .from("user_profiles")
         .update({
           display_name: displayName.trim(),
+          avatar_url: newAvatarUrl,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      setProfile({ ...profile, display_name: displayName.trim() });
-      toast.success("프로필이 업데이트되었습니다.");
+      // 4. 로컬 상태 업데이트
+      setProfile({
+        ...profile,
+        display_name: displayName.trim(),
+        avatar_url: newAvatarUrl,
+      });
+
+      // 5. 임시 상태들 초기화
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setShouldDeleteAvatar(false);
+
+      // 6. 아바타 훅 새로고침
+      await refetchAvatar();
+
+      toast.success("프로필이 성공적으로 저장되었습니다.");
     } catch (error) {
-      console.error("프로필 업데이트 오류:", error);
-      toast.error("프로필 업데이트 중 오류가 발생했습니다.");
+      console.error("프로필 저장 오류:", error);
+      toast.error("프로필 저장 중 오류가 발생했습니다.");
     } finally {
       setIsUpdatingProfile(false);
     }
+  };
+
+  // 변경사항 감지
+  const hasChanges = () => {
+    // 프로필이 로드되지 않았으면 변경사항 없음
+    if (!profile || loading) return false;
+
+    const nameChanged = displayName.trim() !== (profile.display_name || "");
+    const avatarChanged = avatarFile !== null || shouldDeleteAvatar;
+    return nameChanged || avatarChanged;
   };
 
   const handleWithdrawal = async () => {
@@ -183,7 +315,115 @@ export default function UserSettings() {
           </h2>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* 아바타 섹션 */}
+          <div>
+            <label className="block text-sm font-medium oneiri-text-primary mb-3">
+              프로필 이미지
+            </label>
+
+            <div className="flex items-start gap-4">
+              {/* 프로필 이미지 미리보기 */}
+              <div className="relative group">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200 cursor-pointer transition-all duration-200 group-hover:border-accent-primary">
+                  {shouldDeleteAvatar ? (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <User className="w-8 h-8 text-gray-400" />
+                    </div>
+                  ) : avatarPreview ? (
+                    <Image
+                      src={avatarPreview}
+                      alt="미리보기"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : avatarUrl ? (
+                    <Image
+                      src={avatarUrl}
+                      alt="프로필 이미지"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-gray-400" />
+                  )}
+
+                  {/* 호버 오버레이 - 이미지 선택 */}
+                  <div
+                    className="absolute rounded-full inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+
+                {/* 변경사항 취소 버튼 (우측 상단 X) */}
+                {(avatarPreview || shouldDeleteAvatar) && (
+                  <button
+                    onClick={cancelAvatarChanges}
+                    disabled={isUpdatingProfile}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    title="변경사항 취소"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+
+                {/* 숨겨진 파일 입력 */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarFileSelect}
+                  className="hidden"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="text-sm oneiri-text-primary">
+                  <p className="font-medium">프로필 이미지</p>
+                  <p className="text-xs oneiri-text-secondary mt-1">
+                    이미지를 클릭하여 변경하세요
+                  </p>
+                </div>
+
+                {/* 아바타 삭제 버튼 (기존 아바타가 있을 때만) */}
+                {profile?.avatar_url &&
+                  !shouldDeleteAvatar &&
+                  !avatarPreview && (
+                    <button
+                      onClick={handleAvatarDelete}
+                      disabled={isUpdatingProfile}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-fit"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      아바타 삭제
+                    </button>
+                  )}
+
+                {/* 삭제 예약된 상태 표시 */}
+                {shouldDeleteAvatar && (
+                  <div className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-300 rounded-lg w-fit">
+                    <Trash2 className="w-4 h-4" />
+                    삭제 예약됨
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="text-xs oneiri-text-secondary mt-2 space-y-1">
+              <p>JPG, PNG 파일만 업로드 가능하며, 최대 크기는 5MB입니다.</p>
+              {hasChanges() && (
+                <p className="text-amber-600 font-medium">
+                  변경사항이 있습니다. 하단의 '프로필 저장' 버튼을 클릭하여
+                  저장하세요.
+                </p>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium oneiri-text-primary mb-2">
               이메일
@@ -213,11 +453,11 @@ export default function UserSettings() {
           </div>
 
           <button
-            onClick={handleUpdateProfile}
-            disabled={isUpdatingProfile || !displayName.trim()}
+            onClick={handleSaveProfile}
+            disabled={isUpdatingProfile || !hasChanges()}
             className="px-4 py-2 oneiri-accent-bg text-white rounded-lg hover:bg-accent-secondary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isUpdatingProfile ? "업데이트 중..." : "프로필 업데이트"}
+            {isUpdatingProfile ? "저장 중..." : "프로필 저장"}
           </button>
         </div>
       </section>

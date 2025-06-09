@@ -6,7 +6,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/utils/supabase/client";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import ThemeToggle from "./theme-toggle";
+
+// 헤더에서 필요한 프로필 정보만 정의
+interface HeaderUserProfile {
+  avatar_url: string | null;
+  display_name: string | null;
+}
 
 type Props = {
   user: User | null;
@@ -23,7 +30,7 @@ export default function Header({ user: initialUser }: Props) {
     // 인증 상태 변화 감지
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_OUT") {
         setUser(null);
       } else if (event === "SIGNED_IN" && session?.user) {
@@ -71,13 +78,11 @@ export default function Header({ user: initialUser }: Props) {
             <ThemeToggle />
 
             <div className="flex items-center gap-3">
-              <Link href="/settings">
-                <Image
-                  src={user.user_metadata.avatar_url}
-                  alt="Profile"
-                  width={32}
-                  height={32}
-                  className="rounded-full hover:opacity-80 transition-opacity"
+              <Link href="/settings" className="group">
+                <UserAvatar
+                  user={user}
+                  size="md"
+                  className="group-hover:opacity-80 transition-opacity"
                 />
               </Link>
             </div>
