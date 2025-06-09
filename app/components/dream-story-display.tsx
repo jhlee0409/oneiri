@@ -16,6 +16,7 @@ import Image from "next/image";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
+import ViewPublicPageButton from "./view-public-page-button";
 interface DreamStoryDisplayProps {
   dreamId: string;
 }
@@ -223,6 +224,14 @@ export default function DreamSharedDisplay({
                   ? "다른 사용자들이 이 꿈 이야기를 볼 수 있습니다"
                   : "나만 볼 수 있는 비공개 꿈 이야기입니다"}
               </p>
+              {dream.id && dream.is_public && (
+                <div className="flex items-center gap-4 mt-3">
+                  <ViewPublicPageButton
+                    dreamId={dream.id}
+                    isPublic={dream.is_public || false}
+                  />
+                </div>
+              )}
             </div>
             <button
               onClick={handleTogglePublic}
