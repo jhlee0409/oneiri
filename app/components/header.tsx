@@ -74,6 +74,12 @@ export default function Header({ user: initialUser }: Props) {
             >
               탐험하기
             </Link>
+            <Link
+              href="/notices"
+              className="oneiri-text-secondary hover:oneiri-accent transition-colors"
+            >
+              공지사항
+            </Link>
 
             <ThemeToggle />
 

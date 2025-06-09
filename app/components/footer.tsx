@@ -68,6 +68,14 @@ export default function Footer() {
                   꿈 일기
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/notices"
+                  className="oneiri-text-secondary hover:oneiri-text-primary transition-colors"
+                >
+                  공지사항
+                </Link>
+              </li>
             </ul>
           </div>
 
