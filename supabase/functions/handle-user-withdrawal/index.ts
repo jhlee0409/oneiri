@@ -61,22 +61,7 @@ serve(async (req) => {
       );
     }
 
-    // 현재 사용자의 댓글에 닉네임 스냅샷 저장
-    const { data: profile } = await supabaseClient
-      .from("user_profiles")
-      .select("display_name")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.display_name) {
-      await supabaseClient
-        .from("dream_comments")
-        .update({
-          author_nickname_snapshot: profile.display_name,
-        })
-        .eq("user_id", user.id)
-        .is("author_nickname_snapshot", null);
-    }
+    // 닉네임 스냅샷 저장 로직 제거 - 실시간 display_name 사용으로 변경
 
     // 사용자 세션 만료 처리
     await supabaseClient.auth.signOut();

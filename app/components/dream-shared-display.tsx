@@ -22,6 +22,7 @@ import "react-medium-image-zoom/dist/styles.css";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { supabase } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 interface SharedDreamDisplayProps {
   dreamId: string;
@@ -179,24 +180,63 @@ export default function SharedDreamDisplay({
           setAuthorDisplayName("익명의 꿈꾸는자");
         }
 
-        // 댓글 로드 (익명화된 댓글 포함)
+        // 댓글 로드 (기본 정보만) - 최신순으로 정렬
         const { data: commentsData, error: commentsError } = await supabase
           .from("dream_comments_with_author")
-          .select(
-            "id, content, created_at, updated_at, user_id, display_author_name, is_anonymous"
-          )
+          .select("id, content, created_at, updated_at, user_id, is_anonymous")
           .eq("dream_id", dream.id)
-          .order("created_at", { ascending: true });
+          .order("created_at", { ascending: false });
 
         if (commentsError) {
           console.error("댓글 로드 실패:", commentsError);
         } else if (commentsData) {
-          // 기존 Comment 타입과 호환되도록 매핑
-          const mappedComments = commentsData.map((comment) => ({
-            ...comment,
-            display_name: comment.display_author_name,
-          }));
-          setComments(mappedComments);
+          // 각 댓글의 현재 display_name을 실시간으로 가져오기
+          const commentsWithDisplayNames = await Promise.all(
+            commentsData.map(async (comment) => {
+              if (comment.is_anonymous || !comment.user_id) {
+                return {
+                  ...comment,
+                  display_name: "익명의 몽상가",
+                };
+              }
+
+              try {
+                const response = await fetch(
+                  `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-display-name?user_id=${comment.user_id}`,
+                  {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+
+                if (response.ok) {
+                  const data = await response.json();
+                  return {
+                    ...comment,
+                    display_name: data.display_name || "꿈꾸는자",
+                  };
+                } else {
+                  return {
+                    ...comment,
+                    display_name: "꿈꾸는자",
+                  };
+                }
+              } catch (error) {
+                console.error(
+                  `사용자 ${comment.user_id} display_name 로드 실패:`,
+                  error
+                );
+                return {
+                  ...comment,
+                  display_name: "꿈꾸는자",
+                };
+              }
+            })
+          );
+
+          setComments(commentsWithDisplayNames);
         }
       } catch (error) {
         console.error("소셜 데이터 로드 실패:", error);
@@ -286,7 +326,20 @@ export default function SharedDreamDisplay({
     setIsSubmittingComment(true);
 
     try {
-      // Edge Function을 사용해 사용자의 display_name 가져오기
+      // 댓글만 저장 (author_nickname_snapshot 제거)
+      const { data, error } = await supabase
+        .from("dream_comments")
+        .insert({
+          dream_id: dream.id,
+          user_id: user.id,
+          content: commentText.trim(),
+        })
+        .select("id, content, created_at, updated_at, user_id")
+        .single();
+
+      if (error) throw error;
+
+      // Edge Function을 사용해 현재 사용자의 display_name 가져오기
       const response = await fetch(
         `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-display-name?user_id=${user.id}`,
         {
@@ -299,34 +352,18 @@ export default function SharedDreamDisplay({
 
       let displayName = "꿈꾸는자";
       if (response.ok) {
-        const data = await response.json();
-        displayName = data.display_name || "꿈꾸는자";
-      } else {
-        console.error("사용자 정보 로드 실패:", response.status);
+        const responseData = await response.json();
+        displayName = responseData.display_name || "꿈꾸는자";
       }
 
-      // 댓글과 author_nickname_snapshot 함께 저장
-      const { data, error } = await supabase
-        .from("dream_comments")
-        .insert({
-          dream_id: dream.id,
-          user_id: user.id,
-          content: commentText.trim(),
-          author_nickname_snapshot: displayName,
-        })
-        .select(
-          "id, content, created_at, updated_at, user_id, author_nickname_snapshot"
-        )
-        .single();
-
-      if (error) throw error;
-
-      // 작성된 댓글을 기존 타입과 호환되도록 변환하여 추가
+      // 작성된 댓글에 현재 display_name 추가
       const newComment = {
         ...data,
-        display_name: data.author_nickname_snapshot,
+        display_name: displayName,
+        is_anonymous: false,
       };
-      setComments((prev) => [...prev, newComment]);
+
+      setComments((prev) => [newComment, ...prev]);
       setCommentsCount((prev) => prev + 1);
       setCommentText("");
       toast.success("댓글이 작성되었습니다.");
@@ -674,11 +711,7 @@ export default function SharedDreamDisplay({
                   : ""
               }`}
             />
-            <span>
-              {likesCount + guestLikesCount} 좋아요
-              {!user && (isGuestLiked ? " ♡" : "")}
-              {user && (isLiked ? " ♥" : "")}
-            </span>
+            <span>{likesCount + guestLikesCount} 좋아요</span>
           </button>
 
           <div className="flex items-center gap-2 oneiri-text-secondary">
@@ -767,12 +800,13 @@ export default function SharedDreamDisplay({
                   className="border-b border-text-secondary/10 pb-6 last:border-0"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 oneiri-bg-secondary rounded-full flex items-center justify-center">
-                        <span className="text-sm oneiri-text-primary font-medium">
-                          {comment.display_name?.charAt(0) || "🌙"}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-3">
+                      <UserAvatar
+                        userId={comment.user_id}
+                        displayName={comment.display_name || "익명의 꿈꾸는자"}
+                        size="sm"
+                        className="w-8 h-8"
+                      />
                       <div>
                         <span className="font-medium oneiri-text-primary text-sm">
                           {comment.display_name || "익명의 꿈꾸는자"}
@@ -838,7 +872,7 @@ export default function SharedDreamDisplay({
 
                   {/* 댓글 내용 또는 수정 폼 */}
                   {editingCommentId === comment.id ? (
-                    <div className="ml-10">
+                    <div className="ml-11">
                       <textarea
                         value={editingCommentText}
                         onChange={(e) => setEditingCommentText(e.target.value)}
@@ -852,7 +886,7 @@ export default function SharedDreamDisplay({
                       </div>
                     </div>
                   ) : (
-                    <p className="oneiri-text-primary leading-relaxed ml-10">
+                    <p className="oneiri-text-primary leading-relaxed ml-11">
                       {comment.content}
                     </p>
                   )}
