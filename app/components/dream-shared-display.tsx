@@ -775,7 +775,7 @@ export default function SharedDreamDisplay({
               <p className="oneiri-text-secondary text-center">
                 댓글을 작성하려면{" "}
                 <Link
-                  href="/auth/signin"
+                  href="/login"
                   className="oneiri-accent hover:text-accent-primary/80 underline"
                 >
                   로그인
