@@ -415,7 +415,7 @@ export default function PrivacyPage() {
 
             <div className="mt-8 p-6 bg-accent-primary/10 border border-accent-primary/20 rounded-lg text-center">
               <p className="oneiri-text-primary font-medium">
-                본 개인정보처리방침은 2024년 1월 1일부터 시행됩니다.
+                본 개인정보처리방침은 2025년 6월 8일부터 시행됩니다.
               </p>
               <p className="text-sm oneiri-text-secondary mt-2">
                 개인정보 보호 관련 문의사항이 있으시면 언제든지 연락해 주세요.
