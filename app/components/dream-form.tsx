@@ -9,85 +9,7 @@ import {
 } from "@/hooks/use-dream-api";
 import { AlertTriangle, BookOpen, Clock } from "lucide-react";
 import { toast } from "sonner";
-
-const genreOptions = [
-  // 일상 및 드라마 계열
-  { value: "slice-of-life", label: "일상" },
-  { value: "drama", label: "드라마" },
-  { value: "coming-of-age", label: "성장" },
-
-  // 판타지 및 초현실 계열
-  { value: "fantasy", label: "판타지" },
-  { value: "fairy-tale", label: "동화" },
-  { value: "sci-fi", label: "SF (공상과학)" },
-
-  // 긴장 및 공포 계열
-  { value: "mystery", label: "미스터리" },
-  { value: "thriller", label: "스릴러" },
-  { value: "horror", label: "호러 (공포)" },
-
-  // 기타 장르
-  { value: "adventure", label: "모험" },
-  { value: "romance", label: "로맨스" },
-  { value: "comedy", label: "코미디" },
-];
-
-const moodOptions = [
-  // 긍정적이고 밝은 분위기
-  { value: "warm and heartwarming", label: "따뜻하고 마음이 편안해지는" },
-  { value: "cheerful and lively", label: "발랄하고 경쾌한" }, // 사용자가 원했던 키워드
-  { value: "hopeful and bright", label: "희망차고 밝은" },
-  { value: "pleasant and comical", label: "유쾌하고 코믹한" },
-  { value: "fluffy and heart-fluttering", label: "몽글몽글하고 설레는" },
-
-  // 신비롭고 몽환적인 분위기
-  { value: "mysterious and dreamlike", label: "신비롭고 몽환적인" },
-  { value: "grand and epic", label: "장엄하고 서사적인" },
-  { value: "calm and introspective", label: "차분하고 성찰적인" },
-
-  // 부정적이고 어두운 분위기
-  { value: "dark and gloomy", label: "어둡고 음산한" }, // 사용자가 원했던 키워드
-  { value: "tense and suspenseful", label: "긴장감 넘치고 서스펜스 있는" },
-  { value: "urgent and desperate", label: "긴박하고 절박한" },
-  { value: "tragic and sorrowful", label: "비극적이고 애상적인" },
-  { value: "bizarre and unsettling", label: "기괴하고 불쾌한" },
-];
-
-const emotionOptions = [
-  // 긍정적 감정
-  { emoji: "😊", value: "happy and fulfilled", label: "행복하고 충만한" },
-  {
-    emoji: "🥰",
-    value: "heart-fluttering and excited",
-    label: "설레고 두근거리는",
-  },
-  { emoji: "😌", value: "peaceful and stable", label: "평화롭고 안정적인" },
-  { emoji: "🥳", value: "joyful and liberated", label: "기쁘고 해방되는" },
-
-  // 부정적 감정
-  {
-    emoji: "😢",
-    value: "sad and with a sense of loss",
-    label: "슬프고 상실감 있는",
-  },
-  { emoji: "😨", value: "fearful and terrified", label: "두렵고 공포스러운" }, // 불안을 넘어선 공포
-  { emoji: "😠", value: "angry and unfair", label: "분노와 억울함" },
-  { emoji: "😥", value: "anxious and restless", label: "불안하고 초조한" }, // 기존 불안을 구체화
-
-  // 복합적/기타 감정
-  {
-    emoji: "😮",
-    value: "awestruck and overwhelmed",
-    label: "경이롭고 압도되는",
-  }, // 놀람을 긍정적으로
-  {
-    emoji: "🤯",
-    value: "confused and bewildered",
-    label: "혼란스럽고 어리둥절한",
-  },
-  { emoji: "🤔", value: "curious and questioning", label: "호기심과 의문" }, // 생각을 구체화
-  { emoji: "😐", value: "empty and numb", label: "공허하고 무감각한" },
-];
+import { EMOTION_OPTIONS, GENRE_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 
 export default function DreamForm() {
   const [dreamText, setDreamText] = useState("");
@@ -339,7 +261,7 @@ export default function DreamForm() {
             <span className="oneiri-text-secondary font-normal">(선택)</span>
           </label>
           <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-            {emotionOptions.map((emotion) => (
+            {EMOTION_OPTIONS.map((emotion) => (
               <button
                 key={emotion.value}
                 type="button"
@@ -377,7 +299,7 @@ export default function DreamForm() {
                 일상 및 드라마 계열
               </h4>
               <div className="grid grid-cols-3 gap-2">
-                {genreOptions.slice(0, 3).map((genre) => (
+                {GENRE_OPTIONS.slice(0, 3).map((genre) => (
                   <button
                     key={genre.value}
                     type="button"
@@ -405,7 +327,7 @@ export default function DreamForm() {
                 판타지 및 초현실 계열
               </h4>
               <div className="grid grid-cols-3 gap-2">
-                {genreOptions.slice(3, 6).map((genre) => (
+                {GENRE_OPTIONS.slice(3, 6).map((genre) => (
                   <button
                     key={genre.value}
                     type="button"
@@ -433,7 +355,7 @@ export default function DreamForm() {
                 긴장 및 공포 계열
               </h4>
               <div className="grid grid-cols-3 gap-2">
-                {genreOptions.slice(6, 9).map((genre) => (
+                {GENRE_OPTIONS.slice(6, 9).map((genre) => (
                   <button
                     key={genre.value}
                     type="button"
@@ -461,7 +383,7 @@ export default function DreamForm() {
                 기타 장르
               </h4>
               <div className="grid grid-cols-3 gap-2">
-                {genreOptions.slice(9).map((genre) => (
+                {GENRE_OPTIONS.slice(9).map((genre) => (
                   <button
                     key={genre.value}
                     type="button"
@@ -492,7 +414,7 @@ export default function DreamForm() {
             <span className="oneiri-text-secondary font-normal">(선택)</span>
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {moodOptions.map((mood) => (
+            {MOOD_OPTIONS.map((mood) => (
               <button
                 key={mood.value}
                 type="button"
