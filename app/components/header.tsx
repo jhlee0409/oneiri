@@ -142,10 +142,6 @@ export default function Header({ user: initialUser }: Props) {
     },
   ];
 
-  const additionalFeatures = [];
-
-  console.log(user);
-
   if (!user) return null;
 
   // 표시할 사용자 이름 결정
