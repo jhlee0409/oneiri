@@ -116,10 +116,19 @@ export function useGenerateDreamStory() {
           );
         }
 
-        // 관련 캐시 무효화
+        // 관련 캐시 무효화 및 분석 데이터 즉시 업데이트
         queryClient.invalidateQueries({ queryKey: ["user-dreams"] });
         queryClient.invalidateQueries({ queryKey: ["user-analytics"] });
         queryClient.invalidateQueries({ queryKey: ["daily-weaving-status"] });
+
+        // 📊 꿈 생성 직후 사용자 분석 데이터 즉시 갱신
+        setTimeout(() => {
+          queryClient.prefetchQuery({
+            queryKey: ["user-analytics"],
+            queryFn: getUserAnalytics,
+            staleTime: 0, // 강제로 새로운 데이터 로드
+          });
+        }, 1000); // 1초 후 실행하여 DB 업데이트 완료 대기
       } else if (response.errorCode === "daily_weaving_limit_reached") {
         // 일일 제한 도달 시 감성의 메시지 표시
         const oneiriMsg = response.oneiriMessage;
@@ -216,10 +225,19 @@ export function useUpdateDream() {
     onSuccess: (response, { dreamId }) => {
       if (response.success) {
         toast.success("꿈 정보가 업데이트되었습니다.");
-        // 관련 캐시 무효화
+        // 관련 캐시 무효화 및 분석 데이터 즉시 업데이트
         queryClient.invalidateQueries({ queryKey: ["user-dreams"] });
         queryClient.invalidateQueries({ queryKey: ["dream", dreamId] });
         queryClient.invalidateQueries({ queryKey: ["user-analytics"] });
+
+        // 📊 꿈 수정 직후 사용자 분석 데이터 즉시 갱신
+        setTimeout(() => {
+          queryClient.prefetchQuery({
+            queryKey: ["user-analytics"],
+            queryFn: getUserAnalytics,
+            staleTime: 0,
+          });
+        }, 500);
       } else {
         toast.error(response.error || "업데이트에 실패했습니다.");
       }
@@ -242,9 +260,18 @@ export function useDeleteDream() {
     onSuccess: (response) => {
       if (response.success) {
         toast.success("꿈이 삭제되었습니다.");
-        // 관련 캐시 무효화
+        // 관련 캐시 무효화 및 분석 데이터 즉시 업데이트
         queryClient.invalidateQueries({ queryKey: ["user-dreams"] });
         queryClient.invalidateQueries({ queryKey: ["user-analytics"] });
+
+        // 📊 꿈 삭제 직후 사용자 분석 데이터 즉시 갱신
+        setTimeout(() => {
+          queryClient.prefetchQuery({
+            queryKey: ["user-analytics"],
+            queryFn: getUserAnalytics,
+            staleTime: 0,
+          });
+        }, 500);
       } else {
         toast.error(response.error || "삭제에 실패했습니다.");
       }
