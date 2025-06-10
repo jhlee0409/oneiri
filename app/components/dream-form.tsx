@@ -287,13 +287,13 @@ export default function DreamForm() {
             htmlFor="dreamText"
             className="block font-['Inter'] text-lg font-medium oneiri-text-primary"
           >
-            어떤 꿈의 조각들을 가져오셨나요?
+            꿈 이야기의 시작
           </label>
           <textarea
             id="dreamText"
             value={dreamText}
             onChange={(e) => setDreamText(e.target.value)}
-            placeholder="안개 낀 숲, 낯선 속삭임, 알 수 없는 그리움처럼… 떠오르는 모든 것을 들려주세요."
+            placeholder="어젯밤, 당신의 꿈 이야기는 어떻게 시작되었나요? 스쳐 지나간 장면, 희미한 목소리, 마음속에 남은 감정 등 무엇이든 좋아요."
             className="w-full h-48 px-4 py-3 oneiri-bg-primary border border-text-secondary/30 focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg"
             required
             disabled={isFormDisabled}
@@ -306,17 +306,27 @@ export default function DreamForm() {
             htmlFor="keywords"
             className="block font-['Inter'] text-lg font-medium oneiri-text-primary"
           >
-            이야기의 실마리들{" "}
-            <span className="oneiri-text-secondary font-normal">
-              (선택사항, 쉼표로 구분)
-            </span>
+            이야기의 핵심 상징{" "}
+            <span className="oneiri-text-secondary font-normal">(선택)</span>
+            <div className="inline-block ml-2 relative group">
+              <button
+                type="button"
+                className="w-4 h-4 rounded-full bg-text-secondary/20 text-text-secondary text-xs flex items-center justify-center hover:bg-text-secondary/30 transition-colors"
+              >
+                ?
+              </button>
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-bg-primary border border-text-secondary/30 rounded-lg text-sm oneiri-text-primary opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-64 text-center shadow-lg z-10">
+                AI가 이야기를 만들거나 분석할 때, 여기에 입력된 단어를 더
+                중요하게 다룹니다.
+              </div>
+            </div>
           </label>
           <input
             id="keywords"
             type="text"
             value={keywords}
             onChange={(e) => setKeywords(e.target.value)}
-            placeholder="예: 숲, 비행, 신비로운 낯선 사람"
+            placeholder="예: 붉은 문, 거대한 시계 (쉼표로 구분)"
             className="w-full px-4 py-3 oneiri-bg-primary border border-text-secondary/30 focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg"
             disabled={isFormDisabled}
           />
@@ -326,11 +336,9 @@ export default function DreamForm() {
         <div className="space-y-4">
           <label className="block font-['Inter'] text-lg font-medium oneiri-text-primary">
             꿈이 남긴 여운{" "}
-            <span className="oneiri-text-secondary font-normal">
-              (선택사항)
-            </span>
+            <span className="oneiri-text-secondary font-normal">(선택)</span>
           </label>
-          <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
             {emotionOptions.map((emotion) => (
               <button
                 key={emotion.value}
@@ -358,9 +366,7 @@ export default function DreamForm() {
         <div className="space-y-4">
           <label className="block font-['Inter'] text-lg font-medium oneiri-text-primary">
             이야기의 장르{" "}
-            <span className="oneiri-text-secondary font-normal">
-              (선택사항)
-            </span>
+            <span className="oneiri-text-secondary font-normal">(선택)</span>
           </label>
 
           {/* 장르 그룹별 분류 */}
@@ -483,9 +489,7 @@ export default function DreamForm() {
         <div className="space-y-4">
           <label className="block font-['Inter'] text-lg font-medium oneiri-text-primary">
             이야기의 무드{" "}
-            <span className="oneiri-text-secondary font-normal">
-              (선택사항)
-            </span>
+            <span className="oneiri-text-secondary font-normal">(선택)</span>
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {moodOptions.map((mood) => (
