@@ -97,14 +97,20 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
             <div className="flex items-center gap-3">
               {entry.dream_emotion && (
                 <span className="text-lg whitespace-nowrap" title="꿈의 여운">
-                  {entry.dream_emotion}
+                  {
+                    EMOTION_OPTIONS.find(
+                      (emotion) => emotion.value === entry.dream_emotion
+                    )?.emoji
+                  }
                 </span>
               )}
               {entry.story_preference_mood && (
                 <span className="text-sm text-oneiri-violet whitespace-nowrap">
-                  {MOOD_OPTIONS.find(
-                    (mood) => mood.value === entry.story_preference_mood
-                  )?.label || entry.story_preference_mood}
+                  {
+                    MOOD_OPTIONS.find(
+                      (mood) => mood.value === entry.story_preference_mood
+                    )?.label
+                  }
                 </span>
               )}
               {entry.dream_keywords && entry.dream_keywords.length > 0 && (

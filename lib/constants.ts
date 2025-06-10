@@ -242,11 +242,11 @@ export const GENRE_OPTIONS = [
 
 export const MOOD_OPTIONS = [
   // 긍정적이고 밝은 분위기
-  { value: "warm and heartwarming", label: "따뜻하고 마음이 편안해지는" },
-  { value: "cheerful and lively", label: "발랄하고 경쾌한" }, // 사용자가 원했던 키워드
+  { value: "heartwarming", label: "따뜻하고 마음이 편안해지는" }, // 'warm and'는 'heartwarming'에 이미 포함된 뉘앙스
+  { value: "lively and cheerful", label: "활기차고 경쾌한" }, // 순서 변경으로 'lively' 강조
   { value: "hopeful and bright", label: "희망차고 밝은" },
-  { value: "pleasant and comical", label: "유쾌하고 코믹한" },
-  { value: "fluffy and heart-fluttering", label: "몽글몽글하고 설레는" },
+  { value: "lighthearted and comical", label: "경쾌하고 코믹한" }, // 'pleasant'보다 'lighthearted'가 더 명확
+  { value: "sweet and heart-fluttering", label: "달콤하고 설레는" }, // 'fluffy'는 너무 구어체, 'sweet'가 더 적합
 
   // 신비롭고 몽환적인 분위기
   { value: "mysterious and dreamlike", label: "신비롭고 몽환적인" },
@@ -254,7 +254,7 @@ export const MOOD_OPTIONS = [
   { value: "calm and introspective", label: "차분하고 성찰적인" },
 
   // 부정적이고 어두운 분위기
-  { value: "dark and gloomy", label: "어둡고 음산한" }, // 사용자가 원했던 키워드
+  { value: "dark and desolate", label: "어둡고 황량한" }, // 'gloomy'보다 'desolate'(황량한)가 더 구체적인 풍경 묘사 유도
   { value: "tense and suspenseful", label: "긴장감 넘치고 서스펜스 있는" },
   { value: "urgent and desperate", label: "긴박하고 절박한" },
   { value: "tragic and sorrowful", label: "비극적이고 애상적인" },
@@ -263,36 +263,68 @@ export const MOOD_OPTIONS = [
 
 export const EMOTION_OPTIONS = [
   // 긍정적 감정
-  { emoji: "😊", value: "happy and fulfilled", label: "행복하고 충만한" },
+  {
+    emoji: "😊",
+    value: "a sense of happiness and fulfillment",
+    label: "행복하고 충만한",
+  }, // 'a sense of' 추가로 더 부드러운 감정 표현
   {
     emoji: "🥰",
-    value: "heart-fluttering and excited",
+    value: "a feeling of excitement and flutter",
     label: "설레고 두근거리는",
+  }, // 'heart-fluttering'을 명사형으로
+  {
+    emoji: "😌",
+    value: "a feeling of peace and stability",
+    label: "평화롭고 안정적인",
   },
-  { emoji: "😌", value: "peaceful and stable", label: "평화롭고 안정적인" },
-  { emoji: "🥳", value: "joyful and liberated", label: "기쁘고 해방되는" },
+  {
+    emoji: "🥳",
+    value: "a sense of joy and liberation",
+    label: "기쁘고 해방되는",
+  },
 
   // 부정적 감정
   {
     emoji: "😢",
-    value: "sad and with a sense of loss",
+    value: "a feeling of sadness and loss",
     label: "슬프고 상실감 있는",
   },
-  { emoji: "😨", value: "fearful and terrified", label: "두렵고 공포스러운" }, // 불안을 넘어선 공포
-  { emoji: "😠", value: "angry and unfair", label: "분노와 억울함" },
-  { emoji: "😥", value: "anxious and restless", label: "불안하고 초조한" }, // 기존 불안을 구체화
+  {
+    emoji: "😨",
+    value: "a sense of fear and terror",
+    label: "두렵고 공포스러운",
+  },
+  {
+    emoji: "😠",
+    value: "a feeling of anger and injustice",
+    label: "분노와 억울함",
+  }, // 'unfair'보다 'injustice'가 더 명확
+  {
+    emoji: "😥",
+    value: "a feeling of anxiety and restlessness",
+    label: "불안하고 초조한",
+  },
 
   // 복합적/기타 감정
   {
     emoji: "😮",
-    value: "awestruck and overwhelmed",
+    value: "a sense of awe and being overwhelmed",
     label: "경이롭고 압도되는",
-  }, // 놀람을 긍정적으로
+  },
   {
     emoji: "🤯",
-    value: "confused and bewildered",
+    value: "a feeling of confusion and bewilderment",
     label: "혼란스럽고 어리둥절한",
   },
-  { emoji: "🤔", value: "curious and questioning", label: "호기심과 의문" }, // 생각을 구체화
-  { emoji: "😐", value: "empty and numb", label: "공허하고 무감각한" },
+  {
+    emoji: "🤔",
+    value: "a sense of curiosity and wonder",
+    label: "호기심과 궁금증",
+  }, // 'questioning'보다 'wonder'가 더 긍정적이고 꿈에 어울림
+  {
+    emoji: "😐",
+    value: "a feeling of emptiness and numbness",
+    label: "공허하고 무감각한",
+  },
 ] as const;

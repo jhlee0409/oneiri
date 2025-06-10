@@ -178,19 +178,14 @@ export default function DreamSharedDisplay({
             {dream.dream_emotion && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">
-                  {findEmotion(dream.dream_emotion)?.emoji ||
-                    dream.dream_emotion}
+                  {findEmotion(dream.dream_emotion)?.emoji}
                 </span>
-                <span>
-                  {findEmotion(dream.dream_emotion)?.label ||
-                    dream.dream_emotion}
-                </span>
+                <span>{findEmotion(dream.dream_emotion)?.label}</span>
               </span>
             )}
             {dream.story_preference_mood && (
               <span className="oneiri-text-primary font-medium">
-                {findMood(dream.story_preference_mood)?.label ||
-                  dream.story_preference_mood}
+                {findMood(dream.story_preference_mood)?.label}
               </span>
             )}
             {dream.dream_keywords && dream.dream_keywords.length > 0 && (
