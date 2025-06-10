@@ -36,21 +36,21 @@ export default function DreamSharedDisplay({
     useGenerateDreamImage();
 
   // 이미지가 없고 프롬프트가 있을 때 자동으로 이미지 생성 (한 번만)
-  // useEffect(() => {
-  //   if (
-  //     dream?.id &&
-  //     dream.generated_image_prompt &&
-  //     !dream.generated_image_url &&
-  //     !isGeneratingImage &&
-  //     !hasTriggeredImageGeneration.current
-  //   ) {
-  //     hasTriggeredImageGeneration.current = true;
-  //     generateImage({
-  //       dreamId: dream.id,
-  //       imagePrompt: dream.generated_image_prompt,
-  //     });
-  //   }
-  // }, [dream, generateImage, isGeneratingImage]);
+  useEffect(() => {
+    if (
+      dream?.id &&
+      dream.generated_image_prompt &&
+      !dream.generated_image_url &&
+      !isGeneratingImage &&
+      !hasTriggeredImageGeneration.current
+    ) {
+      hasTriggeredImageGeneration.current = true;
+      generateImage({
+        dreamId: dream.id,
+        imagePrompt: dream.generated_image_prompt,
+      });
+    }
+  }, [dream, generateImage, isGeneratingImage]);
 
   const handleCopyStory = async () => {
     if (!dream?.generated_story_content) return;
@@ -247,7 +247,7 @@ export default function DreamSharedDisplay({
           </div>
         </section>
         {/* 생성된 이미지 */}
-        {/* {dream.generated_image_url ? (
+        {dream.generated_image_url ? (
           <div className="mb-12">
             <div className="relative group flex justify-center">
               <Zoom>
@@ -303,7 +303,7 @@ export default function DreamSharedDisplay({
               </div>
             </div>
           </div>
-        )} */}
+        )}
 
         {/* 메인 스토리 콘텐츠 */}
         <main className="mb-12">

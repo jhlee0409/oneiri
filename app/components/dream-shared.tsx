@@ -31,24 +31,22 @@ function DreamCard({ dream, onLike, isLiked }: DreamCardProps) {
       className="group cursor-pointer oneiri-bg-secondary border border-gray-100 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md"
       onClick={handleClick}
     >
-      {/* <Link href={`/dreams/${dream.id}`}>
-        <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-blue-100 relative overflow-hidden">
-          {dream.generated_image_url ? (
-            <img
-              src={dream.generated_image_url}
-              alt={dream.generated_story_title || "꿈 이미지"}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center oneiri-text-secondary">
-              <div className="text-center">
-                <div className="text-3xl mb-2">✨</div>
-                <div className="text-sm">꿈의 이미지</div>
-              </div>
+      <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-blue-100 relative overflow-hidden">
+        {dream.generated_image_url ? (
+          <img
+            src={dream.generated_image_url}
+            alt={dream.generated_story_title || "꿈 이미지"}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center oneiri-text-secondary">
+            <div className="text-center">
+              <div className="text-3xl mb-2">✨</div>
+              <div className="text-sm">꿈의 이미지</div>
             </div>
-          )}
-        </div>
-      </Link> */}
+          </div>
+        )}
+      </div>
       <div className="p-5">
         <h3 className="font-['Inter'] text-lg font-medium oneiri-text-primary mb-2 line-clamp-1 group-hover:oneiri-accent transition-colors">
           {dream.generated_story_title || "제목 없는 꿈"}
