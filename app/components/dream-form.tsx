@@ -333,15 +333,15 @@ export default function DreamForm() {
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
             {emotionOptions.map((emotion) => (
               <button
-                key={emotion.emoji}
+                key={emotion.value}
                 type="button"
                 onClick={() =>
                   setSelectedEmotion(
-                    selectedEmotion === emotion.emoji ? "" : emotion.emoji
+                    selectedEmotion === emotion.value ? "" : emotion.value
                   )
                 }
                 className={`p-3 text-2xl transition-colors flex flex-col items-center justify-center rounded-lg ${
-                  selectedEmotion === emotion.emoji
+                  selectedEmotion === emotion.value
                     ? "oneiri-accent-bg text-bg-primary"
                     : "oneiri-bg-primary hover:bg-bg-primary/80 oneiri-text-primary"
                 } ${isFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}

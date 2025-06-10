@@ -23,6 +23,7 @@ import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { supabase } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { findEmotion, findMood } from "@/lib/find";
 
 interface SharedDreamDisplayProps {
   dreamId: string;
@@ -617,24 +618,19 @@ export default function SharedDreamDisplay({
             {dream.dream_emotion && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">
-                  {EMOTION_OPTIONS.find(
-                    (emotion) => emotion.emoji === dream.dream_emotion
-                  )?.emoji || dream.dream_emotion}
+                  {findEmotion(dream.dream_emotion)?.emoji ||
+                    dream.dream_emotion}
                 </span>
                 <span>
-                  {
-                    EMOTION_OPTIONS.find(
-                      (emotion) => emotion.emoji === dream.dream_emotion
-                    )?.label
-                  }
+                  {findEmotion(dream.dream_emotion)?.label ||
+                    dream.dream_emotion}
                 </span>
               </span>
             )}
             {dream.story_preference_mood && (
               <span className="px-3 py-1 oneiri-bg-secondary oneiri-text-primary rounded-full text-xs">
-                {MOOD_OPTIONS.find(
-                  (mood) => mood.value === dream.story_preference_mood
-                )?.label || dream.story_preference_mood}
+                {findMood(dream.story_preference_mood)?.label ||
+                  dream.story_preference_mood}
               </span>
             )}
             {dream.dream_keywords && dream.dream_keywords.length > 0 && (

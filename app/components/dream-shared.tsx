@@ -10,6 +10,7 @@ import { EMOTION_OPTIONS, GENRE_OPTIONS } from "@/lib/constants";
 import { supabase } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { findEmotion, findGenre } from "@/lib/find";
 
 interface DreamCardProps {
   dream: any; // DreamRecord with extended properties
@@ -64,14 +65,10 @@ function DreamCard({ dream, onLike, isLiked }: DreamCardProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs oneiri-accent-bg oneiri-text-primary px-2 py-1 rounded-full">
-              {GENRE_OPTIONS.find(
-                (genre) => genre.value === dream.story_preference_genre
-              )?.label || "없음"}
+              {findGenre(dream.story_preference_genre)?.label || "없음"}
             </span>
             <span className="text-xs oneiri-accent-bg oneiri-text-primary px-2 py-1 rounded-full">
-              {EMOTION_OPTIONS.find(
-                (emotion) => emotion.emoji === dream.dream_emotion
-              )?.label || "없음"}
+              {findEmotion(dream.dream_emotion)?.label || "없음"}
             </span>
             <span className="text-xs oneiri-text-secondary">
               {dream.user_display_name || "익명"}

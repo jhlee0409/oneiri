@@ -302,8 +302,8 @@ export function useDreamForm() {
     dream_emotion: "",
     dream_characters: [],
     dream_objects: [],
-    story_preference_genre: "mysterious",
-    story_preference_length: "medium",
+    story_preference_genre: "",
+    story_preference_length: "",
     story_preference_mood: "",
   });
 
@@ -321,8 +321,8 @@ export function useDreamForm() {
       dream_emotion: "",
       dream_characters: [],
       dream_objects: [],
-      story_preference_genre: "mysterious",
-      story_preference_length: "medium",
+      story_preference_genre: "",
+      story_preference_length: "",
       story_preference_mood: "",
     });
     setStep(1);
