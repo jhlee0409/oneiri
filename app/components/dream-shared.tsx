@@ -85,7 +85,7 @@ function DreamCard({ dream, onLike, isLiked }: DreamCardProps) {
             }`}
           >
             <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-            <span>{dream.total_likes_count || dream.likes_count || 0}</span>
+            <span>{dream.total_likes_count ?? dream.likes_count ?? 0}</span>
           </button>
         </div>
       </div>
@@ -323,7 +323,11 @@ export default function DreamShared() {
                     ...dream,
                     total_likes_count: Math.max(
                       0,
-                      (dream.total_likes_count || dream.likes_count || 0) - 1
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
+                    ),
+                    likes_count: Math.max(
+                      0,
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
                     ),
                   }
                 : dream
@@ -347,7 +351,9 @@ export default function DreamShared() {
                 ? {
                     ...dream,
                     total_likes_count:
-                      (dream.total_likes_count || dream.likes_count || 0) + 1,
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
+                    likes_count:
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
                   }
                 : dream
             )
@@ -383,7 +389,11 @@ export default function DreamShared() {
                     ...dream,
                     total_likes_count: Math.max(
                       0,
-                      (dream.total_likes_count || dream.likes_count || 0) - 1
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
+                    ),
+                    likes_count: Math.max(
+                      0,
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
                     ),
                   }
                 : dream
@@ -408,7 +418,9 @@ export default function DreamShared() {
                 ? {
                     ...dream,
                     total_likes_count:
-                      (dream.total_likes_count || dream.likes_count || 0) + 1,
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
+                    likes_count:
+                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
                   }
                 : dream
             )
