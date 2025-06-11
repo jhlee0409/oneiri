@@ -441,36 +441,36 @@ export default function DreamShared() {
 
   return (
     <div className="min-h-screen oneiri-bg-primary">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
         {/* 헤더 */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold oneiri-text-primary mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-4xl font-bold oneiri-text-primary mb-3 sm:mb-4">
             꿈꾸는 이들의 공간
           </h1>
-          <p className="oneiri-text-secondary text-lg">
+          <p className="oneiri-text-secondary text-base sm:text-lg">
             다른 사람들이 공유한 꿈 이야기를 탐험하고 영감을 얻어보세요
           </p>
         </div>
 
         {/* 필터 */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between">
             {/* 검색 */}
-            <div className="relative flex-1 max-w-md">
+            <div className="relative flex-1 max-w-md w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 oneiri-text-secondary w-4 h-4" />
               <input
                 type="text"
                 placeholder="꿈을 검색해보세요..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange("search", e.target.value)}
-                className="w-full pl-10 pr-4 py-2 oneiri-bg-secondary border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-text-primary"
+                className="w-full pl-10 pr-4 py-2 sm:py-2 oneiri-bg-secondary border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-text-primary text-sm sm:text-base"
               />
             </div>
 
             {/* 필터 토글 */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 oneiri-bg-secondary border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors oneiri-text-primary"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 oneiri-bg-secondary border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors oneiri-text-primary text-sm sm:text-base"
             >
               <Filter className="w-4 h-4" />
               필터
@@ -479,10 +479,10 @@ export default function DreamShared() {
 
           {/* 필터 옵션 */}
           {showFilters && (
-            <div className="mt-4 p-4 oneiri-bg-secondary border border-gray-200 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mt-3 sm:mt-4 p-3 sm:p-4 oneiri-bg-secondary border border-gray-200 rounded-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium oneiri-text-primary mb-2">
+                  <label className="block text-xs sm:text-sm font-medium oneiri-text-primary mb-2">
                     감정
                   </label>
                   <select
@@ -490,7 +490,7 @@ export default function DreamShared() {
                     onChange={(e) =>
                       handleFilterChange("emotion", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-bg-primary oneiri-text-primary"
+                    className="w-full px-2 sm:px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-bg-primary oneiri-text-primary text-sm"
                   >
                     <option value="">모든 감정</option>
                     {EMOTION_OPTIONS.map((emotion) => (
@@ -502,7 +502,7 @@ export default function DreamShared() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium oneiri-text-primary mb-2">
+                  <label className="block text-xs sm:text-sm font-medium oneiri-text-primary mb-2">
                     장르
                   </label>
                   <select
@@ -510,7 +510,7 @@ export default function DreamShared() {
                     onChange={(e) =>
                       handleFilterChange("genre", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-bg-primary oneiri-text-primary"
+                    className="w-full px-2 sm:px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-bg-primary oneiri-text-primary text-sm"
                   >
                     <option value="">모든 장르</option>
                     {GENRE_OPTIONS.map((genre) => (
@@ -533,16 +533,18 @@ export default function DreamShared() {
             </div>
           </div>
         ) : dreams.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">🌙</div>
-            <h3 className="text-xl font-medium oneiri-text-primary mb-2">
+          <div className="text-center py-16 sm:py-20">
+            <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🌙</div>
+            <h3 className="text-lg sm:text-xl font-medium oneiri-text-primary mb-2">
               아직 공유된 꿈이 없습니다
             </h3>
-            <p className="oneiri-text-secondary">첫 번째 꿈을 공유해보세요!</p>
+            <p className="oneiri-text-secondary text-sm sm:text-base">
+              첫 번째 꿈을 공유해보세요!
+            </p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {dreams.map((dream) => (
                 <DreamCard
                   key={dream.id}
