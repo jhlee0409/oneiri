@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useUserDreams } from "@/hooks/use-dream-api";
 import type { AnalysisReport, DreamRecord } from "@/types/supabase";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { useUserAnalysisReports } from "@/hooks/use-dream-api";
 import { formatKoreanDate } from "@/lib/utils";
@@ -29,13 +29,14 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
           <div className="flex-shrink-0">
             {entry.generated_image_url ? (
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden shadow-sm">
-                <Image
+                <ImageWithFallback
                   src={entry.generated_image_url}
                   alt={entry.generated_story_title || "꿈의 풍경"}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  loading="lazy"
+                  className="w-full h-full object-cover "
+                  containerClassName="w-full h-full group-hover:scale-110 transition-transform duration-300"
                   width={64}
                   height={64}
+                  fallbackMessage="꿈의 풍경"
                 />
               </div>
             ) : entry.generated_image_prompt ? (

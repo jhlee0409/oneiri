@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Github, Twitter, Mail, Heart } from "lucide-react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,12 +13,13 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-3 sm:mb-4">
               <div className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
-                <Image
+                <ImageWithFallback
                   src="/oneiri_logo.png"
                   alt="Oneiri"
                   width={32}
                   height={32}
                   className="w-full h-full object-cover rounded-full"
+                  fallbackMessage="로고"
                 />
               </div>
               <h3 className="text-lg sm:text-xl font-bold oneiri-accent">

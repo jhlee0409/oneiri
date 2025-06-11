@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import GoogleLoginForm from "../components/google-login-form";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -24,12 +24,13 @@ export default function LoginPage() {
     <div className="min-h-screen oneiri-bg-primary flex items-center justify-center">
       <div className="max-w-md w-full px-4 sm:px-6">
         <div className="text-center mb-8 sm:mb-12">
-          <Image
+          <ImageWithFallback
             src="/oneiri_logo.png"
             alt="Oneiri"
             width={80}
             height={80}
             className="mx-auto mb-3 sm:mb-4 rounded-full sm:w-[100px] sm:h-[100px]"
+            fallbackMessage="로고"
           />
           <h1 className="font-['Inter'] text-3xl sm:text-4xl font-medium oneiri-accent mb-3 sm:mb-4">
             Oneiri

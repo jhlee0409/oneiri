@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { createClient, SUPABASE_URL } from "@/utils/supabase/client";
 import { Sparkles, Info } from "lucide-react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 interface ArchetypeCardData {
   key: string;
@@ -159,11 +159,13 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
 
           {/* 카드 이미지 영역 */}
           <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 mx-4 rounded-lg">
-            <Image
+            <ImageWithFallback
               src={imageUrl}
               alt={archetypeKey}
               fill
               className="object-cover"
+              fallbackMessage="이미지를 불러올 수 없습니다"
+              containerClassName="w-full h-full"
             />
             {/* 오버레이 효과 */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

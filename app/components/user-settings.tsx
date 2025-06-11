@@ -19,7 +19,7 @@ import {
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/supabase";
 import { useUserAvatar } from "@/hooks/use-user-avatar";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 export default function UserSettings() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -331,20 +331,22 @@ export default function UserSettings() {
                       <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                     </div>
                   ) : avatarPreview ? (
-                    <Image
+                    <ImageWithFallback
                       src={avatarPreview}
                       alt="미리보기"
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
+                      fallbackMessage="미리보기"
                     />
                   ) : avatarUrl ? (
-                    <Image
+                    <ImageWithFallback
                       src={avatarUrl}
                       alt="프로필 이미지"
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
+                      fallbackMessage="프로필 이미지"
                     />
                   ) : (
                     <User className="w-8 h-8 text-gray-400" />

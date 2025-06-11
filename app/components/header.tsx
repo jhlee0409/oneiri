@@ -4,7 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import {
   Menu,
   X,
@@ -163,12 +163,13 @@ export default function Header({ user: initialUser }: Props) {
               href="/"
               className="font-['Inter'] text-xl font-medium oneiri-accent flex items-center gap-2"
             >
-              <Image
+              <ImageWithFallback
                 src="/oneiri_logo.png"
                 alt="Oneiri"
                 width={32}
                 height={32}
                 className="rounded-full"
+                fallbackMessage="로고"
               />
               Oneiri
             </Link>
@@ -233,12 +234,13 @@ export default function Header({ user: initialUser }: Props) {
             {/* 메뉴 헤더 */}
             <div className="flex justify-between items-center p-6 border-b border-text-secondary/20">
               <div className="flex items-center gap-3">
-                <Image
+                <ImageWithFallback
                   src="/oneiri_logo.png"
                   alt="Oneiri"
                   width={32}
                   height={32}
                   className="rounded-full"
+                  fallbackMessage="로고"
                 />
                 <h2 className="text-lg font-semibold oneiri-text-primary">
                   메뉴
