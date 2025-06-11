@@ -90,6 +90,7 @@ export default function SharedDreamDisplay({
   const [authorDisplayName, setAuthorDisplayName] = useState<string | null>(
     null
   );
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -105,6 +106,23 @@ export default function SharedDreamDisplay({
     } catch (error) {
       console.error("IP 가져오기 실패:", error);
       return "0.0.0.0"; // 기본값
+    }
+  };
+
+  // 댓글 수를 직접 업데이트하는 헬퍼 함수
+  const updateCommentsCountFallback = async (dreamId: string) => {
+    try {
+      const { count: currentCommentsCount } = await supabase
+        .from("dream_comments")
+        .select("*", { count: "exact", head: true })
+        .eq("dream_id", dreamId);
+
+      await supabase
+        .from("dreams")
+        .update({ comments_count: Math.max(0, currentCommentsCount || 0) })
+        .eq("id", dreamId);
+    } catch (error) {
+      console.error("댓글 수 직접 업데이트 실패:", error);
     }
   };
 
@@ -183,6 +201,9 @@ export default function SharedDreamDisplay({
           setAuthorDisplayName("익명의 꿈꾸는자");
         }
 
+        // 댓글 로드 시작
+        setIsLoadingComments(true);
+
         // 댓글 로드 (기본 정보만) - 최신순으로 정렬
         const { data: commentsData, error: commentsError } = await supabase
           .from("dream_comments_with_author")
@@ -192,6 +213,7 @@ export default function SharedDreamDisplay({
 
         if (commentsError) {
           console.error("댓글 로드 실패:", commentsError);
+          setIsLoadingComments(false);
         } else if (commentsData) {
           // 각 댓글의 현재 display_name을 실시간으로 가져오기
           const commentsWithDisplayNames = await Promise.all(
@@ -240,9 +262,13 @@ export default function SharedDreamDisplay({
           );
 
           setComments(commentsWithDisplayNames);
+          setIsLoadingComments(false);
+        } else {
+          setIsLoadingComments(false);
         }
       } catch (error) {
         console.error("소셜 데이터 로드 실패:", error);
+        setIsLoadingComments(false);
       }
     };
 
@@ -379,15 +405,7 @@ export default function SharedDreamDisplay({
       } catch (rpcError) {
         // RPC가 없다면 직접 업데이트
         console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
-        const { count: currentCommentsCount } = await supabase
-          .from("dream_comments")
-          .select("*", { count: "exact", head: true })
-          .eq("dream_id", dreamId);
-
-        await supabase
-          .from("dreams")
-          .update({ comments_count: currentCommentsCount })
-          .eq("id", dreamId);
+        await updateCommentsCountFallback(dreamId);
       }
 
       toast.success("댓글이 작성되었습니다.");
@@ -523,17 +541,7 @@ export default function SharedDreamDisplay({
             } catch (rpcError) {
               // RPC가 없다면 직접 업데이트
               console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
-              const { count: currentCommentsCount } = await supabase
-                .from("dream_comments")
-                .select("*", { count: "exact", head: true })
-                .eq("dream_id", dreamId);
-
-              await supabase
-                .from("dreams")
-                .update({
-                  comments_count: Math.max(0, currentCommentsCount || 0),
-                })
-                .eq("id", dreamId);
+              await updateCommentsCountFallback(dreamId);
             }
 
             toast.success("댓글이 삭제되었습니다.");
@@ -830,7 +838,12 @@ export default function SharedDreamDisplay({
 
           {/* 댓글 목록 */}
           <div className="space-y-6">
-            {comments.length === 0 ? (
+            {isLoadingComments ? (
+              <div className="text-center py-12 oneiri-text-secondary">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary mx-auto mb-4"></div>
+                <p>댓글을 불러오는 중...</p>
+              </div>
+            ) : comments.length === 0 ? (
               <div className="text-center py-12 oneiri-text-secondary">
                 <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>아직 댓글이 없습니다.</p>
