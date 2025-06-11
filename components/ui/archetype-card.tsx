@@ -29,7 +29,7 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
   const [isValidKey, setIsValidKey] = useState(true);
 
   // Enhanced validation and secure image URL generation
-  const imageUrl = useMemo(() => {
+  const { imageUrl, valid } = useMemo(() => {
     // Strict validation for archetypeKey
     const validateArchetypeKey = (key: string): string | null => {
       // Basic checks
@@ -83,14 +83,23 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
 
     if (!validatedKey) {
       console.warn(`Invalid archetype key: ${archetypeKey}`);
-      setIsValidKey(false);
       // Return a safe fallback URL for a default/error image
-      return `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/default.png`;
+      return {
+        imageUrl: `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/default.png`,
+        valid: false,
+      };
     }
 
-    setIsValidKey(true);
-    return `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/${validatedKey}.png`;
+    return {
+      imageUrl: `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/${validatedKey}.png`,
+      valid: true,
+    };
   }, [archetypeKey]);
+
+  // Update isValidKey state when validation result changes
+  useEffect(() => {
+    setIsValidKey(valid);
+  }, [valid]);
 
   useEffect(() => {
     const fetchCardData = async () => {
