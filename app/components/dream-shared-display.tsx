@@ -137,17 +137,11 @@ export default function SharedDreamDisplay({
           setIsGuestLiked(!!guestLikeData);
         }
 
-        // 좋아요 수 로드 - dreams 테이블에서 직접 가져오기
-        const { data: dreamData } = await supabase
-          .from("dreams")
-          .select("likes_count, comments_count")
-          .eq("id", dream.id)
-          .single();
-
-        if (dreamData) {
-          setLikesCount(dreamData.likes_count || 0);
-          setCommentsCount(dreamData.comments_count || 0);
-        }
+        // 일반 사용자 좋아요 수 로드
+        const { count: userLikesCountData } = await supabase
+          .from("dream_likes")
+          .select("*", { count: "exact", head: true })
+          .eq("dream_id", dream.id);
 
         // 게스트 좋아요 수 로드
         const { count: guestLikesCountData } = await supabase
@@ -155,7 +149,15 @@ export default function SharedDreamDisplay({
           .select("*", { count: "exact", head: true })
           .eq("dream_id", dream.id);
 
+        // 댓글 수 로드
+        const { count: commentsCountData } = await supabase
+          .from("dream_comments")
+          .select("*", { count: "exact", head: true })
+          .eq("dream_id", dream.id);
+
+        setLikesCount(userLikesCountData || 0);
         setGuestLikesCount(guestLikesCountData || 0);
+        setCommentsCount(commentsCountData || 0);
 
         // 작성자 정보 로드 - 새로운 Edge Function 사용 (게스트도 접근 가능)
         try {
@@ -324,6 +326,7 @@ export default function SharedDreamDisplay({
     if (!commentText.trim() || !dream?.id || !user || isSubmittingComment)
       return;
 
+    const dreamId = dream.id; // 스코프 이슈 방지를 위해 미리 저장
     setIsSubmittingComment(true);
 
     try {
@@ -331,7 +334,7 @@ export default function SharedDreamDisplay({
       const { data, error } = await supabase
         .from("dream_comments")
         .insert({
-          dream_id: dream.id,
+          dream_id: dreamId,
           user_id: user.id,
           content: commentText.trim(),
         })
@@ -367,6 +370,26 @@ export default function SharedDreamDisplay({
       setComments((prev) => [newComment, ...prev]);
       setCommentsCount((prev) => prev + 1);
       setCommentText("");
+
+      // dreams 테이블의 comments_count도 증가
+      try {
+        await supabase.rpc("increment_comments_count", {
+          dream_id: dreamId,
+        });
+      } catch (rpcError) {
+        // RPC가 없다면 직접 업데이트
+        console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
+        const { count: currentCommentsCount } = await supabase
+          .from("dream_comments")
+          .select("*", { count: "exact", head: true })
+          .eq("dream_id", dreamId);
+
+        await supabase
+          .from("dreams")
+          .update({ comments_count: currentCommentsCount })
+          .eq("id", dreamId);
+      }
+
       toast.success("댓글이 작성되었습니다.");
     } catch (error) {
       console.error("댓글 작성 실패:", error);
@@ -466,7 +489,9 @@ export default function SharedDreamDisplay({
   };
 
   const handleDeleteComment = (commentId: string) => {
-    if (!user || isDeletingComment) return;
+    if (!user || isDeletingComment || !dream?.id) return;
+
+    const dreamId = dream.id; // 스코프 이슈 방지를 위해 미리 저장
 
     toast("이 댓글을 삭제하시겠습니까?", {
       description: "삭제된 댓글은 복구할 수 없습니다.",
@@ -489,6 +514,28 @@ export default function SharedDreamDisplay({
               prev.filter((comment) => comment.id !== commentId)
             );
             setCommentsCount((prev) => Math.max(0, prev - 1));
+
+            // dreams 테이블의 comments_count도 감소
+            try {
+              await supabase.rpc("decrement_comments_count", {
+                dream_id: dreamId,
+              });
+            } catch (rpcError) {
+              // RPC가 없다면 직접 업데이트
+              console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
+              const { count: currentCommentsCount } = await supabase
+                .from("dream_comments")
+                .select("*", { count: "exact", head: true })
+                .eq("dream_id", dreamId);
+
+              await supabase
+                .from("dreams")
+                .update({
+                  comments_count: Math.max(0, currentCommentsCount || 0),
+                })
+                .eq("id", dreamId);
+            }
+
             toast.success("댓글이 삭제되었습니다.");
           } catch (error) {
             console.error("댓글 삭제 실패:", error);

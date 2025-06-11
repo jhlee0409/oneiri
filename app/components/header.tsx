@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   Megaphone,
+  MoonStar,
 } from "lucide-react";
 import { supabase } from "@/utils/supabase/client";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -125,6 +126,11 @@ export default function Header({ user: initialUser }: Props) {
   };
 
   const navigationLinks = [
+    // {
+    //   href: "/analysis/new",
+    //   label: "꿈 분석하기",
+    //   icon: MoonStar,
+    // },
     {
       href: "/library/dreams",
       label: "내 서재",
@@ -141,10 +147,6 @@ export default function Header({ user: initialUser }: Props) {
       icon: Megaphone,
     },
   ];
-
-  const additionalFeatures = [];
-
-  console.log(user);
 
   if (!user) return null;
 

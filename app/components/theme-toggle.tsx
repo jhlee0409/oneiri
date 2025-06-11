@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Sun, MoonStar, Monitor } from "lucide-react";
 
 type Theme = "light" | "dark" | "system";
 
@@ -58,7 +58,9 @@ export default function ThemeToggle() {
     <div className="relative group">
       <button className="w-10 h-10 rounded-lg oneiri-bg-secondary hover:bg-bg-secondary/80 transition-colors flex items-center justify-center">
         {theme === "light" && <Sun className="w-5 h-5 oneiri-text-primary" />}
-        {theme === "dark" && <Moon className="w-5 h-5 oneiri-text-primary" />}
+        {theme === "dark" && (
+          <MoonStar className="w-5 h-5 oneiri-text-primary" />
+        )}
         {theme === "system" && (
           <Monitor className="w-5 h-5 oneiri-text-primary" />
         )}
@@ -87,7 +89,7 @@ export default function ThemeToggle() {
                 : "oneiri-text-primary hover:bg-bg-primary/10"
             }`}
           >
-            <Moon className="w-4 h-4" />
+            <MoonStar className="w-4 h-4" />
             다크 테마
           </button>
 

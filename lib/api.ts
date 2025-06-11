@@ -542,6 +542,12 @@ export async function getPublicDreams(
             userDisplayName = nameData.display_name || "익명의 꿈꾸는자";
           }
 
+          // 일반 사용자 좋아요 수 가져오기
+          const { count: userLikesCount } = await supabase
+            .from("dream_likes")
+            .select("*", { count: "exact", head: true })
+            .eq("dream_id", dream.id);
+
           // 게스트 좋아요 수 가져오기
           const { count: guestLikesCount } = await supabase
             .from("guest_likes")
@@ -549,7 +555,7 @@ export async function getPublicDreams(
             .eq("dream_id", dream.id);
 
           // 총 좋아요 수 계산 (일반 좋아요 + 게스트 좋아요)
-          const totalLikes = (dream.likes_count || 0) + (guestLikesCount || 0);
+          const totalLikes = (userLikesCount || 0) + (guestLikesCount || 0);
 
           return {
             ...dream,
@@ -561,7 +567,7 @@ export async function getPublicDreams(
           return {
             ...dream,
             user_display_name: "익명의 꿈꾸는자",
-            total_likes_count: dream.likes_count || 0,
+            total_likes_count: 0,
           };
         }
       })
