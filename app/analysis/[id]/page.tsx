@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   MoonStar,
   Eye,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { ArchetypeCard } from "@/components/ui/archetype-card";
 import { RelatedSymbols } from "@/components/ui/related-symbols";
+import { Suspense } from "react";
 
 interface AnalysisReport {
   id: string;
@@ -33,11 +35,144 @@ interface AnalysisReport {
   };
 }
 
-export default async function AnalysisReportPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+// 스켈레톤 로딩 컴포넌트
+function AnalysisReportSkeleton() {
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-4xl">
+      <div className="mb-6 sm:mb-8 text-center sm:text-left">
+        <Skeleton className="h-8 sm:h-10 lg:h-12 w-48 sm:w-64 mb-2 sm:mb-3" />
+        <Skeleton className="h-4 sm:h-5 w-32 sm:w-40" />
+      </div>
+
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+        {/* 원본 꿈 내용 스켈레톤 */}
+        <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
+          <CardHeader className="pb-3 sm:pb-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
+              <Skeleton className="h-5 sm:h-6 w-32" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-muted/50 p-3 sm:p-4 lg:p-6 rounded-lg space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 주요 상징 스켈레톤 */}
+        <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
+          <CardHeader className="pb-3 sm:pb-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
+              <Skeleton className="h-5 sm:h-6 w-40" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton
+                  key={i}
+                  className="h-6 sm:h-7 w-16 sm:w-20 rounded-full"
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 정서적 흐름 스켈레톤 */}
+        <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
+          <CardHeader className="pb-3 sm:pb-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
+              <Skeleton className="h-5 sm:h-6 w-36" />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </CardContent>
+        </Card>
+
+        {/* 분석가의 관점 스켈레톤 */}
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+          {[1, 2].map((i) => (
+            <Card
+              key={i}
+              className="shadow-lg border-0 bg-card/50 backdrop-blur"
+            >
+              <CardHeader className="pb-3 sm:pb-4">
+                <Skeleton className="h-5 sm:h-6 w-3/4" />
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-4/5" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Oneiri의 종합 해석 스켈레톤 */}
+        <Card className="border-primary/20 shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5 backdrop-blur">
+          <CardHeader className="pb-3 sm:pb-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
+              <Skeleton className="h-5 sm:h-6 w-40" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-primary/10 p-4 sm:p-6 rounded-lg border border-primary/20 space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 꿈의 원형 카드 스켈레톤 */}
+        <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
+          <CardHeader className="pb-3 sm:pb-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
+              <Skeleton className="h-5 sm:h-6 w-44" />
+            </div>
+            <Skeleton className="h-4 w-full mt-2" />
+            <Skeleton className="h-4 w-2/3" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <Skeleton className="w-72 h-96 rounded-lg" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 피드백 섹션 스켈레톤 */}
+        <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="text-center">
+              <Skeleton className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3 rounded" />
+              <div className="space-y-2 max-w-md mx-auto">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-5/6 mx-auto" />
+                <Skeleton className="h-3 w-4/5 mx-auto" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// 실제 컨텐츠 컴포넌트
+async function AnalysisReportContent({ params }: { params: { id: string } }) {
   try {
     const supabase = await createClient();
 
@@ -276,4 +411,17 @@ export default async function AnalysisReportPage({
     console.error("Page error:", error);
     notFound();
   }
+}
+
+// 메인 export 컴포넌트
+export default function AnalysisReportPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  return (
+    <Suspense fallback={<AnalysisReportSkeleton />}>
+      <AnalysisReportContent params={params} />
+    </Suspense>
+  );
 }
