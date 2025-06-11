@@ -14,7 +14,7 @@ import {
   SearchX,
 } from "lucide-react";
 import { useUserDreams } from "@/hooks/use-dream-api";
-import type { DreamRecord } from "@/types/supabase";
+import type { AnalysisReport, DreamRecord } from "@/types/supabase";
 import Image from "next/image";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { useUserAnalysisReports } from "@/hooks/use-dream-api";
@@ -131,21 +131,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   );
 }
 
-interface AnalysisReportSummary {
-  id: string;
-  created_at: string;
-  input_text: string;
-  // add other required fields
-}
-
-interface AnalysisReportSummary {
-  id: string;
-  created_at: string;
-  input_text: string;
-  // add other required fields
-}
-
-function AnalysisReportCard({ report }: { report: AnalysisReportSummary }) {
+function AnalysisReportCard({ report }: { report: AnalysisReport }) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "날짜 없음";
     const date = new Date(dateString);
