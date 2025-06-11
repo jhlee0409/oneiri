@@ -11,7 +11,6 @@ import {
   Search,
   FileText,
   MoonStar,
-  MessageCircleQuestion,
   SearchX,
 } from "lucide-react";
 import { useUserDreams } from "@/hooks/use-dream-api";
@@ -154,36 +153,36 @@ function AnalysisReportCard({ report }: { report: any }) {
 
   return (
     <Link href={`/analysis/${report.id}`} className="block group">
-      <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-8 transition-colors hover:bg-bg-secondary/80 px-4 rounded-lg">
-        <div className="flex gap-6">
+      <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-4 sm:py-8 transition-colors hover:bg-bg-secondary/80 px-3 sm:px-4 rounded-lg">
+        <div className="flex gap-3 sm:gap-6">
           <div className="flex-shrink-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-oneiri-violet/20 to-accent-primary/20 rounded-lg flex items-center justify-center">
-              <MoonStar className="w-8 h-8 text-oneiri-violet" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-oneiri-violet/20 to-accent-primary/20 rounded-lg flex items-center justify-center">
+              <MoonStar className="w-6 h-6 sm:w-8 sm:h-8 text-oneiri-violet" />
             </div>
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="mb-3">
+            <div className="mb-2 sm:mb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h2 className="font-['Inter'] text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors mb-2">
+                  <h2 className="font-['Inter'] text-base sm:text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors mb-1 sm:mb-2">
                     꿈 분석 리포트
                   </h2>
-                  <div className="flex items-center text-sm oneiri-text-secondary">
-                    <Calendar className="w-4 h-4 mr-2" />
+                  <div className="flex items-center text-xs sm:text-sm oneiri-text-secondary">
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     {formatDate(report.created_at)}
                   </div>
                 </div>
               </div>
             </div>
 
-            <p className="oneiri-text-primary/80 text-base leading-relaxed mb-4 line-clamp-2">
+            <p className="oneiri-text-primary/80 text-sm sm:text-base leading-relaxed mb-3 sm:mb-4 line-clamp-2">
               {report.input_text && report.input_text.length > 150
                 ? report.input_text.substring(0, 150) + "..."
                 : report.input_text || "분석 내용을 확인해보세요."}
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <span className="text-xs oneiri-text-secondary whitespace-nowrap flex items-center">
                 <FileText className="w-3 h-3 mr-1" />
                 AI 분석 완료
@@ -357,7 +356,7 @@ export default function DreamJournal() {
             }`}
           >
             <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden xs:inline">꿈 기록 </span>(
+            <span className="hidden sm:inline">꿈 기록 </span>(
             {dreamEntries.length})
           </button>
           <button
@@ -369,7 +368,7 @@ export default function DreamJournal() {
             }`}
           >
             <MoonStar className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden xs:inline">분석 리포트 </span>(
+            <span className="hidden sm:inline">분석 리포트 </span>(
             {analysisReports.length})
           </button>
         </div>
