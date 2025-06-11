@@ -25,8 +25,8 @@ jobs:
           registry-url: "https://npm.pkg.github.com/"
           scope: 'jhlee0409'
 
-      - run: npm ci
-      - run: npm run build
+      - run: pnpm ci
+      - run: pnpm run build
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
