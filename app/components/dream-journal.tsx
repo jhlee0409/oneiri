@@ -18,18 +18,9 @@ import type { DreamRecord } from "@/types/supabase";
 import Image from "next/image";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { useUserAnalysisReports } from "@/hooks/use-dream-api";
+import { formatKoreanDate } from "@/lib/utils";
 
 function DreamEntryCard({ entry }: { entry: DreamRecord }) {
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "날짜 없음";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   return (
     <Link href={`/library/dreams/${entry.id}`} className="block group">
       <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-4 sm:py-8 transition-colors hover:bg-bg-secondary/80 px-3 sm:px-4 rounded-lg">
@@ -81,7 +72,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
                   </div>
                   <div className="flex items-center text-xs sm:text-sm oneiri-text-secondary">
                     <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    {formatDate(entry.created_at)}
+                    {formatKoreanDate(entry.created_at)}
                   </div>
                 </div>
                 {entry.is_favorite && (
