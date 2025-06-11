@@ -19,21 +19,22 @@ const EMOJI_RELEASE_MAP = {
 };
 
 module.exports = {
-  analyzeCommits: async (context) => {
+  analyzeCommits: async (context = {}) => {
     const commits = context.commits || [];
+    const log = context.logger?.log || console.log;
 
     for (const commit of commits) {
-      const message = commit.message.trim();
+      const message = commit.message?.trim() || '';
       const emoji = message.charAt(0);
       const release = EMOJI_RELEASE_MAP[emoji];
 
       if (release) {
-        context.logger.log(`🔍 Detected release type "${release}" from emoji "${emoji}" in commit: ${message}`);
+        log(`🔍 Detected release type "${release}" from emoji "${emoji}" in commit: ${message}`);
         return release;
       }
     }
 
-    context.logger.log("🚫 No relevant emoji-based commit found. No release triggered.");
+    log("🚫 No relevant emoji-based commit found. No release triggered.");
     return null;
   },
 };
