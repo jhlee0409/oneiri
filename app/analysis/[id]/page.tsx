@@ -377,7 +377,7 @@ async function AnalysisReportContent({ params }: { params: { id: string } }) {
 
           {/* Oneiri의 마지막 메모 */}
           {reportData.report_data.oneiriNote && (
-            <Card className="border-primary/20 shadow-lg bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-950/20 dark:to-pink-950/20 backdrop-blur">
+            <Card className="border-primary/20 shadow-lg bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-slate-800/70 dark:to-slate-900/70 backdrop-blur">
               <CardContent className="pt-6">
                 <div className="text-center">
                   <div className="text-2xl mb-3">💫</div>
