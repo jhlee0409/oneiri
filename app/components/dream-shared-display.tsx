@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDreamById } from "@/hooks/use-dream-api";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
@@ -90,6 +90,7 @@ export default function SharedDreamDisplay({
   const [authorDisplayName, setAuthorDisplayName] = useState<string | null>(
     null
   );
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -105,6 +106,23 @@ export default function SharedDreamDisplay({
     } catch (error) {
       console.error("IP 가져오기 실패:", error);
       return "0.0.0.0"; // 기본값
+    }
+  };
+
+  // 댓글 수를 직접 업데이트하는 헬퍼 함수
+  const updateCommentsCountFallback = async (dreamId: string) => {
+    try {
+      const { count: currentCommentsCount } = await supabase
+        .from("dream_comments")
+        .select("*", { count: "exact", head: true })
+        .eq("dream_id", dreamId);
+
+      await supabase
+        .from("dreams")
+        .update({ comments_count: Math.max(0, currentCommentsCount || 0) })
+        .eq("id", dreamId);
+    } catch (error) {
+      console.error("댓글 수 직접 업데이트 실패:", error);
     }
   };
 
@@ -183,6 +201,9 @@ export default function SharedDreamDisplay({
           setAuthorDisplayName("익명의 꿈꾸는자");
         }
 
+        // 댓글 로드 시작
+        setIsLoadingComments(true);
+
         // 댓글 로드 (기본 정보만) - 최신순으로 정렬
         const { data: commentsData, error: commentsError } = await supabase
           .from("dream_comments_with_author")
@@ -192,6 +213,7 @@ export default function SharedDreamDisplay({
 
         if (commentsError) {
           console.error("댓글 로드 실패:", commentsError);
+          setIsLoadingComments(false);
         } else if (commentsData) {
           // 각 댓글의 현재 display_name을 실시간으로 가져오기
           const commentsWithDisplayNames = await Promise.all(
@@ -240,9 +262,13 @@ export default function SharedDreamDisplay({
           );
 
           setComments(commentsWithDisplayNames);
+          setIsLoadingComments(false);
+        } else {
+          setIsLoadingComments(false);
         }
       } catch (error) {
         console.error("소셜 데이터 로드 실패:", error);
+        setIsLoadingComments(false);
       }
     };
 
@@ -379,15 +405,7 @@ export default function SharedDreamDisplay({
       } catch (rpcError) {
         // RPC가 없다면 직접 업데이트
         console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
-        const { count: currentCommentsCount } = await supabase
-          .from("dream_comments")
-          .select("*", { count: "exact", head: true })
-          .eq("dream_id", dreamId);
-
-        await supabase
-          .from("dreams")
-          .update({ comments_count: currentCommentsCount })
-          .eq("id", dreamId);
+        await updateCommentsCountFallback(dreamId);
       }
 
       toast.success("댓글이 작성되었습니다.");
@@ -523,17 +541,7 @@ export default function SharedDreamDisplay({
             } catch (rpcError) {
               // RPC가 없다면 직접 업데이트
               console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
-              const { count: currentCommentsCount } = await supabase
-                .from("dream_comments")
-                .select("*", { count: "exact", head: true })
-                .eq("dream_id", dreamId);
-
-              await supabase
-                .from("dreams")
-                .update({
-                  comments_count: Math.max(0, currentCommentsCount || 0),
-                })
-                .eq("id", dreamId);
+              await updateCommentsCountFallback(dreamId);
             }
 
             toast.success("댓글이 삭제되었습니다.");
@@ -611,19 +619,19 @@ export default function SharedDreamDisplay({
     <div className="min-h-screen oneiri-bg-primary">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* 뒤로 가기 네비게이션 */}
-        <nav className="flex gap-6 mb-12 pb-6 border-b border-text-secondary/20">
+        <nav className="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-8 sm:mb-12 pb-4 sm:pb-6 border-b border-text-secondary/20">
           <Link
             href="/shared"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
+            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             공유된 꿈으로 돌아가기
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
+            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             새로운 꿈 조각 기록하기
           </Link>
         </nav>
@@ -633,13 +641,13 @@ export default function SharedDreamDisplay({
           <div className="mb-12">
             <div className="relative group flex justify-center">
               <Zoom>
-                <Image
+                <ImageWithFallback
                   src={dream.generated_image_url}
                   alt={dream.generated_story_title || "꿈의 풍경"}
                   className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform"
-                  loading="lazy"
                   width={1024}
                   height={1024}
+                  fallbackMessage="꿈의 풍경"
                 />
               </Zoom>
             </div>
@@ -647,17 +655,17 @@ export default function SharedDreamDisplay({
         )}
 
         {/* 스토리 제목 */}
-        <header className="mb-8">
-          <h1 className="font-['Inter'] text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-4">
+        <header className="mb-6 sm:mb-8">
+          <h1 className="font-['Inter'] text-2xl sm:text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-3 sm:mb-4">
             {dream.generated_story_title || "무제"}
           </h1>
 
           {/* 꿈 메타데이터 */}
-          <div className="flex items-center gap-6 text-sm oneiri-text-secondary flex-wrap">
+          <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm oneiri-text-secondary flex-wrap">
             {authorDisplayName && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">✍️</span>
-                <span className="oneiri-text-primary font-medium">
+                <span className="oneiri-text-primary font-medium leading line-clamp-1">
                   {authorDisplayName}
                 </span>
               </span>
@@ -696,7 +704,7 @@ export default function SharedDreamDisplay({
         </header>
 
         {/* 메인 스토리 콘텐츠 */}
-        <main className="mb-12">
+        <main className="mb-8 sm:mb-12">
           <div className="prose prose-lg max-w-none">
             {dream.generated_story_content ? (
               dream.generated_story_content
@@ -704,13 +712,13 @@ export default function SharedDreamDisplay({
                 .map((paragraph, index) => (
                   <p
                     key={index}
-                    className="oneiri-text-primary leading-relaxed mb-6 last:mb-0 text-lg"
+                    className="oneiri-text-primary leading-relaxed mb-4 sm:mb-6 last:mb-0 text-base sm:text-lg"
                   >
                     {paragraph}
                   </p>
                 ))
             ) : (
-              <p className="oneiri-text-secondary italic">
+              <p className="oneiri-text-secondary italic text-sm sm:text-base">
                 아직 이야기가 생성되지 않았습니다.
               </p>
             )}
@@ -718,18 +726,18 @@ export default function SharedDreamDisplay({
         </main>
 
         {/* 원본 꿈 입력 */}
-        <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
-          <h2 className="font-['Inter'] text-lg font-medium oneiri-text-primary mb-3 flex items-center">
-            <span className="text-xl mr-2">💭</span>
+        <section className="oneiri-bg-secondary p-4 sm:p-6 mb-8 sm:mb-12 rounded-lg">
+          <h2 className="font-['Inter'] text-base sm:text-lg font-medium oneiri-text-primary mb-3 flex items-center">
+            <span className="text-lg sm:text-xl mr-2">💭</span>
             꿈꾸는 자가 속삭여준 꿈의 조각들
           </h2>
-          <p className="oneiri-text-primary/80 leading-relaxed italic">
+          <p className="oneiri-text-primary/80 leading-relaxed italic text-sm sm:text-base">
             "{dream.dream_input_text || "꿈의 내용이 없습니다."}"
           </p>
         </section>
 
         {/* 소셜 액션 버튼 */}
-        <div className="flex items-center gap-6 py-6 border-t border-b border-text-secondary/20 mb-12">
+        <div className="flex items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-text-secondary/20 mb-8 sm:mb-12 text-sm sm:text-base">
           <button
             onClick={handleToggleLike}
             disabled={isTogglingLike}
@@ -772,8 +780,8 @@ export default function SharedDreamDisplay({
         </div>
 
         {/* 댓글 섹션 */}
-        <section className="mb-12">
-          <h2 className="font-['Inter'] text-xl font-medium oneiri-text-primary mb-6">
+        <section className="mb-8 sm:mb-12">
+          <h2 className="font-['Inter'] text-lg sm:text-xl font-medium oneiri-text-primary mb-4 sm:mb-6">
             댓글 {commentsCount}개
           </h2>
 
@@ -830,7 +838,12 @@ export default function SharedDreamDisplay({
 
           {/* 댓글 목록 */}
           <div className="space-y-6">
-            {comments.length === 0 ? (
+            {isLoadingComments ? (
+              <div className="text-center py-12 oneiri-text-secondary">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary mx-auto mb-4"></div>
+                <p>댓글을 불러오는 중...</p>
+              </div>
+            ) : comments.length === 0 ? (
               <div className="text-center py-12 oneiri-text-secondary">
                 <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>아직 댓글이 없습니다.</p>

@@ -12,7 +12,7 @@ import {
   useGenerateDreamImage,
   usePublicToggle,
 } from "@/hooks/use-dream-api";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
@@ -246,13 +246,13 @@ export default function DreamSharedDisplay({
           <div className="mb-12">
             <div className="relative group flex justify-center">
               <Zoom>
-                <Image
+                <ImageWithFallback
                   src={dream.generated_image_url}
                   alt={dream.generated_story_title || "꿈의 풍경"}
                   className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform"
-                  loading="lazy"
                   width={1024}
                   height={1024}
+                  fallbackMessage="꿈의 풍경"
                 />
               </Zoom>
             </div>

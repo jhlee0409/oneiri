@@ -1,4 +1,7 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient } from "@supabase/ssr";
+
+// Export Supabase URL for use in other components
+export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
 // Create a single supabase client for interacting with your database
 export const supabase = createBrowserClient(

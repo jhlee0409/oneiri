@@ -69,10 +69,18 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.3",
+    "@semantic-release/npm": "^12.0.1",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "conventional-changelog-conventionalcommits": "^9.0.0",
     "postcss": "^8.5",
+    "semantic-release": "^24.2.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }

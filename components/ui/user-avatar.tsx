@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { User as UserIcon } from "lucide-react";
 import { supabase } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
@@ -123,13 +123,14 @@ export function UserAvatar({
       {loading ? (
         <div className="animate-pulse bg-gray-300 w-full h-full rounded-full" />
       ) : avatarUrl ? (
-        <Image
+        <ImageWithFallback
           src={avatarUrl}
           alt={displayName || "프로필 이미지"}
           width={size === "sm" ? 24 : size === "md" ? 32 : 48}
           height={size === "sm" ? 24 : size === "md" ? 32 : 48}
           className="w-full h-full object-cover"
-          onError={() => setAvatarUrl(null)} // 이미지 로드 실패 시 fallback
+          fallbackMessage="프로필 이미지 없음"
+          onError={() => setAvatarUrl(null)}
         />
       ) : displayName || user?.user_metadata?.full_name ? (
         <span

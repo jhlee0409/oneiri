@@ -19,7 +19,7 @@ import {
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/supabase";
 import { useUserAvatar } from "@/hooks/use-user-avatar";
-import Image from "next/image";
+import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 export default function UserSettings() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -305,46 +305,48 @@ export default function UserSettings() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* 프로필 설정 섹션 */}
-      <section className="oneiri-bg-secondary p-6 rounded-lg">
-        <div className="flex items-center gap-3 mb-6">
-          <User className="w-5 h-5 oneiri-accent" />
-          <h2 className="text-xl font-semibold oneiri-text-primary">
+      <section className="oneiri-bg-secondary p-4 sm:p-6 rounded-lg">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <User className="w-4 h-4 sm:w-5 sm:h-5 oneiri-accent" />
+          <h2 className="text-lg sm:text-xl font-semibold oneiri-text-primary">
             프로필 정보
           </h2>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* 아바타 섹션 */}
           <div>
-            <label className="block text-sm font-medium oneiri-text-primary mb-3">
+            <label className="block text-xs sm:text-sm font-medium oneiri-text-primary mb-2 sm:mb-3">
               프로필 이미지
             </label>
 
-            <div className="flex items-start gap-4">
+            <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
               {/* 프로필 이미지 미리보기 */}
-              <div className="relative group">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200 cursor-pointer transition-all duration-200 group-hover:border-accent-primary">
+              <div className="relative group mx-auto sm:mx-0">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200 cursor-pointer transition-all duration-200 group-hover:border-accent-primary">
                   {shouldDeleteAvatar ? (
                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <User className="w-8 h-8 text-gray-400" />
+                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                     </div>
                   ) : avatarPreview ? (
-                    <Image
+                    <ImageWithFallback
                       src={avatarPreview}
                       alt="미리보기"
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
+                      fallbackMessage="미리보기"
                     />
                   ) : avatarUrl ? (
-                    <Image
+                    <ImageWithFallback
                       src={avatarUrl}
                       alt="프로필 이미지"
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
+                      fallbackMessage="프로필 이미지"
                     />
                   ) : (
                     <User className="w-8 h-8 text-gray-400" />
