@@ -9,11 +9,16 @@ import {
   BookOpen,
   Heart,
   Search,
+  FileText,
+  MoonStar,
+  MessageCircleQuestion,
+  SearchX,
 } from "lucide-react";
 import { useUserDreams } from "@/hooks/use-dream-api";
 import type { DreamRecord } from "@/types/supabase";
 import Image from "next/image";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
+import { useUserAnalysisReports } from "@/hooks/use-dream-api";
 
 function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   const formatDate = (dateString: string | null) => {
@@ -133,7 +138,84 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   );
 }
 
-function EmptyState() {
+function AnalysisReportCard({ report }: { report: any }) {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "날짜 없음";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  return (
+    <Link href={`/analysis/${report.id}`} className="block group">
+      <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-8 transition-colors hover:bg-bg-secondary/80 px-4 rounded-lg">
+        <div className="flex gap-6">
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 bg-gradient-to-br from-oneiri-violet/20 to-accent-primary/20 rounded-lg flex items-center justify-center">
+              <MoonStar className="w-8 h-8 text-oneiri-violet" />
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="mb-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h2 className="font-['Inter'] text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors mb-2">
+                    꿈 분석 리포트
+                  </h2>
+                  <div className="flex items-center text-sm oneiri-text-secondary">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    {formatDate(report.created_at)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p className="oneiri-text-primary/80 text-base leading-relaxed mb-4 line-clamp-2">
+              {report.input_text && report.input_text.length > 150
+                ? report.input_text.substring(0, 150) + "..."
+                : report.input_text || "분석 내용을 확인해보세요."}
+            </p>
+
+            <div className="flex items-center gap-3">
+              <span className="text-xs oneiri-text-secondary whitespace-nowrap flex items-center">
+                <FileText className="w-3 h-3 mr-1" />
+                AI 분석 완료
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </Link>
+  );
+}
+
+function EmptyState({ activeTab }: { activeTab: "dreams" | "analysis" }) {
+  if (activeTab === "analysis") {
+    return (
+      <div className="text-center py-24">
+        <div className="text-4xl mb-6 oneiri-text-secondary flex justify-center items-center">
+          <SearchX className="w-10 h-10" />
+        </div>
+        <h2 className="font-['Inter'] text-2xl font-medium oneiri-text-primary mb-3">
+          아직 분석된 꿈이 없네요.
+        </h2>
+        <p className="oneiri-text-secondary mb-8 max-w-md mx-auto">
+          꿈을 분석해서 숨겨진 의미를 찾아보세요.
+        </p>
+        <Link
+          href="/analysis/new"
+          className="inline-flex items-center oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary font-medium py-3 px-6 transition-colors rounded-lg"
+        >
+          <MoonStar className="w-5 h-5 mr-2" />첫 꿈 분석하기
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="text-center py-24">
       <div className="text-4xl mb-6 oneiri-text-secondary">📖</div>
@@ -156,11 +238,24 @@ function EmptyState() {
 export default function DreamJournal() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [activeTab, setActiveTab] = useState<"dreams" | "analysis">("dreams");
 
-  const { data: dreamsData, isLoading, error, refetch } = useUserDreams();
+  const {
+    data: dreamsData,
+    isLoading: dreamsLoading,
+    error: dreamsError,
+    refetch: refetchDreams,
+  } = useUserDreams();
+  const {
+    data: analysisData,
+    isLoading: analysisLoading,
+    error: analysisError,
+    refetch: refetchAnalysis,
+  } = useUserAnalysisReports();
 
   // Edge Function이 실제로는 data: dreams (배열)을 직접 반환함
   const dreamEntries = Array.isArray(dreamsData) ? dreamsData : [];
+  const analysisReports = Array.isArray(analysisData) ? analysisData : [];
 
   // 필터링된 꿈 목록
   const filteredDreams = dreamEntries.filter((dream) => {
@@ -181,6 +276,18 @@ export default function DreamJournal() {
     return matchesSearch && matchesFavorites;
   });
 
+  // 필터링된 분석 리포트 목록
+  const filteredAnalysis = analysisReports.filter((report) => {
+    const matchesSearch =
+      searchQuery === "" ||
+      report.input_text?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesSearch;
+  });
+
+  const isLoading = dreamsLoading || analysisLoading;
+  const error = dreamsError || analysisError;
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-12 oneiri-bg-primary min-h-screen">
@@ -196,13 +303,16 @@ export default function DreamJournal() {
       <div className="max-w-4xl mx-auto px-6 py-12 oneiri-bg-primary min-h-screen">
         <div className="text-center py-24">
           <h2 className="text-xl font-medium oneiri-text-primary mb-4">
-            꿈 서재를 불러올 수 없습니다
+            서재를 불러올 수 없습니다
           </h2>
           <p className="oneiri-text-secondary mb-6">
             잠시 후 다시 시도해주세요.
           </p>
           <button
-            onClick={() => refetch()}
+            onClick={() => {
+              refetchDreams();
+              refetchAnalysis();
+            }}
             className="oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary px-6 py-3 transition-colors rounded-lg"
           >
             다시 시도
@@ -220,20 +330,56 @@ export default function DreamJournal() {
           나의 꿈 서재
         </h1>
         <p className="oneiri-text-secondary text-lg">
-          {dreamEntries.length > 0
-            ? `${dreamEntries.length}개의 꿈 이야기가 서재에 보관됨`
-            : "밤의 기억들이 모이는 공간"}
+          {activeTab === "dreams"
+            ? dreamEntries.length > 0
+              ? `${dreamEntries.length}개의 꿈 이야기가 서재에 보관됨`
+              : "밤의 기억들이 모이는 공간"
+            : analysisReports.length > 0
+            ? `${analysisReports.length}개의 분석 리포트가 보관됨`
+            : "꿈의 의미를 탐구하는 공간"}
         </p>
       </header>
 
+      {/* 탭 네비게이션 */}
+      <div className="mb-8">
+        <div className="flex gap-1 p-1 oneiri-bg-secondary rounded-lg">
+          <button
+            onClick={() => setActiveTab("dreams")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "dreams"
+                ? "oneiri-accent-bg text-bg-primary"
+                : "oneiri-text-secondary hover:oneiri-text-primary"
+            }`}
+          >
+            <BookOpen className="w-4 h-4" />꿈 기록 ({dreamEntries.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("analysis")}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "analysis"
+                ? "oneiri-accent-bg text-bg-primary"
+                : "oneiri-text-secondary hover:oneiri-text-primary"
+            }`}
+          >
+            <MoonStar className="w-4 h-4" />
+            분석 리포트 ({analysisReports.length})
+          </button>
+        </div>
+      </div>
+
       {/* 검색 및 필터 */}
-      {dreamEntries.length > 0 && (
+      {((activeTab === "dreams" && dreamEntries.length > 0) ||
+        (activeTab === "analysis" && analysisReports.length > 0)) && (
         <div className="mb-8 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 oneiri-text-secondary w-5 h-5" />
             <input
               type="text"
-              placeholder="꿈 이야기 검색..."
+              placeholder={
+                activeTab === "dreams"
+                  ? "꿈 이야기 검색..."
+                  : "분석 내용 검색..."
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 oneiri-bg-secondary border border-text-secondary/30 focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg"
@@ -241,89 +387,54 @@ export default function DreamJournal() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
-                showFavoritesOnly
-                  ? "bg-accent-primary/20 oneiri-accent border border-accent-primary/50"
-                  : "oneiri-bg-secondary oneiri-text-secondary border border-text-secondary/30 hover:bg-bg-secondary/80"
-              }`}
-            >
-              <Heart
-                className={`w-4 h-4 ${showFavoritesOnly ? "fill-current" : ""}`}
-              />
-              즐겨찾기만 보기
-            </button>
+            {activeTab === "dreams" && (
+              <button
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors rounded-lg ${
+                  showFavoritesOnly
+                    ? "bg-accent-primary/20 oneiri-accent border border-accent-primary/50"
+                    : "oneiri-bg-secondary oneiri-text-secondary border border-text-secondary/30 hover:bg-bg-secondary/80"
+                }`}
+              >
+                <Heart
+                  className={`w-4 h-4 ${
+                    showFavoritesOnly ? "fill-current" : ""
+                  }`}
+                />
+                즐겨찾기만 보기
+              </button>
+            )}
 
             <span className="text-sm oneiri-text-secondary">
-              {filteredDreams.length}개 표시 중
+              {activeTab === "dreams"
+                ? filteredDreams.length
+                : filteredAnalysis.length}
+              개 표시 중
             </span>
           </div>
         </div>
       )}
 
-      {/* 네비게이션 */}
-      <nav className="flex justify-between items-center mb-12 pb-6 border-b border-text-secondary/20">
-        <Link
-          href="/"
-          className="oneiri-text-secondary hover:oneiri-accent font-medium transition-colors"
-        >
-          ← 새로운 꿈 조각으로 돌아가기
-        </Link>
-
-        {dreamEntries.length > 0 && (
-          <div className="text-sm oneiri-text-secondary">최신순 정렬</div>
-        )}
-      </nav>
-
-      {/* 꿈 일기 목록 또는 빈 상태 */}
-      {filteredDreams.length > 0 ? (
-        <main className="space-y-2">
-          {filteredDreams.map((entry) => (
-            <DreamEntryCard key={entry.id} entry={entry} />
+      {/* 콘텐츠 영역 */}
+      {activeTab === "dreams" ? (
+        filteredDreams.length > 0 ? (
+          <div className="space-y-1">
+            {filteredDreams.map((dream) => (
+              <DreamEntryCard key={dream.id} entry={dream} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState activeTab="dreams" />
+        )
+      ) : filteredAnalysis.length > 0 ? (
+        <div className="space-y-1">
+          {filteredAnalysis.map((report) => (
+            <AnalysisReportCard key={report.id} report={report} />
           ))}
-        </main>
-      ) : dreamEntries.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="text-center py-24">
-          <div className="text-4xl mb-6 oneiri-text-secondary">🔍</div>
-          <h2 className="font-['Inter'] text-2xl font-medium oneiri-text-primary mb-3">
-            검색 결과가 없습니다
-          </h2>
-          <p className="oneiri-text-secondary mb-8">
-            다른 키워드로 검색해보세요.
-          </p>
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              setShowFavoritesOnly(false);
-            }}
-            className="oneiri-accent hover:text-accent-primary/80 transition-colors"
-          >
-            전체 서재 보기
-          </button>
         </div>
+      ) : (
+        <EmptyState activeTab="analysis" />
       )}
-
-      {/* 통계 푸터 */}
-      {dreamEntries.length > 0 && (
-        <footer className="mt-16 pt-8 border-t border-text-secondary/20 text-center">
-          <p className="text-sm oneiri-text-secondary">
-            총 {dreamEntries.length}개의 꿈을 기록했습니다 • 계속해서 무의식의
-            서재를 채워가세요
-          </p>
-        </footer>
-      )}
-
-      {/* 플로팅 액션 버튼 */}
-      <Link
-        href="/"
-        className="fixed bottom-8 right-8 oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary w-14 h-14 rounded-full flex items-center justify-center transition-colors shadow-lg"
-        title="새로운 꿈 조각 기록하기"
-      >
-        <Plus className="w-6 h-6" />
-      </Link>
     </div>
   );
 }

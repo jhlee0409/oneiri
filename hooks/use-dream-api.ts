@@ -473,3 +473,29 @@ export function useGenerateDreamImage() {
     },
   });
 }
+
+/**
+ * 사용자 분석 리포트 목록 조회 Hook
+ */
+export function useUserAnalysisReports() {
+  return useQuery({
+    queryKey: ["user-analysis-reports"],
+    queryFn: async () => {
+      const { createClient } = await import("@/utils/supabase/client");
+      const supabase = createClient();
+
+      const { data, error } = await supabase
+        .from("analysis_reports")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("분석 리포트 조회 오류:", error);
+        throw error;
+      }
+
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5분
+  });
+}
