@@ -99,7 +99,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
             </p>
 
             {/* 메타데이터 */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {entry.dream_emotion && (
                 <span className="text-lg whitespace-nowrap" title="꿈의 여운">
                   {
@@ -341,7 +341,7 @@ export default function DreamJournal() {
       </header>
 
       {/* 탭 네비게이션 */}
-      {/* <div className="mb-8">
+      <div className="mb-8">
         <div className="flex gap-1 p-1 oneiri-bg-secondary rounded-lg">
           <button
             onClick={() => setActiveTab("dreams")}
@@ -365,7 +365,7 @@ export default function DreamJournal() {
             분석 리포트 ({analysisReports.length})
           </button>
         </div>
-      </div> */}
+      </div>
 
       {/* 검색 및 필터 */}
       {((activeTab === "dreams" && dreamEntries.length > 0) ||

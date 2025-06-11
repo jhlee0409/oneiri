@@ -2,7 +2,16 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MoonStar, Eye, Heart, Lightbulb, Sparkles } from "lucide-react";
+import {
+  MoonStar,
+  Eye,
+  Heart,
+  Lightbulb,
+  Sparkles,
+  CreditCard,
+} from "lucide-react";
+import { ArchetypeCard } from "@/components/ui/archetype-card";
+import { RelatedSymbols } from "@/components/ui/related-symbols";
 
 interface AnalysisReport {
   id: string;
@@ -15,6 +24,12 @@ interface AnalysisReport {
     freudianPerspective: string;
     jungianPerspective: string;
     oneiriSynthesis: string;
+    archetypeCardKey?: string;
+    relatedSymbols?: Array<{
+      symbolName: string;
+      question: string;
+    }>;
+    oneiriNote?: string;
   };
 }
 
@@ -79,13 +94,11 @@ export default async function AnalysisReportPage({
       }
     );
 
-    console.log(reportData);
-
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-4xl">
         <div className="mb-6 sm:mb-8 text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3">
-            Oneiri 꿈 분석 리포트
+            꿈 분석 리포트
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
             생성일: {createdDate}
@@ -195,6 +208,54 @@ export default async function AnalysisReportPage({
               </div>
             </CardContent>
           </Card>
+
+          {/* 꿈의 원형 카드 */}
+          {reportData.report_data.archetypeCardKey && (
+            <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6" />
+                  🃏 당신의 꿈 원형 카드
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-2">
+                  AI가 분석한 당신의 꿈에서 가장 핵심적인 심리적 테마를 대표하는
+                  원형입니다.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center">
+                  <div className="max-w-xs w-full">
+                    <ArchetypeCard
+                      archetypeKey={reportData.report_data.archetypeCardKey}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 연관된 상징 탐험하기 */}
+          {reportData.report_data.relatedSymbols &&
+            reportData.report_data.relatedSymbols.length > 0 && (
+              <RelatedSymbols symbols={reportData.report_data.relatedSymbols} />
+            )}
+
+          {/* Oneiri의 마지막 메모 */}
+          {reportData.report_data.oneiriNote && (
+            <Card className="border-primary/20 shadow-lg bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-950/20 dark:to-pink-950/20 backdrop-blur">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="text-2xl mb-3">💫</div>
+                  <p className="text-sm sm:text-base leading-relaxed font-medium text-muted-foreground italic">
+                    "{reportData.report_data.oneiriNote}"
+                  </p>
+                  <div className="mt-4 text-xs text-muted-foreground/70">
+                    — Oneiri
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* 피드백 섹션 */}
           <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
