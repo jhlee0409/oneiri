@@ -16,17 +16,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          cache: 'pnpm'
           node-version: "lts/*"
-          registry-url: "https://npm.pkg.github.com/"
-          scope: 'jhlee0409'
 
-      - run: pnpm ci
-      - run: pnpm run build
-      - run: npx semantic-release
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.11.1
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Run semantic-release
+        run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
