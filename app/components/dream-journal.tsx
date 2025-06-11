@@ -140,7 +140,21 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   );
 }
 
-function AnalysisReportCard({ report }: { report: any }) {
+interface AnalysisReportSummary {
+  id: string;
+  created_at: string;
+  input_text: string;
+  // add other required fields
+}
+
+interface AnalysisReportSummary {
+  id: string;
+  created_at: string;
+  input_text: string;
+  // add other required fields
+}
+
+function AnalysisReportCard({ report }: { report: AnalysisReportSummary }) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "날짜 없음";
     const date = new Date(dateString);
