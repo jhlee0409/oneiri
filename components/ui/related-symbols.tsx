@@ -17,41 +17,6 @@ export function RelatedSymbols({ symbols }: RelatedSymbolsProps) {
     return null;
   }
 
-  // 상징 이름에서 이모지 추출 함수
-  const getSymbolEmoji = (symbolName: string): string => {
-    const emojiMap: { [key: string]: string } = {
-      문: "🚪",
-      열쇠: "🗝️",
-      물: "💧",
-      바다: "🌊",
-      하늘: "☁️",
-      새: "🕊️",
-      나무: "🌳",
-      꽃: "🌸",
-      불: "🔥",
-      달: "🌙",
-      별: "⭐",
-      거울: "🪞",
-      책: "📖",
-      길: "🛤️",
-      다리: "🌉",
-      집: "🏠",
-      계단: "🪜",
-      빛: "✨",
-      그림자: "👤",
-      상자: "📦",
-    };
-
-    // 상징 이름에서 키워드 찾기
-    for (const [keyword, emoji] of Object.entries(emojiMap)) {
-      if (symbolName.includes(keyword)) {
-        return emoji;
-      }
-    }
-
-    return "🔮"; // 기본 이모지
-  };
-
   return (
     <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
       <CardHeader className="pb-3 sm:pb-4">
@@ -71,11 +36,6 @@ export function RelatedSymbols({ symbols }: RelatedSymbolsProps) {
               className="group p-4 rounded-lg border border-primary/10 bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10 transition-all duration-200 hover:border-primary/20"
             >
               <div className="flex items-start gap-3">
-                {/* 상징 이모지 */}
-                <div className="flex-shrink-0 text-2xl">
-                  {getSymbolEmoji(symbol.symbolName)}
-                </div>
-
                 <div className="flex-1 space-y-2">
                   {/* 상징 이름 */}
                   <h4 className="font-semibold text-primary text-base group-hover:text-primary/80 transition-colors">
