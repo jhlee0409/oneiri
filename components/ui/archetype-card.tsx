@@ -26,12 +26,70 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isValidKey, setIsValidKey] = useState(true);
 
-  // Validate archetypeKey and generate secure image URL
+  // Enhanced validation and secure image URL generation
   const imageUrl = useMemo(() => {
-    // Validate archetypeKey to prevent path traversal and injection
-    const sanitizedKey = archetypeKey.replace(/[^a-zA-Z0-9-_]/g, "");
-    return `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/${sanitizedKey}.png`;
+    // Strict validation for archetypeKey
+    const validateArchetypeKey = (key: string): string | null => {
+      // Basic checks
+      if (!key || typeof key !== "string") {
+        return null;
+      }
+
+      // Length limits (reasonable range for archetype keys)
+      if (key.length < 2 || key.length > 50) {
+        return null;
+      }
+
+      // Check for path traversal attempts
+      if (
+        key.includes("..") ||
+        key.includes("./") ||
+        key.includes("/") ||
+        key.includes("\\")
+      ) {
+        return null;
+      }
+
+      // Check for null bytes and other dangerous characters
+      if (
+        key.includes("\0") ||
+        key.includes("%") ||
+        key.includes("<") ||
+        key.includes(">")
+      ) {
+        return null;
+      }
+
+      // Strict pattern: must start with letter, can contain letters, numbers, hyphens, underscores
+      // No consecutive special characters, must end with alphanumeric
+      const strictPattern =
+        /^[a-zA-Z][a-zA-Z0-9]*(?:[_-][a-zA-Z0-9]+)*[a-zA-Z0-9]$|^[a-zA-Z0-9]$/;
+
+      if (!strictPattern.test(key)) {
+        return null;
+      }
+
+      // Additional check: no more than 2 consecutive identical characters
+      if (/(.)\1{2,}/.test(key)) {
+        return null;
+      }
+
+      return key;
+    };
+
+    const validatedKey = validateArchetypeKey(archetypeKey);
+
+    if (!validatedKey) {
+      console.warn(`Invalid archetype key: ${archetypeKey}`);
+      setIsValidKey(false);
+      // Return a safe fallback URL for a default/error image
+      return `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/default.png`;
+    }
+
+    setIsValidKey(true);
+    return `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/${validatedKey}.png`;
   }, [archetypeKey]);
 
   useEffect(() => {
@@ -108,7 +166,7 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
       <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
         <CardContent className="p-6 text-center">
           <p className="text-muted-foreground">
-            {error || "카드를 표시할 수 없습니다."}
+            {(!isValidKey || error) && "카드를 표시할 수 없습니다."}
           </p>
         </CardContent>
       </Card>
@@ -164,8 +222,23 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
               alt={archetypeKey}
               fill
               className="object-cover"
-              fallbackMessage="이미지를 불러올 수 없습니다"
+              fallbackMessage={
+                !isValidKey
+                  ? "유효하지 않은 카드 키"
+                  : "이미지를 불러올 수 없습니다"
+              }
               containerClassName="w-full h-full"
+              onError={(e) => {
+                console.error(
+                  `아키타입 카드 이미지 로드 실패: ${archetypeKey}`,
+                  e
+                );
+                if (!isValidKey) {
+                  console.warn(
+                    "Invalid archetype key caused image load failure"
+                  );
+                }
+              }}
             />
             {/* 오버레이 효과 */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
