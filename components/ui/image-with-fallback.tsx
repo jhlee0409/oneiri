@@ -37,6 +37,7 @@ export const ImageWithFallback = forwardRef<
     ref
   ) => {
     const [imageError, setImageError] = useState(false);
+    const [fallbackError, setFallbackError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     const handleError = (
@@ -48,11 +49,21 @@ export const ImageWithFallback = forwardRef<
       onError?.(event);
     };
 
+    const handleFallbackError = (
+      event: React.SyntheticEvent<HTMLImageElement, Event>
+    ) => {
+      setFallbackError(true);
+      setIsLoading(false);
+      // 커스텀 onError가 있으면 실행
+      onError?.(event);
+    };
+
     const handleLoad = () => {
       setIsLoading(false);
     };
 
-    if (imageError && fallbackSrc) {
+    // 메인 이미지 실패했지만 fallback 이미지가 있고 아직 fallback 실패하지 않은 경우
+    if (imageError && fallbackSrc && !fallbackError) {
       return (
         <div className={cn("relative", containerClassName)}>
           <Image
@@ -62,15 +73,13 @@ export const ImageWithFallback = forwardRef<
             alt={alt}
             className={className}
             onLoad={handleLoad}
-            onError={(event) => {
-              setImageError(true);
-              onError?.(event);
-            }}
+            onError={handleFallbackError}
           />
         </div>
       );
     }
 
+    // 메인 이미지 실패 시 (fallback 없거나 fallback도 실패한 경우)
     if (imageError) {
       return (
         <div className={cn("relative", containerClassName)}>
