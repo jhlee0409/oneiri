@@ -18,6 +18,7 @@ import {
   DreamRecord,
   DreamsListResponse,
   APIResponse,
+  AnalysisReport,
 } from "@/types/supabase";
 
 /**
@@ -478,11 +479,10 @@ export function useGenerateDreamImage() {
  * 사용자 분석 리포트 목록 조회 Hook
  */
 export function useUserAnalysisReports() {
-  return useQuery({
+  return useQuery<AnalysisReport[]>({
     queryKey: ["user-analysis-reports"],
     queryFn: async () => {
-      const { createClient } = await import("@/utils/supabase/client");
-      const supabase = createClient();
+      const { supabase } = await import("@/utils/supabase/client");
 
       const { data, error } = await supabase
         .from("analysis_reports")

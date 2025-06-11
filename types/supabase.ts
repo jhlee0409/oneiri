@@ -894,3 +894,12 @@ export interface APIResponse<T = any> {
     reset_time: string;
   };
 }
+
+// AnalysisReport 타입 정의 (analysis_reports 테이블 기반)
+export interface AnalysisReport {
+  id: string;
+  user_id: string;
+  created_at: string;
+  input_text: string;
+  report_data: Json;
+}
