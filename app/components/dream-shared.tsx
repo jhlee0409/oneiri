@@ -12,6 +12,21 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { findEmotion, findGenre } from "@/lib/find";
 
+// 좋아요 수 통합 처리를 위한 헬퍼 함수
+const getLikesCount = (dream: any): number => {
+  return dream.total_likes_count ?? dream.likes_count ?? 0;
+};
+
+const updateLikesCount = (dream: any, delta: number) => {
+  const currentCount = getLikesCount(dream);
+  const newCount = Math.max(0, currentCount + delta);
+  return {
+    ...dream,
+    total_likes_count: newCount,
+    likes_count: newCount,
+  };
+};
+
 interface DreamCardProps {
   dream: any; // DreamRecord with extended properties
   onLike: (id: string) => void;
@@ -85,7 +100,7 @@ function DreamCard({ dream, onLike, isLiked }: DreamCardProps) {
             }`}
           >
             <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-            <span>{dream.total_likes_count ?? dream.likes_count ?? 0}</span>
+            <span>{getLikesCount(dream)}</span>
           </button>
         </div>
       </div>
@@ -318,19 +333,7 @@ export default function DreamShared() {
           // 로컬 상태에서 좋아요 수 감소
           setDreams((prev) =>
             prev.map((dream) =>
-              dream.id === dreamId
-                ? {
-                    ...dream,
-                    total_likes_count: Math.max(
-                      0,
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
-                    ),
-                    likes_count: Math.max(
-                      0,
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
-                    ),
-                  }
-                : dream
+              dream.id === dreamId ? updateLikesCount(dream, -1) : dream
             )
           );
         } else {
@@ -347,15 +350,7 @@ export default function DreamShared() {
           // 로컬 상태에서 좋아요 수 증가
           setDreams((prev) =>
             prev.map((dream) =>
-              dream.id === dreamId
-                ? {
-                    ...dream,
-                    total_likes_count:
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
-                    likes_count:
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
-                  }
-                : dream
+              dream.id === dreamId ? updateLikesCount(dream, 1) : dream
             )
           );
         }
@@ -384,19 +379,7 @@ export default function DreamShared() {
           // 로컬 상태에서 좋아요 수 감소
           setDreams((prev) =>
             prev.map((dream) =>
-              dream.id === dreamId
-                ? {
-                    ...dream,
-                    total_likes_count: Math.max(
-                      0,
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
-                    ),
-                    likes_count: Math.max(
-                      0,
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) - 1
-                    ),
-                  }
-                : dream
+              dream.id === dreamId ? updateLikesCount(dream, -1) : dream
             )
           );
         } else {
@@ -414,15 +397,7 @@ export default function DreamShared() {
           // 로컬 상태에서 좋아요 수 증가
           setDreams((prev) =>
             prev.map((dream) =>
-              dream.id === dreamId
-                ? {
-                    ...dream,
-                    total_likes_count:
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
-                    likes_count:
-                      (dream.total_likes_count ?? dream.likes_count ?? 0) + 1,
-                  }
-                : dream
+              dream.id === dreamId ? updateLikesCount(dream, 1) : dream
             )
           );
         }
