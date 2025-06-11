@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { createClient } from "@/utils/supabase/client";
+import { createClient, SUPABASE_URL } from "@/utils/supabase/client";
 import { Sparkles, Info } from "lucide-react";
 import Image from "next/image";
 
@@ -26,6 +26,13 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+
+  // Validate archetypeKey and generate secure image URL
+  const imageUrl = useMemo(() => {
+    // Validate archetypeKey to prevent path traversal and injection
+    const sanitizedKey = archetypeKey.replace(/[^a-zA-Z0-9-_]/g, "");
+    return `${SUPABASE_URL}/storage/v1/object/public/dream-images/archetype-card/${sanitizedKey}.png`;
+  }, [archetypeKey]);
 
   useEffect(() => {
     const fetchCardData = async () => {
@@ -153,7 +160,7 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
           {/* 카드 이미지 영역 */}
           <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 mx-4 rounded-lg">
             <Image
-              src={`https://tfcwgjimdnzitgjvuwoe.supabase.co/storage/v1/object/public/dream-images/archetype-card/${archetypeKey}.png`}
+              src={imageUrl}
               alt={archetypeKey}
               fill
               className="object-cover"
