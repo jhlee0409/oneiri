@@ -126,11 +126,11 @@ export default function Header({ user: initialUser }: Props) {
   };
 
   const navigationLinks = [
-    {
-      href: "/analysis/new",
-      label: "꿈 분석하기",
-      icon: MoonStar,
-    },
+    // {
+    //   href: "/analysis/new",
+    //   label: "꿈 분석하기",
+    //   icon: MoonStar,
+    // },
     {
       href: "/library/dreams",
       label: "내 서재",
