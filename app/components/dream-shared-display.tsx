@@ -611,19 +611,19 @@ export default function SharedDreamDisplay({
     <div className="min-h-screen oneiri-bg-primary">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* 뒤로 가기 네비게이션 */}
-        <nav className="flex gap-6 mb-12 pb-6 border-b border-text-secondary/20">
+        <nav className="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-8 sm:mb-12 pb-4 sm:pb-6 border-b border-text-secondary/20">
           <Link
             href="/shared"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
+            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             공유된 꿈으로 돌아가기
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
+            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             새로운 꿈 조각 기록하기
           </Link>
         </nav>
@@ -647,17 +647,17 @@ export default function SharedDreamDisplay({
         )}
 
         {/* 스토리 제목 */}
-        <header className="mb-8">
-          <h1 className="font-['Inter'] text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-4">
+        <header className="mb-6 sm:mb-8">
+          <h1 className="font-['Inter'] text-2xl sm:text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-3 sm:mb-4">
             {dream.generated_story_title || "무제"}
           </h1>
 
           {/* 꿈 메타데이터 */}
-          <div className="flex items-center gap-6 text-sm oneiri-text-secondary flex-wrap">
+          <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm oneiri-text-secondary flex-wrap">
             {authorDisplayName && (
               <span className="flex items-center gap-2">
                 <span className="text-lg">✍️</span>
-                <span className="oneiri-text-primary font-medium">
+                <span className="oneiri-text-primary font-medium leading line-clamp-1">
                   {authorDisplayName}
                 </span>
               </span>
@@ -696,7 +696,7 @@ export default function SharedDreamDisplay({
         </header>
 
         {/* 메인 스토리 콘텐츠 */}
-        <main className="mb-12">
+        <main className="mb-8 sm:mb-12">
           <div className="prose prose-lg max-w-none">
             {dream.generated_story_content ? (
               dream.generated_story_content
@@ -704,13 +704,13 @@ export default function SharedDreamDisplay({
                 .map((paragraph, index) => (
                   <p
                     key={index}
-                    className="oneiri-text-primary leading-relaxed mb-6 last:mb-0 text-lg"
+                    className="oneiri-text-primary leading-relaxed mb-4 sm:mb-6 last:mb-0 text-base sm:text-lg"
                   >
                     {paragraph}
                   </p>
                 ))
             ) : (
-              <p className="oneiri-text-secondary italic">
+              <p className="oneiri-text-secondary italic text-sm sm:text-base">
                 아직 이야기가 생성되지 않았습니다.
               </p>
             )}
@@ -718,18 +718,18 @@ export default function SharedDreamDisplay({
         </main>
 
         {/* 원본 꿈 입력 */}
-        <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
-          <h2 className="font-['Inter'] text-lg font-medium oneiri-text-primary mb-3 flex items-center">
-            <span className="text-xl mr-2">💭</span>
+        <section className="oneiri-bg-secondary p-4 sm:p-6 mb-8 sm:mb-12 rounded-lg">
+          <h2 className="font-['Inter'] text-base sm:text-lg font-medium oneiri-text-primary mb-3 flex items-center">
+            <span className="text-lg sm:text-xl mr-2">💭</span>
             꿈꾸는 자가 속삭여준 꿈의 조각들
           </h2>
-          <p className="oneiri-text-primary/80 leading-relaxed italic">
+          <p className="oneiri-text-primary/80 leading-relaxed italic text-sm sm:text-base">
             "{dream.dream_input_text || "꿈의 내용이 없습니다."}"
           </p>
         </section>
 
         {/* 소셜 액션 버튼 */}
-        <div className="flex items-center gap-6 py-6 border-t border-b border-text-secondary/20 mb-12">
+        <div className="flex items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-text-secondary/20 mb-8 sm:mb-12 text-sm sm:text-base">
           <button
             onClick={handleToggleLike}
             disabled={isTogglingLike}
@@ -772,8 +772,8 @@ export default function SharedDreamDisplay({
         </div>
 
         {/* 댓글 섹션 */}
-        <section className="mb-12">
-          <h2 className="font-['Inter'] text-xl font-medium oneiri-text-primary mb-6">
+        <section className="mb-8 sm:mb-12">
+          <h2 className="font-['Inter'] text-lg sm:text-xl font-medium oneiri-text-primary mb-4 sm:mb-6">
             댓글 {commentsCount}개
           </h2>
 
