@@ -11,6 +11,29 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Primary Colors - "밤의 색, 별의 빛"
+        navy: {
+          900: "#0A192F", // The Deepest Night
+          800: "#172A45", // Midnight Haze
+          700: "#303C55", // Distant Mountain
+        },
+        // Accent Colors
+        gold: {
+          500: "#D4AF37", // Starlight
+          300: "#F7D56E", // Soft Glow
+        },
+        // Text Colors
+        slate: {
+          100: "#E6F1FF", // Moonlight
+          300: "#A8B2D1", // Whispering Mist
+          500: "#8892B0", // Faded Memory
+        },
+        // System Colors
+        success: "#64FFDA",
+        error: "#FF6464",
+
+        //OLD
+
         // Oneiri Brand Colors - 듀얼 테마 시스템
         oneiri: {
           // 다크 테마: "별이 빛나는 밤의 서재"
@@ -29,10 +52,13 @@ const config: Config = {
             charcoal: "#333333", // 목탄 잉크 - 메인 텍스트
             faded: "#9E9E9E", // 옅은 잉크 - 서브 텍스트
           },
+
           // 공통 시스템 컬러
           violet: "#9370DB", // 여명 바이올렛 - 보조 액센트
           forest: "#2E8B57", // 숲의 초록 - 성공
           garnet: "#C70039", // 석류석 레드 - 에러
+
+          // new
         },
         // 테마 변수 (CSS 변수로 제어)
         "bg-primary": "var(--bg-primary)",
@@ -91,10 +117,45 @@ const config: Config = {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      fontFamily: {
+        serif: ["Gowun Batang", "serif"], // KoPub 바탕체 Pro 대체
+        sans: ["Pretendard", "Noto Sans KR", "sans-serif"],
+      },
+      fontSize: {
+        display: ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
+        headline: ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
+        title: ["24px", { lineHeight: "1.3", letterSpacing: "-0.01em" }],
+        "body-large": ["18px", { lineHeight: "1.6" }],
+        body: ["16px", { lineHeight: "1.6" }],
+        label: ["16px", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+        caption: ["14px", { lineHeight: "1.5" }],
+      },
+      spacing: {
+        xs: "4px",
+        sm: "8px",
+        base: "16px",
+        lg: "32px",
+        xl: "64px",
+      },
+      maxWidth: {
+        container: "1280px",
+        screen: "1920px",
+      },
+      boxShadow: {
+        oneiri: "0px 10px 30px rgba(10, 25, 47, 0.5)",
+        showcase: "0px 20px 50px rgba(0, 0, 0, 0.5)",
+      },
+      // old
       borderRadius: {
+        oneiri: "8px",
+        "oneiri-sm": "4px",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backdropBlur: {
+        oneiri: "10px",
+        "oneiri-soft": "5px",
       },
       keyframes: {
         "accordion-down": {
@@ -113,10 +174,16 @@ const config: Config = {
             height: "0",
           },
         },
+        float: {
+          "0%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        float: "float 0.5s ease-in-out infinite",
       },
     },
   },
