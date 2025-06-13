@@ -68,9 +68,6 @@ export function GlobalHeader() {
           >
             로그인
           </Button>
-          <Button className="text-label bg-gold-500 hover:bg-gold-300 text-navy-900 px-4 py-2 h-auto font-semibold transition-all duration-200 animate-glow">
-            무료로 시작하기
-          </Button>
         </div>
       </div>
     </header>

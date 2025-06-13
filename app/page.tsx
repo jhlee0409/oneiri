@@ -5,12 +5,13 @@ import { SolutionSection } from "@/components/solution-section";
 import { ShowcaseSection } from "@/components/showcase-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { Footer } from "@/components/footer";
+import { MomentOfRevelation } from "@/components/moment-of-revelation";
 
 export default function LandingPage() {
   return (
     <>
       <HeroSection />
-      <EmpathySection />
+      {/* <EmpathySection /> */}
       <SolutionSection />
       <ShowcaseSection />
       <FinalCTASection />

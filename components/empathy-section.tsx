@@ -1,7 +1,7 @@
 export function EmpathySection() {
   return (
     <section
-      className="relative min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:min-h-[720px] flex items-center justify-center bg-navy-900 py-16 sm:py-20 md:py-24"
+      className="relative min-h-screen flex items-center justify-center bg-navy-900 py-16 sm:py-20 md:py-24"
       style={{
         backgroundImage: `url('/images/empathy-section.png')`,
         backgroundSize: "cover",

@@ -242,7 +242,7 @@ body {
   gap: 24px;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 320px;
+  padding: 0 40px;
 }
 
 @media (max-width: 1919px) {
