@@ -24,6 +24,7 @@ import { supabase } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { findEmotion, findMood } from "@/lib/find";
+import { getUserProfile, getUserProfiles } from "@/lib/user-profile-cache";
 
 interface SharedDreamDisplayProps {
   dreamId: string;
@@ -177,27 +178,11 @@ export default function SharedDreamDisplay({
         setGuestLikesCount(guestLikesCountData || 0);
         setCommentsCount(commentsCountData || 0);
 
-        // 작성자 정보 로드 - 새로운 Edge Function 사용 (게스트도 접근 가능)
-        try {
-          const response = await fetch(
-            `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-profile?user_id=${dream.user_id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            setAuthorDisplayName(data.display_name || "익명의 꿈꾸는자");
-          } else {
-            console.error("작성자 정보 로드 실패:", response.status);
-            setAuthorDisplayName("익명의 꿈꾸는자");
-          }
-        } catch (error) {
-          console.error("작성자 정보 로드 실패:", error);
+        // 🚀 최적화: 작성자 정보 로드 (캐싱 적용)
+        if (dream.user_id) {
+          const authorProfile = await getUserProfile(dream.user_id);
+          setAuthorDisplayName(authorProfile.display_name);
+        } else {
           setAuthorDisplayName("익명의 꿈꾸는자");
         }
 
@@ -215,51 +200,32 @@ export default function SharedDreamDisplay({
           console.error("댓글 로드 실패:", commentsError);
           setIsLoadingComments(false);
         } else if (commentsData) {
-          // 각 댓글의 현재 display_name을 실시간으로 가져오기
-          const commentsWithDisplayNames = await Promise.all(
-            commentsData.map(async (comment) => {
-              if (comment.is_anonymous || !comment.user_id) {
-                return {
-                  ...comment,
-                  display_name: "익명의 몽상가",
-                };
-              }
+          // 🚀 최적화: 고유한 user_id들만 추출해서 display_name 한 번에 가져오기 (캐시 사용)
+          const uniqueCommentUserIds = [
+            ...new Set(
+              commentsData
+                .filter((comment) => !comment.is_anonymous && comment.user_id)
+                .map((comment) => comment.user_id)
+            ),
+          ];
 
-              try {
-                const response = await fetch(
-                  `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-profile?user_id=${comment.user_id}`,
-                  {
-                    method: "GET",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                  }
-                );
+          // 캐시를 사용해서 모든 프로필 정보 한 번에 가져오기
+          const userDisplayNames = await getUserProfiles(uniqueCommentUserIds);
 
-                if (response.ok) {
-                  const data = await response.json();
-                  return {
-                    ...comment,
-                    display_name: data.display_name || "꿈꾸는자",
-                  };
-                } else {
-                  return {
-                    ...comment,
-                    display_name: "꿈꾸는자",
-                  };
-                }
-              } catch (error) {
-                console.error(
-                  `사용자 ${comment.user_id} display_name 로드 실패:`,
-                  error
-                );
-                return {
-                  ...comment,
-                  display_name: "꿈꾸는자",
-                };
-              }
-            })
-          );
+          // 🚀 최적화: 집계된 데이터로 댓글 배열 구성 (개별 요청 없음)
+          const commentsWithDisplayNames = commentsData.map((comment) => {
+            if (comment.is_anonymous || !comment.user_id) {
+              return {
+                ...comment,
+                display_name: "익명의 몽상가",
+              };
+            }
+            return {
+              ...comment,
+              display_name:
+                userDisplayNames[comment.user_id]?.display_name || "꿈꾸는자",
+            };
+          });
 
           setComments(commentsWithDisplayNames);
           setIsLoadingComments(false);

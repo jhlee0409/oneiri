@@ -7,6 +7,7 @@ import {
   DreamsListResponse,
   APIResponse,
 } from "@/types/supabase";
+import { getUserProfiles } from "./user-profile-cache";
 
 // 일일 꿈 생성 상태 타입 정의
 export interface DailyWeavingStatus {
@@ -487,6 +488,8 @@ export async function getPublicDreams(
     genre?: string;
     sort?: string;
     order?: "asc" | "desc";
+    user_id?: string; // 로그인 유저라면 전달
+    guest_ip?: string; // 게스트라면 전달
   } = {}
 ): Promise<APIResponse<DreamsListResponse>> {
   try {
@@ -495,7 +498,7 @@ export async function getPublicDreams(
 
     let query = supabase
       .from("dreams")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("is_public", true)
       .range(offset, offset + limit - 1)
       .order("created_at", { ascending: false });
@@ -506,94 +509,101 @@ export async function getPublicDreams(
         `generated_story_title.ilike.%${filters.search}%,generated_story_content.ilike.%${filters.search}%,dream_input_text.ilike.%${filters.search}%`
       );
     }
-
     if (filters.emotion) {
       query = query.eq("dream_emotion", filters.emotion);
     }
-
     if (filters.genre) {
       query = query.eq("story_preference_genre", filters.genre);
     }
 
     const { data: dreams, error, count } = await query;
+    if (error) throw error;
 
-    if (error) {
-      throw error;
+    if (!dreams || dreams.length === 0) {
+      return {
+        success: true,
+        data: {
+          dreams: [],
+          pagination: {
+            page,
+            limit,
+            total: count || 0,
+            pages: Math.ceil((count || 0) / limit),
+          },
+        },
+      };
     }
 
-    // 각 꿈의 작성자 display_name과 총 좋아요 수 (일반 + 게스트) 계산
-    const dreamsWithEnhancedData = await Promise.all(
-      (dreams || []).map(async (dream) => {
-        try {
-          // 작성자 이름 가져오기
-          const nameResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-profile?user_id=${dream.user_id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+    // 로그인 유저/게스트 정보
+    const userId = options.user_id;
+    const guestIp = options.guest_ip;
+    const dreamIds = dreams.map((d) => d.id);
 
-          let userDisplayName = "익명의 꿈꾸는자";
-          if (nameResponse.ok) {
-            const nameData = await nameResponse.json();
-            userDisplayName = nameData.display_name || "익명의 꿈꾸는자";
-          }
-
-          // 일반 사용자 좋아요 수 가져오기
-          const { count: userLikesCount } = await supabase
-            .from("dream_likes")
-            .select("*", { count: "exact", head: true })
-            .eq("dream_id", dream.id);
-
-          // 게스트 좋아요 수 가져오기
-          const { count: guestLikesCount } = await supabase
-            .from("guest_likes")
-            .select("*", { count: "exact", head: true })
-            .eq("dream_id", dream.id);
-
-          // 총 좋아요 수 계산 (일반 좋아요 + 게스트 좋아요)
-          const totalLikes = (userLikesCount || 0) + (guestLikesCount || 0);
-
-          return {
-            ...dream,
-            user_display_name: userDisplayName,
-            total_likes_count: totalLikes,
-          };
-        } catch (error) {
-          console.error(`꿈 ${dream.id} 데이터 로드 실패:`, error);
-          return {
-            ...dream,
-            user_display_name: "익명의 꿈꾸는자",
-            total_likes_count: 0,
-          };
-        }
-      })
-    );
-
-    // 전체 공개 꿈 개수 조회 (필터 적용된 상태)
-    let countQuery = supabase
-      .from("dreams")
-      .select("*", { count: "exact", head: true })
-      .eq("is_public", true);
-
-    if (filters.search) {
-      countQuery = countQuery.or(
-        `generated_story_title.ilike.%${filters.search}%,generated_story_content.ilike.%${filters.search}%,dream_input_text.ilike.%${filters.search}%`
-      );
+    // 🚀 최적화 1: 사용자 좋아요 상태를 한 번에 가져오기
+    let userLikes: string[] = [];
+    let guestLikes: string[] = [];
+    if (userId) {
+      const { data: userLikeRows } = await supabase
+        .from("dream_likes")
+        .select("dream_id")
+        .eq("user_id", userId)
+        .in("dream_id", dreamIds);
+      userLikes = (userLikeRows || []).map((row) => row.dream_id);
+    } else if (guestIp) {
+      const { data: guestLikeRows } = await supabase
+        .from("guest_likes")
+        .select("dream_id")
+        .eq("ip_address", guestIp)
+        .in("dream_id", dreamIds);
+      guestLikes = (guestLikeRows || []).map((row) => row.dream_id);
     }
 
-    if (filters.emotion) {
-      countQuery = countQuery.eq("dream_emotion", filters.emotion);
-    }
+    // 🚀 최적화 2: 모든 dream의 좋아요 수를 한 번에 가져오기
+    const { data: dreamLikesData } = await supabase
+      .from("dream_likes")
+      .select("dream_id")
+      .in("dream_id", dreamIds);
 
-    if (filters.genre) {
-      countQuery = countQuery.eq("story_preference_genre", filters.genre);
-    }
+    const { data: guestLikesData } = await supabase
+      .from("guest_likes")
+      .select("dream_id")
+      .in("dream_id", dreamIds);
 
-    const { count: totalCount } = await countQuery;
+    // dream_id별 좋아요 수 집계
+    const dreamLikesCount: Record<string, number> = {};
+    const guestLikesCount: Record<string, number> = {};
+
+    dreamIds.forEach((dreamId) => {
+      dreamLikesCount[dreamId] = (dreamLikesData || []).filter(
+        (like) => like.dream_id === dreamId
+      ).length;
+      guestLikesCount[dreamId] = (guestLikesData || []).filter(
+        (like) => like.dream_id === dreamId
+      ).length;
+    });
+
+    // 🚀 최적화 3: 고유한 user_id들만 추출해서 display_name 한 번에 가져오기 (캐시 사용)
+    const uniqueUserIds = [...new Set(dreams.map((d) => d.user_id))];
+    const userDisplayNames = await getUserProfiles(uniqueUserIds);
+
+    // 🚀 최적화 4: 집계된 데이터로 dreams 배열 구성 (개별 요청 없음)
+    const dreamsWithEnhancedData = dreams.map((dream) => {
+      const totalLikes =
+        (dreamLikesCount[dream.id] || 0) + (guestLikesCount[dream.id] || 0);
+      const isLikedByCurrentUser = userId
+        ? userLikes.includes(dream.id)
+        : false;
+      const isLikedByGuest = guestIp ? guestLikes.includes(dream.id) : false;
+
+      return {
+        ...dream,
+        user_display_name:
+          userDisplayNames[dream.user_id]?.display_name || "익명의 꿈꾸는자",
+        total_likes_count: totalLikes,
+        is_liked_by_current_user: isLikedByCurrentUser,
+        is_liked_by_guest: isLikedByGuest,
+      };
+    });
 
     return {
       success: true,
@@ -602,13 +612,13 @@ export async function getPublicDreams(
         pagination: {
           page,
           limit,
-          total: totalCount || 0,
-          pages: Math.ceil((totalCount || 0) / limit),
+          total: count || 0,
+          pages: Math.ceil((count || 0) / limit),
         },
       },
     };
   } catch (error) {
-    console.error("Get public dreams failed:", error);
+    console.error("공개 꿈 목록 조회 실패:", error);
     return {
       success: false,
       error:

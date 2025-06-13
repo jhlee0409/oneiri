@@ -151,10 +151,6 @@ export default function DreamShared() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [likedDreams, setLikedDreams] = useState<Set<string>>(new Set());
-  const [guestLikedDreams, setGuestLikedDreams] = useState<Set<string>>(
-    new Set()
-  );
   const [isTogglingLike, setIsTogglingLike] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
     search: "",
@@ -164,46 +160,39 @@ export default function DreamShared() {
   const [showFilters, setShowFilters] = useState(false);
 
   const { user } = useAuth();
-
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  // 클라이언트 IP 가져오기 (간단한 구현)
+  // dreams 불러오기 (user/guest 정보 포함)
   const getClientIP = async () => {
     try {
       const response = await fetch("https://api.ipify.org?format=json");
       const data = await response.json();
       return data.ip;
-    } catch (error) {
-      console.error("IP 가져오기 실패:", error);
-      return "0.0.0.0"; // 기본값
+    } catch {
+      return "0.0.0.0";
     }
   };
 
   const loadDreams = useCallback(
     async (pageNum: number, isNewSearch = false) => {
-      if (pageNum === 1) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
-
+      if (pageNum === 1) setLoading(true);
+      else setLoadingMore(true);
       try {
+        let user_id = user?.id;
+        let guest_ip = undefined;
+        if (!user_id) guest_ip = await getClientIP();
         const result = await getPublicDreams({
           page: pageNum,
           limit: 12,
           ...filters,
+          user_id,
+          guest_ip,
         });
-
         if (result.success && result.data) {
           const newDreams = result.data.dreams;
-
-          if (isNewSearch || pageNum === 1) {
-            setDreams(newDreams);
-          } else {
-            setDreams((prev) => [...prev, ...newDreams]);
-          }
-
+          if (isNewSearch || pageNum === 1) setDreams(newDreams);
+          else setDreams((prev) => [...prev, ...newDreams]);
           setHasMore(pageNum < result.data.pagination.pages);
         }
       } catch (error) {
@@ -213,15 +202,12 @@ export default function DreamShared() {
         setLoadingMore(false);
       }
     },
-    [filters]
+    [filters, user?.id]
   );
 
   // Intersection Observer 설정
   useEffect(() => {
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
+    if (observerRef.current) observerRef.current.disconnect();
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loadingMore) {
@@ -234,15 +220,9 @@ export default function DreamShared() {
       },
       { threshold: 0.1 }
     );
-
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
-    }
-
+    if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current);
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+      if (observerRef.current) observerRef.current.disconnect();
     };
   }, [hasMore, loadingMore, loadDreams]);
 
@@ -251,156 +231,78 @@ export default function DreamShared() {
     setPage(1);
     setHasMore(true);
     loadDreams(1, true);
-  }, [filters]);
+  }, [filters, user?.id]);
 
-  // 초기 로드
+  // 초기 로드 (user 의존성 제거)
   useEffect(() => {
     loadDreams(1);
   }, []);
 
-  // 사용자의 좋아요 상태 로드
-  useEffect(() => {
-    const loadUserLikes = async () => {
-      if (!dreams.length) return;
-
-      try {
-        if (user) {
-          // 로그인한 사용자의 좋아요 상태
-          const { data: userLikes } = await supabase
-            .from("dream_likes")
-            .select("dream_id")
-            .eq("user_id", user.id)
-            .in(
-              "dream_id",
-              dreams.map((dream) => dream.id)
-            );
-
-          if (userLikes) {
-            setLikedDreams(new Set(userLikes.map((like) => like.dream_id)));
-          }
-        } else {
-          // 게스트 사용자의 좋아요 상태
-          const clientIP = await getClientIP();
-          const { data: guestLikes } = await supabase
-            .from("guest_likes")
-            .select("dream_id")
-            .eq("ip_address", clientIP)
-            .in(
-              "dream_id",
-              dreams.map((dream) => dream.id)
-            );
-
-          if (guestLikes) {
-            setGuestLikedDreams(
-              new Set(guestLikes.map((like) => like.dream_id))
-            );
-          }
-        }
-      } catch (error) {
-        console.error("좋아요 상태 로드 실패:", error);
-      }
-    };
-
-    loadUserLikes();
-  }, [dreams, user]);
-
   const handleLike = async (dreamId: string) => {
     if (isTogglingLike === dreamId) return;
-
     setIsTogglingLike(dreamId);
-
     try {
       if (user) {
-        // 로그인한 사용자 좋아요 처리
-        const isCurrentlyLiked = likedDreams.has(dreamId);
-
+        const dream = dreams.find((d) => d.id === dreamId);
+        const isCurrentlyLiked = dream?.is_liked_by_current_user;
         if (isCurrentlyLiked) {
-          // 좋아요 취소
           const { error } = await supabase
             .from("dream_likes")
             .delete()
             .eq("dream_id", dreamId)
             .eq("user_id", user.id);
-
           if (error) throw error;
-
-          setLikedDreams((prev) => {
-            const newLiked = new Set(prev);
-            newLiked.delete(dreamId);
-            return newLiked;
-          });
-
-          // 로컬 상태에서 좋아요 수 감소
-          setDreams((prev) =>
-            prev.map((dream) =>
-              dream.id === dreamId ? updateLikesCount(dream, -1) : dream
-            )
-          );
         } else {
-          // 좋아요 추가
           const { error } = await supabase.from("dream_likes").insert({
             dream_id: dreamId,
             user_id: user.id,
           });
-
           if (error) throw error;
-
-          setLikedDreams((prev) => new Set(prev).add(dreamId));
-
-          // 로컬 상태에서 좋아요 수 증가
-          setDreams((prev) =>
-            prev.map((dream) =>
-              dream.id === dreamId ? updateLikesCount(dream, 1) : dream
-            )
-          );
         }
+        // 로컬 상태만 갱신 (API 재호출 없이)
+        setDreams((prev) =>
+          prev.map((dream) =>
+            dream.id === dreamId
+              ? {
+                  ...dream,
+                  is_liked_by_current_user: !isCurrentlyLiked,
+                  total_likes_count:
+                    dream.total_likes_count + (isCurrentlyLiked ? -1 : 1),
+                }
+              : dream
+          )
+        );
       } else {
-        // 게스트 좋아요 처리
         const clientIP = await getClientIP();
-        const userAgent = navigator.userAgent;
-        const isCurrentlyLiked = guestLikedDreams.has(dreamId);
-
+        const dream = dreams.find((d) => d.id === dreamId);
+        const isCurrentlyLiked = dream?.is_liked_by_guest;
         if (isCurrentlyLiked) {
-          // 게스트 좋아요 취소
           const { error } = await supabase
             .from("guest_likes")
             .delete()
             .eq("dream_id", dreamId)
             .eq("ip_address", clientIP);
-
           if (error) throw error;
-
-          setGuestLikedDreams((prev) => {
-            const newLiked = new Set(prev);
-            newLiked.delete(dreamId);
-            return newLiked;
-          });
-
-          // 로컬 상태에서 좋아요 수 감소
-          setDreams((prev) =>
-            prev.map((dream) =>
-              dream.id === dreamId ? updateLikesCount(dream, -1) : dream
-            )
-          );
         } else {
-          // 게스트 좋아요 추가
           const { error } = await supabase.from("guest_likes").insert({
             dream_id: dreamId,
             ip_address: clientIP,
-            user_agent: userAgent,
+            user_agent: navigator.userAgent,
           });
-
           if (error) throw error;
-
-          setGuestLikedDreams((prev) => new Set(prev).add(dreamId));
-
-          // 로컬 상태에서 좋아요 수 증가
-          setDreams((prev) =>
-            prev.map((dream) =>
-              dream.id === dreamId ? updateLikesCount(dream, 1) : dream
-            )
-          );
         }
+        setDreams((prev) =>
+          prev.map((dream) =>
+            dream.id === dreamId
+              ? {
+                  ...dream,
+                  is_liked_by_guest: !isCurrentlyLiked,
+                  total_likes_count:
+                    dream.total_likes_count + (isCurrentlyLiked ? -1 : 1),
+                }
+              : dream
+          )
+        );
       }
     } catch (error) {
       console.error("좋아요 처리 실패:", error);
@@ -426,7 +328,6 @@ export default function DreamShared() {
             다른 사람들이 공유한 꿈 이야기를 탐험하고 영감을 얻어보세요
           </p>
         </div>
-
         {/* 필터 */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between">
@@ -441,7 +342,6 @@ export default function DreamShared() {
                 className="w-full pl-10 pr-4 py-2 sm:py-2 oneiri-bg-secondary border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-primary oneiri-text-primary text-sm sm:text-base"
               />
             </div>
-
             {/* 필터 토글 */}
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -451,7 +351,6 @@ export default function DreamShared() {
               필터
             </button>
           </div>
-
           {/* 필터 옵션 */}
           {showFilters && (
             <div className="mt-3 sm:mt-4 p-3 sm:p-4 oneiri-bg-secondary border border-gray-200 rounded-lg">
@@ -475,7 +374,6 @@ export default function DreamShared() {
                     ))}
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-xs sm:text-sm font-medium oneiri-text-primary mb-2">
                     장르
@@ -499,7 +397,6 @@ export default function DreamShared() {
             </div>
           )}
         </div>
-
         {/* 꿈 그리드 */}
         {loading ? (
           <div className="max-w-4xl mx-auto px-6 py-12 oneiri-bg-primary min-h-screen">
@@ -527,13 +424,12 @@ export default function DreamShared() {
                   onLike={handleLike}
                   isLiked={
                     user
-                      ? likedDreams.has(dream.id!)
-                      : guestLikedDreams.has(dream.id!)
+                      ? dream.is_liked_by_current_user
+                      : dream.is_liked_by_guest
                   }
                 />
               ))}
             </div>
-
             {/* 무한스크롤 트리거 */}
             {hasMore && (
               <div
