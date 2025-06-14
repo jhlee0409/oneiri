@@ -1,8 +1,8 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import {
@@ -16,10 +16,24 @@ import {
   LogOut,
   Megaphone,
   MoonStar,
+  Brain,
+  PenTool,
+  BarChart3,
+  ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/utils/supabase/client";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import ThemeToggle from "./theme-toggle";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 // 사용자 프로필 인터페이스
 interface UserProfile {
@@ -36,11 +50,12 @@ type Props = {
 
 export default function Header({ user: initialUser }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(initialUser);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-
   // 사용자 프로필 데이터 가져오기
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -125,12 +140,29 @@ export default function Header({ user: initialUser }: Props) {
     router.push("/");
   };
 
-  const navigationLinks = [
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const dreamAnalysisItems = [
+    {
+      href: "/dreams/new",
+      label: "내 꿈 이야기 만들기",
+      icon: PenTool,
+    },
     {
       href: "/analysis/new",
-      label: "꿈 분석하기",
-      icon: MoonStar,
+      label: "내 꿈 분석하기",
+      icon: BarChart3,
     },
+  ];
+
+  const navigationLinks = [
     {
       href: "/library/dreams",
       label: "내 서재",
@@ -142,61 +174,96 @@ export default function Header({ user: initialUser }: Props) {
       icon: Compass,
     },
   ];
-
-  if (!user) return null;
-
   // 표시할 사용자 이름 결정
-  const displayName =
-    userProfile?.display_name || user.user_metadata?.display_name || "사용자";
+  const displayName = useMemo(() => {
+    return (
+      userProfile?.display_name || user?.user_metadata?.display_name || "사용자"
+    );
+  }, [userProfile, user]);
+
+  const isHomePage = useMemo(() => {
+    return pathname === "/";
+  }, [pathname]);
 
   return (
     <>
-      <header className="oneiri-bg-secondary border-b border-text-secondary/20 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <Link
-              href="/"
-              className="font-['Inter'] text-xl font-medium oneiri-accent flex items-center gap-2"
-            >
-              <ImageWithFallback
-                src="/oneiri_logo.png"
-                alt="Oneiri"
-                width={32}
-                height={32}
-                className="rounded-full"
-                fallbackMessage="로고"
-              />
+      <header
+        className={cn(
+          "transition-all duration-300",
+          isScrolled
+            ? "backdrop-blur-custom oneiri-bg-secondary"
+            : "bg-transparent",
+          isHomePage && "fixed top-0 left-0 right-0 z-50",
+          !isHomePage && "oneiri-bg-secondary sticky top-0 left-0 right-0 z-50"
+        )}
+      >
+        <div className="container mx-auto px-8 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <ImageWithFallback
+              src="/oneiri_logo.png"
+              alt="Oneiri"
+              width={32}
+              height={32}
+              className="rounded-full"
+              fallbackMessage="로고"
+            />
+            <span className="font-serif font-bold text-2xl text-slate-100">
               Oneiri
-            </Link>
+            </span>
+          </Link>
 
-            {/* 데스크톱 네비게이션 */}
-            <div className="hidden md:flex items-center gap-4">
-              {navigationLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="oneiri-text-secondary hover:oneiri-accent transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {/* 꿈 기록하기 드롭다운 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 text-label text-slate-300 hover:text-slate-100 transition-colors text-normal font-bold">
+                  꿈 기록하기
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="oneiri-bg-secondary w-56"
+              >
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  꿈 기록하기
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {dreamAnalysisItems.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-2 w-full"
+                      >
+                        <IconComponent className="w-4 h-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-              <ThemeToggle />
+            {/* 기본 네비게이션 링크들 */}
+            {navigationLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-label text-slate-300 hover:text-slate-100 transition-colors text-normal font-bold"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
 
-              <div className="flex items-center gap-3">
-                <Link href="/settings" className="group">
-                  <UserAvatar
-                    user={user}
-                    size="md"
-                    className="group-hover:opacity-80 transition-opacity"
-                  />
-                </Link>
-              </div>
-            </div>
-
-            {/* 모바일 네비게이션 */}
-            <div className="md:hidden flex items-center gap-3">
-              <ThemeToggle />
+          {/* Auth Buttons */}
+          <div className="hidden md:flex  items-center space-x-4">
+            <ThemeToggle />
+            {user ? (
               <Link href="/settings" className="group">
                 <UserAvatar
                   user={user}
@@ -204,14 +271,24 @@ export default function Header({ user: initialUser }: Props) {
                   className="group-hover:opacity-80 transition-opacity"
                 />
               </Link>
-              <button
-                onClick={toggleMobileMenu}
-                className="p-2 oneiri-text-secondary hover:oneiri-accent transition-colors"
-                aria-label="메뉴 열기"
+            ) : (
+              <Button
+                variant="ghost"
+                className="text-label text-slate-300 hover:text-slate-100 hover:bg-navy-700 px-4 py-2 h-auto"
               >
-                <Menu className="w-6 h-6" />
-              </button>
-            </div>
+                로그인
+              </Button>
+            )}
+          </div>
+          {/* 모바일 네비게이션 */}
+          <div className="md:hidden flex items-center gap-3">
+            <button
+              onClick={toggleMobileMenu}
+              className="p-2 oneiri-text-secondary hover:oneiri-accent transition-colors"
+              aria-label="메뉴 열기"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
         </div>
       </header>
@@ -252,8 +329,32 @@ export default function Header({ user: initialUser }: Props) {
 
             {/* 메뉴 내용 */}
             <div className="flex-1 overflow-y-auto pb-32">
-              {/* 기본 네비게이션 */}
+              {/* 꿈 기록하기 섹션 */}
               <nav className="p-6">
+                <div className="mb-4">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold oneiri-text-primary mb-2">
+                    꿈 기록하기
+                  </h3>
+                  <ul className="space-y-1 ml-6">
+                    {dreamAnalysisItems.map((item) => {
+                      const IconComponent = item.icon;
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={closeMobileMenu}
+                            className="flex items-center gap-3 py-3 px-3 oneiri-text-secondary hover:oneiri-accent hover:bg-text-secondary/5 rounded-lg transition-all duration-200"
+                          >
+                            <IconComponent className="w-4 h-4" />
+                            <span>{item.label}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                {/* 기본 네비게이션 */}
                 <ul className="space-y-2">
                   {navigationLinks.map((link) => {
                     const IconComponent = link.icon;
@@ -295,16 +396,18 @@ export default function Header({ user: initialUser }: Props) {
 
             {/* 메뉴 최하단 - 사용자 정보 */}
             <div className="absolute bottom-0 left-0 right-0 border-t border-text-secondary/10 bg-oneiri-bg-secondary p-4">
-              <div className="flex items-center gap-3 mb-4">
-                <UserAvatar user={user} size="lg" />
+              <div className="flex items-center gap-3 mb-4 px-4">
+                <UserAvatar user={user} size="md" />
+
                 <div className="flex-1 min-w-0">
                   <p className="oneiri-text-primary font-medium truncate text-lg">
                     {displayName}
                   </p>
                   <p className="oneiri-text-secondary text-sm truncate">
-                    {user.email}
+                    {user?.email}
                   </p>
                 </div>
+                <ThemeToggle />
               </div>
 
               {/* 로그아웃 버튼 */}

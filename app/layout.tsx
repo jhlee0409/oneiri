@@ -9,7 +9,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { GlobalHeader } from "@/components/global-header";
+import Header from "./components/header";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -107,7 +108,7 @@ export default async function RootLayout({
       >
         <QueryProvider>
           {/* <UpdateBanner /> */}
-          <GlobalHeader user={user} />
+          <Header user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
           <Toaster />

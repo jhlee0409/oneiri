@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sun, MoonStar, Monitor } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Sun, MoonStar, Monitor, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Theme = "light" | "dark" | "system";
 
 type Props = {
-  position?: "left" | "right" | "top" | "bottom" | "left top" | "right top";
+  position?: "left" | "right" | "top" | "bottom";
 };
 
 export default function ThemeToggle({ position = "right" }: Props) {
@@ -59,68 +64,71 @@ export default function ThemeToggle({ position = "right" }: Props) {
     );
   }
 
+  const getThemeIcon = () => {
+    switch (theme) {
+      case "light":
+        return <Sun className="w-4 h-4" />;
+      case "dark":
+        return <MoonStar className="w-4 h-4" />;
+      case "system":
+        return <Monitor className="w-4 h-4" />;
+    }
+  };
+
+  const getThemeLabel = () => {
+    switch (theme) {
+      case "light":
+        return "라이트";
+      case "dark":
+        return "다크";
+      case "system":
+        return "시스템";
+    }
+  };
+
   return (
-    <div className="relative group">
-      <button className="w-10 h-10 rounded-lg oneiri-bg-secondary hover:bg-bg-secondary/80 transition-colors flex items-center justify-center">
-        {theme === "light" && <Sun className="w-5 h-5 oneiri-text-primary" />}
-        {theme === "dark" && (
-          <MoonStar className="w-5 h-5 oneiri-text-primary" />
-        )}
-        {theme === "system" && (
-          <Monitor className="w-5 h-5 oneiri-text-primary" />
-        )}
-      </button>
-
-      {/* 드롭다운 메뉴 */}
-      <div
-        className={cn(
-          "absolute right-0 mt-2 w-48 oneiri-bg-secondary rounded-lg shadow-lg border border-text-secondary/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50",
-          position === "left" && "left-0",
-          position === "right" && "right-0",
-          position === "top" && "top-0",
-          position === "bottom" && "bottom-0",
-          position === "left top" && "left-0  -translate-y-[140%]",
-          position === "right top" && "right-0  -translate-y-[140%]"
-        )}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center gap-2 px-3 py-2 rounded-lg oneiri-bg-secondary hover:bg-bg-secondary/80 transition-colors oneiri-text-secondary">
+          {getThemeIcon()}
+          <span className="hidden sm:inline text-sm">{getThemeLabel()}</span>
+          <ChevronDown className="w-3 h-3" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={position === "left" ? "start" : "end"}
+        className="oneiri-bg-secondary w-48"
       >
-        <div className="p-2 space-y-1">
-          <button
-            onClick={() => handleThemeChange("light")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-              theme === "light"
-                ? "oneiri-accent-bg text-bg-primary"
-                : "oneiri-text-primary hover:bg-bg-primary/10"
-            }`}
-          >
-            <Sun className="w-4 h-4" />
-            라이트 테마
-          </button>
+        <DropdownMenuItem
+          onClick={() => handleThemeChange("light")}
+          className={`flex items-center gap-2 ${
+            theme === "light" ? "bg-accent text-accent-foreground" : ""
+          }`}
+        >
+          <Sun className="w-4 h-4" />
+          라이트 테마
+        </DropdownMenuItem>
 
-          <button
-            onClick={() => handleThemeChange("dark")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-              theme === "dark"
-                ? "oneiri-accent-bg text-bg-primary"
-                : "oneiri-text-primary hover:bg-bg-primary/10"
-            }`}
-          >
-            <MoonStar className="w-4 h-4" />
-            다크 테마
-          </button>
+        <DropdownMenuItem
+          onClick={() => handleThemeChange("dark")}
+          className={`flex items-center gap-2 ${
+            theme === "dark" ? "bg-accent text-accent-foreground" : ""
+          }`}
+        >
+          <MoonStar className="w-4 h-4" />
+          다크 테마
+        </DropdownMenuItem>
 
-          <button
-            onClick={() => handleThemeChange("system")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-              theme === "system"
-                ? "oneiri-accent-bg text-bg-primary"
-                : "oneiri-text-primary hover:bg-bg-primary/10"
-            }`}
-          >
-            <Monitor className="w-4 h-4" />
-            시스템 설정
-          </button>
-        </div>
-      </div>
-    </div>
+        <DropdownMenuItem
+          onClick={() => handleThemeChange("system")}
+          className={`flex items-center gap-2 ${
+            theme === "system" ? "bg-accent text-accent-foreground" : ""
+          }`}
+        >
+          <Monitor className="w-4 h-4" />
+          시스템 설정
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
