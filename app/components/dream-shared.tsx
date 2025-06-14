@@ -83,7 +83,7 @@ function DreamCard({ dream, onLike, isLiked }: DreamCardProps) {
             <span className="text-xs oneiri-accent-bg oneiri-text-primary px-2 py-1 rounded-full">
               {findEmotion(dream.dream_emotion)?.label || "없음"}
             </span>
-            <span className="text-xs oneiri-text-secondary">
+            <span className="text-xs oneiri-text-secondary line-clamp-1">
               {dream.user_display_name || "익명"}
             </span>
           </div>
