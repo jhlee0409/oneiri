@@ -11,6 +11,7 @@ export function HeroSection() {
         autoPlay
         loop
         muted
+        playsInline
         controls={false}
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover"
