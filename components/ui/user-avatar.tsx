@@ -6,6 +6,7 @@ import { User as UserIcon } from "lucide-react";
 import { supabase } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
+import { getUserProfile } from "@/lib/user-profile-cache";
 
 interface UserAvatarProps {
   userId?: string;
@@ -49,40 +50,20 @@ export function UserAvatar({
       }
 
       try {
-        // Edge Function을 사용해서 프로필 정보 가져오기 (게스트도 접근 가능)
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-profile?user_id=${targetUserId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        // 캐시를 사용해서 프로필 정보 가져오기
+        const profile = await getUserProfile(targetUserId);
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.avatar_url) {
-            // 1순위: 사용자가 업로드한 아바타
-            setAvatarUrl(data.avatar_url);
-          } else if (user?.user_metadata?.avatar_url) {
-            // 2순위: Google OAuth 아바타
-            setAvatarUrl(user.user_metadata.avatar_url);
-          } else if (fallbackUrl) {
-            // 3순위: 제공된 fallback URL
-            setAvatarUrl(fallbackUrl);
-          } else {
-            setAvatarUrl(null);
-          }
+        if (profile.avatar_url) {
+          // 1순위: 사용자가 업로드한 아바타
+          setAvatarUrl(profile.avatar_url);
+        } else if (user?.user_metadata?.avatar_url) {
+          // 2순위: Google OAuth 아바타
+          setAvatarUrl(user.user_metadata.avatar_url);
+        } else if (fallbackUrl) {
+          // 3순위: 제공된 fallback URL
+          setAvatarUrl(fallbackUrl);
         } else {
-          // Edge Function 실패 시 fallback 시도
-          if (user?.user_metadata?.avatar_url) {
-            setAvatarUrl(user.user_metadata.avatar_url);
-          } else if (fallbackUrl) {
-            setAvatarUrl(fallbackUrl);
-          } else {
-            setAvatarUrl(null);
-          }
+          setAvatarUrl(null);
         }
       } catch (error) {
         console.error("아바타 로드 오류:", error);
