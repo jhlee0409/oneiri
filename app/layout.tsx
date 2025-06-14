@@ -104,7 +104,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} bg-navy-900 min-h-screen flex flex-col`}
+        className={`${inter.className} oneiri-bg-primary min-h-screen flex flex-col`}
       >
         <QueryProvider>
           {/* <UpdateBanner /> */}

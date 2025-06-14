@@ -208,7 +208,7 @@ export default function Header({ user: initialUser }: Props) {
               className="rounded-full"
               fallbackMessage="로고"
             />
-            <span className="font-serif font-bold text-2xl text-slate-100">
+            <span className="font-serif font-bold text-2xl text-slate-300">
               Oneiri
             </span>
           </Link>
@@ -234,7 +234,7 @@ export default function Header({ user: initialUser }: Props) {
                 {dreamAnalysisItems.map((item) => {
                   const IconComponent = item.icon;
                   return (
-                    <DropdownMenuItem key={item.href} asChild>
+                    <DropdownMenuItem key={"desktop-" + item.href} asChild>
                       <Link
                         href={item.href}
                         className="flex items-center gap-2 w-full"
@@ -339,7 +339,7 @@ export default function Header({ user: initialUser }: Props) {
                     {dreamAnalysisItems.map((item) => {
                       const IconComponent = item.icon;
                       return (
-                        <li key={item.href}>
+                        <li key={"mobile-" + item.href}>
                           <Link
                             href={item.href}
                             onClick={closeMobileMenu}
