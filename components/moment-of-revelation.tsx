@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Lock } from "lucide-react";
+import { Pencil } from "lucide-react";
 import Image from "next/image";
 
 interface MomentOfRevelationProps {
@@ -16,16 +16,14 @@ interface MomentOfRevelationProps {
     imageUrl: string;
     symbolMeaning?: string;
   };
-  onSaveToLibrary: () => void;
-  onRecordNewDream: () => void;
+  onClick: () => void;
 }
 
 export function MomentOfRevelation({
   isOpen,
   onClose,
   cardData,
-  onSaveToLibrary,
-  onRecordNewDream,
+  onClick,
 }: MomentOfRevelationProps) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [showHoverIcon, setShowHoverIcon] = useState(false);
@@ -35,22 +33,13 @@ export function MomentOfRevelation({
       setCurrentPhase(0);
       const timers = [
         setTimeout(() => setCurrentPhase(1), 0), // Phase 1: 카드 제시
-        setTimeout(() => setCurrentPhase(2), 2000), // Phase 2: 의미 부여
-        setTimeout(() => setCurrentPhase(3), 6000), // Phase 3: 행동 유도
+        setTimeout(() => setCurrentPhase(2), 1000), // Phase 2: 의미 부여
+        setTimeout(() => setCurrentPhase(3), 3500), // Phase 3: 행동 유도
       ];
 
       return () => timers.forEach(clearTimeout);
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen && currentPhase === 0) {
-      // 카드 등장 사운드
-      const audio = new Audio("/sounds/chime-bell.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(() => {});
-    }
-  }, [isOpen, currentPhase]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -114,7 +103,7 @@ export function MomentOfRevelation({
 
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                   <h3 className="text-2xl font-bold mb-2">{cardData.title}</h3>
-                  <p className="text-lg opacity-90">{cardData.archetype}</p>
+                  <p className="text-sm opacity-90">{cardData.symbolMeaning}</p>
                 </div>
               </div>
 
@@ -158,22 +147,6 @@ export function MomentOfRevelation({
                   className="absolute inset-0 bg-navy-900"
                 />
 
-                {/* 배경 이미지 - 달빛 아래 깃털 */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.2 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1, ease: "easeIn" }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src="/images/moonlight-feather.jpg"
-                    alt="Background"
-                    fill
-                    className="object-cover"
-                  />
-                </motion.div>
-
                 {/* 텍스트 콘텐츠 */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
                   <div className="text-center max-w-2xl px-8 mt-[500px]">
@@ -188,7 +161,7 @@ export function MomentOfRevelation({
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 2.5 }}
+                      transition={{ duration: 0.5, delay: 1.5 }}
                       className="text-lg text-slate-100"
                     >
                       이 카드 또한 당신이 놓쳤을지 모를 소중한 기억입니다.
@@ -204,7 +177,7 @@ export function MomentOfRevelation({
                       className="flex gap-4 mt-12"
                     >
                       <Button
-                        onClick={onSaveToLibrary}
+                        onClick={onClick}
                         onMouseEnter={() => setShowHoverIcon(true)}
                         onMouseLeave={() => setShowHoverIcon(false)}
                         className="bg-gold-500 text-navy-900 hover:bg-gold-300 hover:scale-[1.03] transition-all duration-200 text-base px-6 py-3"
@@ -215,21 +188,13 @@ export function MomentOfRevelation({
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: -10 }}
-                              className="mr-2"
+                              className="mr-1"
                             >
-                              <Lock className="w-4 h-4" />
+                              <Pencil className="w-4 h-4" />
                             </motion.div>
                           )}
                         </AnimatePresence>
-                        내 서재에 영원히 간직하기
-                      </Button>
-
-                      <Button
-                        onClick={onRecordNewDream}
-                        variant="outline"
-                        className="border-slate-300 text-slate-100 hover:border-gold-500 hover:text-gold-500 transition-all duration-200 text-base px-6 py-3"
-                      >
-                        다른 꿈 이야기 들려주기
+                        내 진짜 꿈으로 카드 만들기
                       </Button>
                     </motion.div>
                   )}
@@ -237,6 +202,13 @@ export function MomentOfRevelation({
               </>
             )}
           </AnimatePresence>
+          {/* 뒤로가기 버튼 */}
+          <button
+            onClick={onClose}
+            className="absolute z-50 top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            ✕
+          </button>
         </motion.div>
       )}
     </AnimatePresence>

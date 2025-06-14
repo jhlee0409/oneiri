@@ -1,4 +1,3 @@
-import { Feather, Compass, Book } from "lucide-react";
 import { ImageWithFallback } from "./ui/image-with-fallback";
 
 const solutionItems = [
@@ -27,14 +26,14 @@ const solutionItems = [
 
 export function SolutionSection() {
   return (
-    <section className="min-h-[400px] sm:min-h-[500px] md:min-h-[700px] lg:h-[1000px] flex items-center justify-center bg-navy-900 py-8 sm:py-12 md:py-16 lg:py-0">
+    <section className="min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:h-[800px] flex items-center justify-center bg-navy-900 py-8 sm:py-12 md:py-16 lg:py-0">
       <div className="grid-oneiri">
         {solutionItems.map((item) => (
           <div
             key={item.title}
             className="col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-4 text-center bg-navy-800 rounded-lg p-8 shadow-oneiri"
           >
-            <div className="inline-flex items-center justify-center mb-6 w-1/2 mx-auto sm:w-full sm:mx-0 sm:mb-0 md:w-1/2 md:mx-auto lg:w-full lg:mx-0 lg:mb-0">
+            <div className="w-1/2 sm:w-1/3 md:w-1/2 lg:w-full inline-flex items-center justify-center mb-6 mx-auto sm:mx-0 sm:mb-0 md:mx-auto lg:mx-0 lg:mb-0">
               <ImageWithFallback
                 src={item.img}
                 alt={item.alt}

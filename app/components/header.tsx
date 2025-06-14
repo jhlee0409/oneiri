@@ -141,11 +141,6 @@ export default function Header({ user: initialUser }: Props) {
       label: "탐험하기",
       icon: Compass,
     },
-    {
-      href: "/notices",
-      label: "공지사항",
-      icon: Megaphone,
-    },
   ];
 
   if (!user) return null;

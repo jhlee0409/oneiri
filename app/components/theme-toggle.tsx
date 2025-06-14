@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { Sun, MoonStar, Monitor } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark" | "system";
 
-export default function ThemeToggle() {
+type Props = {
+  position?: "left" | "right" | "top" | "bottom" | "left top" | "right top";
+};
+
+export default function ThemeToggle({ position = "right" }: Props) {
   const [theme, setTheme] = useState<Theme>("system");
   const [mounted, setMounted] = useState(false);
 
@@ -67,7 +72,17 @@ export default function ThemeToggle() {
       </button>
 
       {/* 드롭다운 메뉴 */}
-      <div className="absolute right-0 mt-2 w-48 oneiri-bg-secondary rounded-lg shadow-lg border border-text-secondary/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+      <div
+        className={cn(
+          "absolute right-0 mt-2 w-48 oneiri-bg-secondary rounded-lg shadow-lg border border-text-secondary/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50",
+          position === "left" && "left-0",
+          position === "right" && "right-0",
+          position === "top" && "top-0",
+          position === "bottom" && "bottom-0",
+          position === "left top" && "left-0  -translate-y-[140%]",
+          position === "right top" && "right-0  -translate-y-[140%]"
+        )}
+      >
         <div className="p-2 space-y-1">
           <button
             onClick={() => handleThemeChange("light")}

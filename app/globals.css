@@ -12,6 +12,12 @@ body {
   }
 }
 
+html,
+body {
+  background-color: #0a192f;
+  min-height: 100vh;
+}
+
 @layer base {
   :root {
     /* Oneiri Brand Theme Variables - 라이트 테마 (새벽의 양피지) */

@@ -13,9 +13,10 @@ const config: Config = {
       colors: {
         // Primary Colors - "밤의 색, 별의 빛"
         navy: {
-          900: "#0A192F", // The Deepest Night
-          800: "#172A45", // Midnight Haze
-          700: "#303C55", // Distant Mountain
+          900: "#0d0d1a", // The Deepest Night
+          800: "#1a1a2e", // Midnight Haze
+          700: "#333333", // Distant Mountain
+          100: "#f0f0f0", // Moonlight
         },
         // Accent Colors
         gold: {

@@ -4,34 +4,40 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MomentOfRevelation } from "./moment-of-revelation";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Moon, Sparkles } from "lucide-react";
+import { ImageWithFallback } from "./ui/image-with-fallback";
+import { useRouter } from "next/navigation";
 
 // 데모용 카드 데이터
 const DEMO_CARDS = [
   {
     id: "demo-1",
-    title: "The Ocean",
-    archetype: "The Ocean",
-    imageUrl: "/images/dream-cards/the_ocean.png",
-    symbolMeaning: "당신의 무의식은 지금 보호와 안전을 갈망하고 있습니다.",
+    title: "The Discovery",
+    archetype: "the_discovery",
+    imageUrl: "/images/dream-cards/the_discovery.png",
+    symbolMeaning:
+      "당신의 무의식은 지금 새로운 기회와 깨달음을 마주할 준비가 되었어요.",
   },
   {
     id: "demo-2",
-    title: "The Reunion",
-    archetype: "The Reunion",
-    imageUrl: "/images/dream-cards/the_reunion.png",
-    symbolMeaning: "새로운 모험과 발견을 향한 내면의 열망이 깨어나고 있습니다.",
+    title: "The Flight",
+    archetype: "the_flight",
+    imageUrl: "/images/dream-cards/the_flight.png",
+    symbolMeaning:
+      "마음속 깊은 곳에서부터, 현실의 제약을 벗어난 진정한 자유를 갈망하고 있군요.",
   },
   {
     id: "demo-3",
-    title: "The Tower",
-    archetype: "The Tower",
-    imageUrl: "/images/dream-cards/the_tower.png",
-    symbolMeaning: "과거와 미래를 연결하는 중요한 순간에 서 있습니다.",
+    title: "The Growth",
+    archetype: "the_growth",
+    imageUrl: "/images/dream-cards/the_growth.png",
+    symbolMeaning:
+      "보이지 않는 곳에서부터, 당신의 잠재력은 조용하지만 단단하게 자라나고 있습니다.",
   },
 ];
 
-export function ShowcaseSection() {
+export function ShowcaseSection({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const router = useRouter();
   const [showDemo, setShowDemo] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [selectedCard, setSelectedCard] = useState<
@@ -57,20 +63,6 @@ export function ShowcaseSection() {
     }, 500);
   };
 
-  const handleSaveToLibrary = () => {
-    // 실제로는 로그인 유도 또는 회원가입 CTA로 연결
-    alert("Oneiri에 가입하고 당신만의 꿈 서재를 만들어보세요!");
-    setShowRevelation(false);
-    setShowDemo(false);
-  };
-
-  const handleRecordNewDream = () => {
-    // 데모 리셋
-    setShowRevelation(false);
-    setSelectedCard(null);
-    // 다시 카드 뽑기 가능
-  };
-
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-[120px] bg-navy-900">
       <div
@@ -79,11 +71,11 @@ export function ShowcaseSection() {
       >
         {/* Text Area - Columns 1-5 */}
         <div className="col-span-12 lg:col-span-5 px-4 sm:px-6 lg:px-0 text-center lg:text-left">
-          <h2 className="font-serif font-bold text-xl sm:text-2xl md:text-3xl lg:text-headline text-slate-100 mb-4 sm:mb-6">
-            백 마디 말보다, 한 번의 경험.
+          <h2 className="font-serif font-bold text-xl sm:text-2xl md:text-3xl lg:text-headline text-slate-100 mb-4 sm:mb-6 whitespace-pre-line">
+            {`말로 설명하기 어려운 꿈,\n이제는 이야기로 남겨보세요.`}
           </h2>
-          <p className="text-sm sm:text-base md:text-body text-slate-300 max-w-lg mx-auto lg:mx-0 mb-8">
-            꿈을 기록하지 않아도 괜찮아요. 지금 기분에 맞는 카드를 뽑아보세요!
+          <p className="text-sm sm:text-base md:text-body text-slate-300 max-w-lg mx-auto lg:mx-0 mb-8 whitespace-pre-line">
+            {`어딘가 모르게 마음에 남았던 장면.\n알 수 없는 감정.\n\n지금 그 꿈을 남겨보세요.\nAI가 당신만의 방식으로 이야기를 들려드립니다.`}
           </p>
 
           {/* 데모 시작 버튼 */}
@@ -92,8 +84,7 @@ export function ShowcaseSection() {
             size="lg"
             className="bg-gold-500 text-navy-900 hover:bg-gold-400 transition-all duration-300 transform hover:scale-105"
           >
-            <Sparkles className="w-5 h-5 mr-2" />
-            지금 카드 뽑아보기
+            <Moon className="w-5 h-5 mr-2" />내 꿈 들려주기
           </Button>
         </div>
 
@@ -105,10 +96,12 @@ export function ShowcaseSection() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="aspect-video rounded-oneiri shadow-showcase transition-transform duration-300 hover:scale-[1.02] lg:hover:scale-[1.03] cursor-pointer overflow-hidden"
+                className="aspect-2/3 rounded-oneiri shadow-showcase transition-transform duration-300 hover:scale-[1.02] lg:hover:scale-[1.03] cursor-pointer overflow-hidden"
                 onClick={() => setShowDemo(true)}
               >
-                <img
+                <ImageWithFallback
+                  width={1000}
+                  height={1000}
                   src="/images/showcase-section.png"
                   alt="Oneiri 쇼케이스"
                   className="w-full h-full object-cover"
@@ -128,10 +121,10 @@ export function ShowcaseSection() {
                     animate={{ scale: 1, opacity: 1 }}
                     className="text-center"
                   >
-                    <h3 className="text-2xl font-serif text-slate-100 mb-4">
+                    <h3 className="text-xl sm:text-2xl font-serif font-bold text-slate-100 mb-4">
                       당신의 무의식이 전하는 메시지
                     </h3>
-                    <p className="text-slate-300 mb-8">
+                    <p className="text-sm sm:text-base md:text-lg lg:text-body text-slate-300 mb-8">
                       마음을 비우고, 끌리는 순간 클릭하세요
                     </p>
                     <Button
@@ -164,7 +157,15 @@ export function ShowcaseSection() {
                           ease: "linear",
                         }}
                         className="w-32 h-44 mx-auto bg-gradient-to-br from-gold-500 to-gold-700 rounded-lg shadow-xl"
-                      />
+                      >
+                        <ImageWithFallback
+                          width={1000}
+                          height={1000}
+                          src="/images/dream-cards/card-back.png"
+                          alt="Oneiri 쇼케이스"
+                          className="w-full h-full object-cover"
+                        />
+                      </motion.div>
                     </div>
                     <p className="text-slate-300 animate-pulse">
                       당신의 카드를 찾고 있습니다...
@@ -193,10 +194,23 @@ export function ShowcaseSection() {
       {selectedCard && (
         <MomentOfRevelation
           isOpen={showRevelation}
-          onClose={() => setShowRevelation(false)}
+          onClose={() => {
+            setShowDemo(false);
+            setSelectedCard(null);
+            setIsDrawing(false);
+          }}
           cardData={selectedCard}
-          onSaveToLibrary={handleSaveToLibrary}
-          onRecordNewDream={handleRecordNewDream}
+          onClick={() => {
+            if (isLoggedIn) {
+              router.push("/dreams/new");
+            } else {
+              router.push("/login");
+            }
+
+            setShowRevelation(false);
+            setSelectedCard(null);
+            setIsDrawing(false);
+          }}
         />
       )}
     </section>
