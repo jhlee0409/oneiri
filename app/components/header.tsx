@@ -208,7 +208,9 @@ export default function Header({ user: initialUser }: Props) {
               className="rounded-full"
               fallbackMessage="로고"
             />
-            <span className="font-serif font-bold text-2xl text-slate-300">
+            <span
+              className={cn("font-bold text-2xl text-slate-300 font-italianno")}
+            >
               Oneiri
             </span>
           </Link>

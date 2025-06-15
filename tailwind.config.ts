@@ -121,6 +121,7 @@ const config: Config = {
       fontFamily: {
         serif: ["Gowun Batang", "serif"], // KoPub 바탕체 Pro 대체
         sans: ["Pretendard", "Noto Sans KR", "sans-serif"],
+        italianno: ["Italianno", "serif"],
       },
       fontSize: {
         display: ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em" }],

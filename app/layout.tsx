@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Italianno } from "next/font/google";
 import "./globals.css";
 import Footer from "./components/footer";
 import { createClient } from "@/utils/supabase/server";
@@ -12,6 +12,11 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import Header from "./components/header";
 
 const inter = Inter({ subsets: ["latin"] });
+const italianno = Italianno({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-italianno",
+});
 
 export const metadata: Metadata = {
   // 웹사이트의 기준 URL. 소셜 공유 시 절대 경로를 만드는 데 사용됩니다.
