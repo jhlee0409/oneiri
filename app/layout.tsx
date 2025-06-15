@@ -109,7 +109,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} oneiri-bg-primary min-h-screen flex flex-col`}
+        className={`${inter.className} ${italianno.variable} oneiri-bg-primary min-h-screen flex flex-col`}
       >
         <script
           type="application/ld+json"
