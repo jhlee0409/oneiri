@@ -1,5 +1,21 @@
 import AuthGuard from "@/app/components/auth-guard";
 import DreamForm from "@/app/components/dream-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "새로운 꿈 기록",
+  description:
+    "오늘 밤 꾼 꿈을 기록하고 AI가 만들어주는 아름다운 이야기로 변환해보세요. 당신의 무의식이 들려주는 이야기를 발견하세요.",
+  openGraph: {
+    title: "새로운 꿈 기록 - Oneiri",
+    description: "꿈의 조각들을 모아 특별한 이야기로 만들어보세요.",
+    url: "https://www.oneiri.app/dreams/new",
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function Home() {
   return (

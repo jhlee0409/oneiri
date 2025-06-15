@@ -20,7 +20,7 @@ const italianno = Italianno({
 
 export const metadata: Metadata = {
   // 웹사이트의 기준 URL. 소셜 공유 시 절대 경로를 만드는 데 사용됩니다.
-  metadataBase: new URL("https://oneiri.vercel.app"), // 현재 배포된 도메인
+  metadataBase: new URL("https://www.oneiri.app"), // 현재 배포된 도메인
 
   // 브라우저 탭에 표시될 제목 형식 (예: "나의 꿈 서재 | Oneiri")
   title: {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "Oneiri: 간밤의 꿈, 한 편의 이야기가 되다",
     description:
       "당신의 흩어진 꿈 조각으로, AI와 함께 세상에 없던 이야기를 만들어보세요.",
-    url: "https://oneiri.vercel.app",
+    url: "https://www.oneiri.app",
     siteName: "Oneiri",
     // 공유 시 보일 기본 이미지 (로고나 메인 비주얼)
     images: [
@@ -95,7 +95,7 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -111,6 +111,34 @@ export default async function RootLayout({
       <body
         className={`${inter.className} oneiri-bg-primary min-h-screen flex flex-col`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Oneiri",
+              description:
+                "AI 기반 꿈 일기 플랫폼. 당신의 꿈을 기록하고 아름다운 이야기로 변환하세요.",
+              url: "https://www.oneiri.app",
+              applicationCategory: "LifestyleApplication",
+              operatingSystem: "Any",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "KRW",
+              },
+              creator: {
+                "@type": "Organization",
+                name: "Oneiri Team",
+              },
+              potentialAction: {
+                "@type": "ViewAction",
+                target: "https://www.oneiri.app",
+              },
+            }),
+          }}
+        />
         <QueryProvider>
           {/* <UpdateBanner /> */}
           <Header user={user} />
