@@ -272,12 +272,14 @@ export default function Header({ user: initialUser }: Props) {
                 />
               </Link>
             ) : (
-              <Button
-                variant="ghost"
-                className="text-label text-slate-300 hover:text-slate-100 hover:bg-navy-700 px-4 py-2 h-auto"
-              >
-                로그인
-              </Button>
+              <Link href="/login">
+                <Button
+                  variant="ghost"
+                  className="text-label text-slate-300 hover:text-slate-100 hover:bg-navy-700 px-4 py-2 h-auto"
+                >
+                  로그인
+                </Button>
+              </Link>
             )}
           </div>
           {/* 모바일 네비게이션 */}
@@ -396,28 +398,40 @@ export default function Header({ user: initialUser }: Props) {
 
             {/* 메뉴 최하단 - 사용자 정보 */}
             <div className="absolute bottom-0 left-0 right-0 border-t border-text-secondary/10 bg-oneiri-bg-secondary p-4">
-              <div className="flex items-center gap-3 mb-4 px-4">
-                <UserAvatar user={user} size="md" />
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 mb-4 px-4">
+                    <UserAvatar user={user} size="md" />
+                    <div className="flex-1 min-w-0">
+                      <p className="oneiri-text-primary font-medium truncate text-lg">
+                        {displayName}
+                      </p>
+                      <p className="oneiri-text-secondary text-sm truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                    <ThemeToggle />
+                  </div>
 
-                <div className="flex-1 min-w-0">
-                  <p className="oneiri-text-primary font-medium truncate text-lg">
-                    {displayName}
-                  </p>
-                  <p className="oneiri-text-secondary text-sm truncate">
-                    {user?.email}
-                  </p>
+                  {/* 로그아웃 버튼 */}
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 w-full py-3 px-4 oneiri-text-secondary hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all duration-200"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="text-lg">로그아웃</span>
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <div className="flex-1">
+                    <Link href="/login" onClick={closeMobileMenu}>
+                      <Button className="w-full text-lg py-3">로그인</Button>
+                    </Link>
+                  </div>
+                  <ThemeToggle />
                 </div>
-                <ThemeToggle />
-              </div>
-
-              {/* 로그아웃 버튼 */}
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-3 w-full py-3 px-4 oneiri-text-secondary hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all duration-200"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="text-lg">로그아웃</span>
-              </button>
+              )}
             </div>
           </div>
         </div>
