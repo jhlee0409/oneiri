@@ -1,6 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter, Italianno } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Footer from "./components/footer";
 import { createClient } from "@/utils/supabase/server";
@@ -17,6 +18,31 @@ const italianno = Italianno({
   weight: "400",
   variable: "--font-italianno",
 });
+
+// JSON-LD structured data for better SEO
+const jsonLdData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Oneiri",
+  description:
+    "AI 기반 꿈 일기 플랫폼. 당신의 꿈을 기록하고 아름다운 이야기로 변환하세요.",
+  url: "https://www.oneiri.app",
+  applicationCategory: "LifestyleApplication",
+  operatingSystem: "Any",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "KRW",
+  },
+  creator: {
+    "@type": "Organization",
+    name: "Oneiri Team",
+  },
+  potentialAction: {
+    "@type": "ViewAction",
+    target: "https://www.oneiri.app",
+  },
+};
 
 export const metadata: Metadata = {
   // 웹사이트의 기준 URL. 소셜 공유 시 절대 경로를 만드는 데 사용됩니다.
@@ -111,34 +137,13 @@ export default async function RootLayout({
       <body
         className={`${inter.className} ${italianno.variable} oneiri-bg-primary min-h-screen flex flex-col`}
       >
-        <script
+        <Script
+          id="structured-data"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "Oneiri",
-              description:
-                "AI 기반 꿈 일기 플랫폼. 당신의 꿈을 기록하고 아름다운 이야기로 변환하세요.",
-              url: "https://www.oneiri.app",
-              applicationCategory: "LifestyleApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "KRW",
-              },
-              creator: {
-                "@type": "Organization",
-                name: "Oneiri Team",
-              },
-              potentialAction: {
-                "@type": "ViewAction",
-                target: "https://www.oneiri.app",
-              },
-            }),
-          }}
-        />
+          strategy="beforeInteractive"
+        >
+          {JSON.stringify(jsonLdData)}
+        </Script>
         <QueryProvider>
           {/* <UpdateBanner /> */}
           <Header user={user} />
