@@ -22,7 +22,7 @@ export default function Footer() {
                   fallbackMessage="로고"
                 />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gold-500">
+              <h3 className="text-lg sm:text-xl font-bold text-gold-500 font-italianno">
                 Oneiri
               </h3>
             </div>

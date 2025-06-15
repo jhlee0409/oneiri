@@ -1,0 +1,20 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Directories
+Allow: /dreams
+Allow: /shared
+Allow: /privacy
+Allow: /terms
+Allow: /notices
+
+# Disallow authenticated pages
+Disallow: /login
+Disallow: /settings
+Disallow: /library/
+Disallow: /analysis/new
+Disallow: /dreams/new
+
+# Sitemap
+Sitemap: https://www.oneiri.app/sitemap.xml

@@ -33,15 +33,13 @@ async function getPublicStoryData(storyId: string) {
 }
 
 // generateMetadata 함수를 사용하여 동적으로 메타데이터를 생성
-export async function generateMetadata(
-  props: {
-    params: Promise<{
-      id: string;
-    }>;
-  }
-): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{
+    id: string;
+  }>;
+}): Promise<Metadata> {
   const params = await props.params;
-  
+
   const story = await getPublicStoryData(params.id);
 
   if (!story) {
@@ -52,7 +50,10 @@ export async function generateMetadata(
   }
 
   const title = story.generated_story_title || "제목 없는 꿈";
-  const description = story.generated_story_content?.substring(0, 160) || story.dream_input_text?.substring(0, 160) || "꿈의 이야기";
+  const description =
+    story.generated_story_content?.substring(0, 160) ||
+    story.dream_input_text?.substring(0, 160) ||
+    "꿈의 이야기";
 
   return {
     title: `${title} | 오네이리`,
@@ -61,15 +62,17 @@ export async function generateMetadata(
       title,
       description,
       type: "article",
-      url: `https://oneiri.vercel.app/shared/${params.id}`,
-      images: story.generated_image_url ? [
-        {
-          url: story.generated_image_url,
-          width: 1200,
-          height: 630,
-          alt: title,
-        }
-      ] : [],
+      url: `https://www.oneiri.app/shared/${params.id}`,
+      images: story.generated_image_url
+        ? [
+            {
+              url: story.generated_image_url,
+              width: 1200,
+              height: 630,
+              alt: title,
+            },
+          ]
+        : [],
     },
     twitter: {
       card: "summary_large_image",

@@ -11,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
         "/private/", // 비공개 경로가 있다면 추가
       ],
     },
-    sitemap: "https://oneiri.vercel.app/sitemap.xml", // 사이트맵 위치 명시
+    sitemap: "https://www.oneiri.app/sitemap.xml", // 사이트맵 위치 명시
   };
 }
