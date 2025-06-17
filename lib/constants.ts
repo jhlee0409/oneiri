@@ -147,6 +147,7 @@ export const APP_CONFIG = {
     "당신의 흩어진 꿈 조각을 모아, AI가 특별한 이야기로 만들어 드려요.",
   GITHUB_URL: "https://github.com/yourusername/ai-dream-diary",
   SUPPORT_EMAIL: "support@dreamdiary.com",
+  DISCORD_INVITE_URL: "https://discord.gg/vDnCWMpGXz",
   VERSION: "1.0.0",
 
   // Limits
