@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Github, Twitter, Mail, Heart } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { DiscordIcon } from "@/components/icons/discord";
+import { APP_CONFIG } from "@/lib/constants";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -46,6 +48,16 @@ export default function Footer() {
               >
                 <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
+              <Link
+                href={APP_CONFIG.DISCORD_INVITE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="oneiri-text-secondary hover:oneiri-accent transition-colors"
+                aria-label="Discord 커뮤니티"
+                title="Discord로 문의하기"
+              >
+                <DiscordIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Link>
             </div>
           </div>
 
@@ -69,6 +81,17 @@ export default function Footer() {
                   className="text-slate-300 hover:text-gold-500 transition-colors text-sm sm:text-base"
                 >
                   꿈 일기
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={APP_CONFIG.DISCORD_INVITE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-300 hover:text-gold-500 transition-colors text-sm sm:text-base flex items-center gap-2"
+                >
+                  고객지원
+                  <DiscordIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Link>
               </li>
             </ul>

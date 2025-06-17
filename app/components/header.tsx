@@ -21,6 +21,8 @@ import {
   BarChart3,
   ChevronDown,
 } from "lucide-react";
+import { DiscordIcon } from "@/components/icons/discord";
+import { APP_CONFIG } from "@/lib/constants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -392,6 +394,18 @@ export default function Header({ user: initialUser }: Props) {
                     >
                       <Settings className="w-5 h-5" />
                       <span className="text-lg">설정</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={APP_CONFIG.DISCORD_INVITE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={closeMobileMenu}
+                      className="flex items-center gap-4 py-4 px-4 oneiri-text-secondary hover:oneiri-accent hover:bg-text-secondary/5 rounded-lg transition-all duration-200"
+                    >
+                      <DiscordIcon className="w-5 h-5" />
+                      <span className="text-lg">고객지원</span>
                     </Link>
                   </li>
                 </ul>
