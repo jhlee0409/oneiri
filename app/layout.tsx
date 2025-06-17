@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Header from "./components/header";
+import { SupportFloatingButton } from "@/components/support-floating-button";
 
 const inter = Inter({ subsets: ["latin"] });
 const italianno = Italianno({
@@ -149,6 +150,7 @@ export default async function RootLayout({
           <Header user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
+          <SupportFloatingButton />
           <Toaster />
           <Analytics />
           <SpeedInsights />
