@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ArrowLeft, Copy, Check, Heart, HeartOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,15 +44,41 @@ export default function DreamSharedDisplay({
       !isGeneratingImage &&
       !hasTriggeredImageGeneration.current
     ) {
+      // 세션 스토리지에서 이미 생성 시도한 적이 있는지 확인
+      const sessionKey = `image-generation-${dream.id}`;
+      const lastAttempt = sessionStorage.getItem(sessionKey);
+      const now = Date.now();
+      
+      // 5분 이내에 시도한 적이 있으면 재시도하지 않음
+      if (lastAttempt && now - parseInt(lastAttempt) < 5 * 60 * 1000) {
+        hasTriggeredImageGeneration.current = true;
+        return;
+      }
+
       hasTriggeredImageGeneration.current = true;
-      generateImage({
-        dreamId: dream.id,
-        imagePrompt: dream.generated_image_prompt,
-      });
+      sessionStorage.setItem(sessionKey, now.toString());
+      
+      generateImage(
+        {
+          dreamId: dream.id,
+          imagePrompt: dream.generated_image_prompt,
+        },
+        {
+          onSuccess: () => {
+            // 성공 시 세션 스토리지 정리
+            sessionStorage.removeItem(sessionKey);
+          },
+          onError: () => {
+            // 에러 발생 시 세션 스토리지에서 제거하여 재시도 가능하게 함
+            sessionStorage.removeItem(sessionKey);
+            hasTriggeredImageGeneration.current = false;
+          },
+        }
+      );
     }
   }, [dream, generateImage, isGeneratingImage]);
 
-  const handleCopyStory = async () => {
+  const handleCopyStory = useCallback(async () => {
     if (!dream?.generated_story_content) return;
 
     try {
@@ -62,19 +88,19 @@ export default function DreamSharedDisplay({
     } catch (err) {
       console.error("텍스트 복사 실패: ", err);
     }
-  };
+  }, [dream?.generated_story_content]);
 
-  const handleTogglePublic = async () => {
+  const handleTogglePublic = useCallback(() => {
     if (!dream?.id) return;
     togglePublic(dream.id, dream.is_public || false);
-  };
+  }, [dream?.id, dream?.is_public, togglePublic]);
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = useCallback(() => {
     if (!dream?.id) return;
     toggleFavorite(dream.id, dream.is_favorite || false);
-  };
+  }, [dream?.id, dream?.is_favorite, toggleFavorite]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (!dream?.id) return;
 
     const dreamId = dream.id;
@@ -96,7 +122,7 @@ export default function DreamSharedDisplay({
         onClick: () => console.log("삭제 취소됨"),
       },
     });
-  };
+  }, [dream?.id, deleteDream, router]);
 
   if (isLoading) {
     return (
