@@ -1,10 +1,18 @@
 import { MetadataRoute } from "next";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+
+// 사이트맵 전용 supabase 클라이언트 생성 (쿠키 없이)
+function createPublicClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
 // 모든 스토리의 ID 목록을 가져오는 함수
 async function getAllStoryIds() {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data: stories, error } = await supabase
       .from("dreams")
       .select("id, updated_at")
