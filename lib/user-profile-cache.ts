@@ -60,7 +60,7 @@ export async function getUserProfile(userId: string): Promise<{
 async function fetchUserProfile(userId: string): Promise<UserProfileCache> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-user-profile?user_id=${userId}`,
+      `/api/user-profile?user_id=${userId}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
