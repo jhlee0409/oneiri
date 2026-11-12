@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/server/supabase-admin";
 import { getUserFromRequest } from "@/lib/server/auth";
 import { DAILY_WEAVING_LIMIT, getKstNow } from "@/lib/server/kst";
-import { callGemini, type GeminiResponse } from "@/lib/server/gemini";
+import {
+  callGemini,
+  GEMINI_MODELS,
+  getResponseText,
+  type GeminiResponse,
+} from "@/lib/server/gemini";
 
 export const maxDuration = 60;
 
@@ -227,13 +232,12 @@ DO NOT wrap with \`\`\`json or other syntax.
 }
 `;
 
-    const geminiResponse = await callGemini("gemini-2.0-flash", geminiApiKey, {
+    const geminiResponse = await callGemini(GEMINI_MODELS.TEXT, geminiApiKey, {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.9,
-        maxOutputTokens: 2048,
+        responseMimeType: "application/json",
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingLevel: "low" },
       },
     });
     if (!geminiResponse.ok) {
@@ -242,7 +246,7 @@ DO NOT wrap with \`\`\`json or other syntax.
     }
 
     const geminiData = (await geminiResponse.json()) as GeminiResponse;
-    const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    const responseText = getResponseText(geminiData);
     if (!responseText) {
       console.error("Gemini 응답 없음:", geminiData);
       throw new Error("AI 응답을 받을 수 없습니다.");

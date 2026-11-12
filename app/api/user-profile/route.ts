@@ -3,6 +3,12 @@ import { createAdminClient } from "@/lib/server/supabase-admin";
 
 const FALLBACK_PROFILE = { display_name: "꿈꾸는자", avatar_url: null };
 
+/** 공개 응답에 이메일 형태의 이름이 실리지 않도록 막는다. */
+function publicDisplayName(name: string | null | undefined): string {
+  if (!name || name.includes("@")) return FALLBACK_PROFILE.display_name;
+  return name;
+}
+
 export async function GET(request: Request) {
   try {
     const userId = new URL(request.url).searchParams.get("user_id");
@@ -24,7 +30,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      display_name: profile?.display_name || FALLBACK_PROFILE.display_name,
+      display_name: publicDisplayName(profile?.display_name),
       avatar_url: profile?.avatar_url || null,
     });
   } catch (error) {

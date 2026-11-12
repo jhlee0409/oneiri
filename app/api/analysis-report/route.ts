@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/server/supabase-admin";
 import { getUserFromRequest } from "@/lib/server/auth";
-import { callGemini, type GeminiResponse } from "@/lib/server/gemini";
+import {
+  callGemini,
+  GEMINI_MODELS,
+  getResponseText,
+  type GeminiResponse,
+} from "@/lib/server/gemini";
 
 export const maxDuration = 60;
 
@@ -131,8 +136,12 @@ export async function POST(request: Request) {
 
     let rawText: string | undefined;
     try {
-      const geminiResponse = await callGemini("gemini-1.5-flash", geminiApiKey, {
+      const geminiResponse = await callGemini(GEMINI_MODELS.TEXT, geminiApiKey, {
         contents: [{ role: "user", parts: [{ text: buildPrompt(storyContent) }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingLevel: "low" },
+        },
       });
       if (!geminiResponse.ok) {
         throw new Error(
@@ -140,9 +149,7 @@ export async function POST(request: Request) {
         );
       }
       const geminiData = (await geminiResponse.json()) as GeminiResponse;
-      rawText = geminiData.candidates?.[0]?.content?.parts
-        ?.map((part) => part.text ?? "")
-        .join("");
+      rawText = getResponseText(geminiData);
       if (rawText === undefined) throw new Error("Gemini 응답에 텍스트가 없습니다.");
     } catch (aiError) {
       console.error("Gemini API 호출 오류:", aiError);

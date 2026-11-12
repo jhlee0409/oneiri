@@ -20,10 +20,10 @@
 ## 🛠️ 기술 스택 (Tech Stack)
 
 - **프론트엔드 (Frontend):** Next.js, Tailwind CSS, React
-- **백엔드 & 데이터베이스 (Backend & DB):** Supabase (PostgreSQL, Edge Functions)
+- **백엔드 & 데이터베이스 (Backend & DB):** Next.js Route Handlers (Vercel), Supabase (PostgreSQL, Auth, Storage)
 - **AI 모델 (AI Model):**
-  - **텍스트 생성 (Text Generation):** **`Gemini 2.0 Flash`**
-  - **이미지 생성 (Image Generation):** **`Gemini 2.0 Flash (Preview Image Generation)`**
+  - **텍스트 생성 (Text Generation):** **`Gemini 3.8 Flash`**
+  - **이미지 생성 (Image Generation):** **`Nano Banana 2.1`**
 
 > **Note:** Oneiri는 Google의 최신 AI 기술을 적극적으로 활용하여, 텍스트와 이미지를 동시에 효율적으로 생성하는 차세대 모델을 기반으로 구축되었습니다. 이를 통해 빠르고 비용 효율적이면서도 풍부한 멀티모달 경험을 제공합니다.
 

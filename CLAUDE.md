@@ -112,9 +112,10 @@ const { mutate } = useCreateDream({
 
 ### AI Integration
 
-- Gemini 2.0 Flash for text generation (stories)
-- Gemini 2.0 Flash Preview for image generation
-- Edge functions handle AI API calls to avoid exposing keys
+- Gemini 3.8 Flash (`gemini-3.8-flash`) for text generation (stories, analysis reports)
+- Nano Banana 2.1 (`gemini-nano-banana-2.1`) for image generation
+- Model IDs live in `GEMINI_MODELS` (`lib/server/gemini.ts`)
+- Next.js Route Handlers (`app/api/*`) handle AI API calls server-side to avoid exposing keys
 - Rate limiting and usage tracking implemented
 
 ### Performance Optimizations
