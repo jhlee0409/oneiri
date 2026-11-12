@@ -13,6 +13,7 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
+import { trackEvent } from "@/lib/analytics";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDreamById } from "@/hooks/use-dream-api";
@@ -390,6 +391,7 @@ export default function SharedDreamDisplay({
       const shareUrl = `${window.location.origin}/shared/${dream.id}`;
       await navigator.clipboard.writeText(shareUrl);
       toast.success("링크가 복사되었습니다!");
+      trackEvent("share", { method: "copy_link", content_type: "dream" });
     } catch (error) {
       console.error("공유 링크 복사 실패:", error);
       toast.error("링크 복사에 실패했습니다.");

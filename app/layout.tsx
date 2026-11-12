@@ -1,4 +1,5 @@
 import type React from "react";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter, Italianno } from "next/font/google";
 import Script from "next/script";
@@ -12,6 +13,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Header from "./components/header";
 import { SupportFloatingButton } from "@/components/support-floating-button";
+import { AuthEventTracker } from "./components/auth-event-tracker";
 
 const inter = Inter({ subsets: ["latin"] });
 const italianno = Italianno({
@@ -155,6 +157,9 @@ export default async function RootLayout({
           <Analytics />
           <SpeedInsights />
           <GoogleAnalytics gaId="G-ZLXEKL2EZJ" />
+          <Suspense fallback={null}>
+            <AuthEventTracker />
+          </Suspense>
         </QueryProvider>
       </body>
     </html>

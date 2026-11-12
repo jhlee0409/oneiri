@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 // The client you created from the Server-Side Auth instructions
 import { createClient } from "@/utils/supabase/server";
+import { AUTH_EVENT_PARAM } from "@/lib/analytics";
+
+/** 이 시간 안에 생성된 계정의 첫 로그인은 가입으로 본다. */
+const NEW_USER_WINDOW_MS = 5 * 60 * 1000;
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -42,15 +46,25 @@ export async function GET(request: Request) {
         }
       }
 
+      const isNewUser =
+        !!user &&
+        Date.now() - new Date(user.created_at).getTime() < NEW_USER_WINDOW_MS;
+      const redirectPath = new URL(next, origin);
+      redirectPath.searchParams.set(
+        AUTH_EVENT_PARAM,
+        isNewUser ? "sign_up" : "login"
+      );
+      const nextWithEvent = `${redirectPath.pathname}${redirectPath.search}`;
+
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
       if (isLocalEnv) {
         // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(`${origin}${nextWithEvent}`);
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+        return NextResponse.redirect(`https://${forwardedHost}${nextWithEvent}`);
       } else {
-        return NextResponse.redirect(`${origin}${next}`);
+        return NextResponse.redirect(`${origin}${nextWithEvent}`);
       }
     }
   }

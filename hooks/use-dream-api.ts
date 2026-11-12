@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 import {
   generateDreamStory,
   getUserDreams,
@@ -104,6 +105,7 @@ export function useGenerateDreamStory() {
     mutationFn: generateDreamStory,
     onSuccess: (response) => {
       if (response.success) {
+        trackEvent("dream_created");
         // 성공적인 꿈 생성 완료
         const remainingCount = response.data?.weaving_status?.remaining || 0;
 
@@ -456,6 +458,7 @@ export function useGenerateDreamImage() {
     },
     onSuccess: (response, { dreamId }) => {
       if (response.success) {
+        trackEvent("image_generated");
         toast.success("✨ 꿈의 이미지가 성공적으로 생성되었습니다!");
         // 관련 캐시 무효화하여 UI 자동 업데이트
         queryClient.invalidateQueries({ queryKey: ["dream", dreamId] });
