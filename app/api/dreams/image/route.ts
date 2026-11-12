@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/server/supabase-admin";
 import { getUserFromRequest } from "@/lib/server/auth";
-import { callGemini, type GeminiResponse } from "@/lib/server/gemini";
+import { callGemini, GEMINI_MODELS, type GeminiResponse } from "@/lib/server/gemini";
 
 export const maxDuration = 60;
 
@@ -34,19 +34,13 @@ export async function POST(request: Request) {
     const supabase = createAdminClient();
     const optimizedPrompt = `Create a dreamlike, artistic image based on this description: ${imagePrompt}. Style: surreal, ethereal, dreamy atmosphere with soft lighting and mystical elements. High quality, detailed, photorealistic rendering.`;
 
-    const geminiResponse = await callGemini(
-      "gemini-2.0-flash-preview-image-generation",
-      geminiApiKey,
-      {
-        contents: [{ parts: [{ text: optimizedPrompt }] }],
-        generationConfig: {
-          responseModalities: ["TEXT", "IMAGE"],
-          temperature: 0.7,
-          topK: 32,
-          topP: 1,
-        },
-      }
-    );
+    const geminiResponse = await callGemini(GEMINI_MODELS.IMAGE, geminiApiKey, {
+      contents: [{ parts: [{ text: optimizedPrompt }] }],
+      generationConfig: {
+        responseModalities: ["IMAGE"],
+        thinkingConfig: { thinkingLevel: "minimal" },
+      },
+    });
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
       console.error("Gemini API Error Response:", errorText);
