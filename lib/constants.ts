@@ -134,12 +134,6 @@ export const PROCESSING_STATUS = {
   FAILED: "failed",
 } as const;
 
-export const API_ENDPOINTS = {
-  GENERATE_STORY: "/functions/v1/generate-dream-story",
-  MANAGE_DREAMS: "/functions/v1/manage-dreams",
-  USER_ANALYTICS: "/functions/v1/user-analytics",
-} as const;
-
 export const APP_CONFIG = {
   APP_NAME: "AI 드림 다이어리",
   APP_SUBTITLE: "꿈 속 탐험가",

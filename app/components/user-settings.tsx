@@ -238,25 +238,21 @@ export default function UserSettings() {
         return;
       }
 
-      // 새로운 Edge Function을 직접 호출
-      const response = await supabase.functions.invoke(
-        "handle-user-withdrawal",
-        {
-          body: { confirmText: withdrawalConfirmText },
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
+      const response = await fetch("/api/auth/withdrawal", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ confirmText: withdrawalConfirmText }),
+      });
+      const result = await response.json().catch(() => null);
 
-      if (response.error) {
-        throw new Error(
-          response.error.message || "탈퇴 처리 중 오류가 발생했습니다."
-        );
+      if (!response.ok) {
+        throw new Error(result?.error || "탈퇴 처리 중 오류가 발생했습니다.");
       }
 
-      const result = response.data;
-      toast.success(result.message || "탈퇴 요청이 완료되었습니다.");
+      toast.success(result?.message || "탈퇴 요청이 완료되었습니다.");
 
       // 추가 안내 메시지
       toast.info("30일 후 모든 데이터가 완전히 삭제됩니다.", {

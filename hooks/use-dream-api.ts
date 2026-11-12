@@ -435,7 +435,7 @@ export function useGenerateDreamImage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-dream-image`,
+        `/api/dreams/image`,
         {
           method: "POST",
           headers: {

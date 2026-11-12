@@ -72,28 +72,29 @@ export default function NewAnalysisClient() {
 
       console.log("꿈 분석 요청 시작:", { contentLength: dreamContent.length });
 
-      const response = await supabase.functions.invoke(
-        "get-dream-analysis-report",
-        {
-          body: { storyContent: dreamContent },
-        }
-      );
+      const response = await fetch("/api/analysis-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ storyContent: dreamContent }),
+      });
+      const data = await response.json().catch(() => null);
 
-      console.log("꿈 분석 응답:", response);
+      console.log("꿈 분석 응답:", data);
 
-      if (response.error) {
-        console.error("Function invoke error:", response.error);
-        throw new Error(
-          response.error.message || "분석 중 오류가 발생했습니다."
-        );
+      if (!response.ok) {
+        console.error("Analysis request error:", data);
+        throw new Error(data?.error || "분석 중 오류가 발생했습니다.");
       }
 
-      if (!response.data || !response.data.reportId) {
-        console.error("Invalid response data:", response.data);
+      if (!data || !data.reportId) {
+        console.error("Invalid response data:", data);
         throw new Error("잘못된 응답 데이터입니다.");
       }
 
-      const { reportId } = response.data;
+      const { reportId } = data;
       console.log("분석 완료, 리포트 ID:", reportId);
 
       // 분석 결과 페이지로 리디렉션

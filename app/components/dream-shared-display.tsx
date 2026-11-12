@@ -336,9 +336,9 @@ export default function SharedDreamDisplay({
 
       if (error) throw error;
 
-      // Edge Function을 사용해 현재 사용자의 display_name 가져오기
+      // 현재 사용자의 display_name 가져오기
       const response = await fetch(
-        `https://tfcwgjimdnzitgjvuwoe.supabase.co/functions/v1/get-user-profile?user_id=${user.id}`,
+        `/api/user-profile?user_id=${user.id}`,
         {
           method: "GET",
           headers: {

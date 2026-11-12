@@ -49,7 +49,7 @@ export async function getDailyWeavingStatus(): Promise<
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-daily-weaving-status`,
+      `/api/dreams/weaving-status`,
       {
         method: "GET",
         headers: {
@@ -92,7 +92,7 @@ export async function generateDreamStory(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-dream-story`,
+      `/api/dreams/generate`,
       {
         method: "POST",
         headers: {
@@ -165,7 +165,7 @@ export async function getUserDreams(
     });
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-dreams?${searchParams}`,
+      `/api/dreams?${searchParams}`,
       {
         method: "GET",
         headers: {
@@ -207,7 +207,7 @@ export async function getDreamById(
     // 로그인된 사용자는 기존 방식으로 처리 (본인 꿈 포함)
     if (session) {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-dreams?id=${dreamId}`,
+        `/api/dreams?id=${dreamId}`,
         {
           method: "GET",
           headers: {
@@ -280,7 +280,7 @@ export async function updateDream(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-dreams?id=${dreamId}`,
+      `/api/dreams?id=${dreamId}`,
       {
         method: "PUT",
         headers: {
@@ -326,7 +326,7 @@ export async function deleteDream(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-dreams?id=${dreamId}`,
+      `/api/dreams?id=${dreamId}`,
       {
         method: "DELETE",
         headers: {
@@ -368,7 +368,7 @@ export async function getUserAnalytics(): Promise<APIResponse<UserAnalytics>> {
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/user-analytics`,
+      `/api/analytics`,
       {
         method: "GET",
         headers: {
