@@ -1,0 +1,23 @@
+# Supabase 무료 플랜은 7일간 DB 요청이 없으면 프로젝트를 자동 일시정지한다.
+# 3일마다 가벼운 조회를 보내 정지를 막는다. Pro 플랜으로 전환하면 이 워크플로를 삭제한다.
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: "0 0 */3 * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          curl --fail --silent --show-error --output /dev/null \
+            "$SUPABASE_URL/rest/v1/tags?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY"
