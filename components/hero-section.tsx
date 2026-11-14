@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Library, Moon, Sparkles } from "lucide-react";
+import { Moon, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export function HeroSection() {

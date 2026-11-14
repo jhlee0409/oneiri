@@ -875,7 +875,7 @@ export interface DreamsListResponse {
 }
 
 // API 응답 래퍼 타입 (lib/api.ts에서 사용)
-export interface APIResponse<T = any> {
+export interface APIResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;

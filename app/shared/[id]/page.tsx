@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import DreamStoryDisplay from "../../components/dream-story-display";
+import SharedDreamDisplay from "../../components/dream-shared-display";
 import { createClient } from "@/utils/supabase/server";
 
 interface PageProps {
@@ -91,5 +91,5 @@ export default async function SharedDreamPage(props: PageProps) {
     notFound();
   }
 
-  return <DreamStoryDisplay dreamId={params.id} isPublicView />;
+  return <SharedDreamDisplay dreamId={params.id} />;
 }

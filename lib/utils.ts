@@ -186,24 +186,24 @@ export const sleep = (ms: number): Promise<void> => {
 };
 
 // Debounce utility for search/input
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
+export function debounce<A extends unknown[]>(
+  func: (...args: A) => unknown,
   wait: number
-): (...args: Parameters<T>) => void {
+): (...args: A) => void {
   let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
+  return (...args: A) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
 }
 
 // Throttle utility for scroll/resize events
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
+export function throttle<A extends unknown[]>(
+  func: (...args: A) => unknown,
   limit: number
-): (...args: Parameters<T>) => void {
+): (...args: A) => void {
   let inThrottle: boolean;
-  return (...args: Parameters<T>) => {
+  return (...args: A) => {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
@@ -284,15 +284,23 @@ export const validation = {
 // Error handling utilities
 export const errorUtils = {
   // Extract meaningful error message
-  getMessage(error: any): string {
+  getMessage(error: unknown): string {
     if (typeof error === "string") return error;
-    if (error?.message) return error.message;
-    if (error?.error?.message) return error.error.message;
+    if (error instanceof Error) return error.message;
+    if (typeof error === "object" && error !== null) {
+      const { message, error: nested } = error as {
+        message?: unknown;
+        error?: { message?: unknown } | null;
+      };
+      if (typeof message === "string" && message) return message;
+      if (typeof nested?.message === "string" && nested.message)
+        return nested.message;
+    }
     return "알 수 없는 오류가 발생했습니다.";
   },
 
   // Check if error is network related
-  isNetworkError(error: any): boolean {
+  isNetworkError(error: unknown): boolean {
     const message = this.getMessage(error).toLowerCase();
     return (
       message.includes("network") ||
@@ -302,7 +310,7 @@ export const errorUtils = {
   },
 
   // Check if error is authentication related
-  isAuthError(error: any): boolean {
+  isAuthError(error: unknown): boolean {
     const message = this.getMessage(error).toLowerCase();
     return (
       message.includes("auth") ||

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MomentOfRevelation } from "./moment-of-revelation";
 import { Button } from "@/components/ui/button";
-import { Moon, Sparkles } from "lucide-react";
+import { Moon } from "lucide-react";
 import { ImageWithFallback } from "./ui/image-with-fallback";
 import { useRouter } from "next/navigation";
 

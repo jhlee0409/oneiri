@@ -7,7 +7,7 @@ import {
   useGenerateDreamStory,
   useDailyWeavingStatus,
 } from "@/hooks/use-dream-api";
-import { AlertTriangle, BookOpen, Clock } from "lucide-react";
+import { BookOpen, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { EMOTION_OPTIONS, GENRE_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 

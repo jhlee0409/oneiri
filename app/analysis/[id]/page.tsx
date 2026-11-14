@@ -172,7 +172,12 @@ function AnalysisReportSkeleton() {
 }
 
 // 실제 컨텐츠 컴포넌트
-async function AnalysisReportContent({ params }: { params: { id: string } }) {
+async function AnalysisReportContent({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   try {
     const supabase = await createClient();
 
@@ -190,7 +195,7 @@ async function AnalysisReportContent({ params }: { params: { id: string } }) {
     const { data: report, error } = await supabase
       .from("analysis_reports")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .single();
 
@@ -417,7 +422,7 @@ async function AnalysisReportContent({ params }: { params: { id: string } }) {
 export default function AnalysisReportPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   return (
     <Suspense fallback={<AnalysisReportSkeleton />}>
