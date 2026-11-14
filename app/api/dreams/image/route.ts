@@ -81,11 +81,12 @@ export async function POST(request: Request) {
     }
 
     const imageBuffer = Buffer.from(inlineData.data, "base64");
-    const filePath = `images/dream-${dreamId}-${Date.now()}.png`;
+    const extension = inlineData.mimeType === "image/png" ? "png" : "jpg";
+    const filePath = `images/dream-${dreamId}-${Date.now()}.${extension}`;
 
     const { error: uploadError } = await supabase.storage
       .from("dream-images")
-      .upload(filePath, imageBuffer, { contentType: "image/png", upsert: false });
+      .upload(filePath, imageBuffer, { contentType: inlineData.mimeType, upsert: false });
     if (uploadError) {
       console.error("Storage upload error:", uploadError);
       return NextResponse.json(
