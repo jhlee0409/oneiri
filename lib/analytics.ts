@@ -6,7 +6,9 @@ export type AnalyticsEvent =
   | "login"
   | "dream_created"
   | "image_generated"
-  | "share";
+  | "share"
+  | "guest_dream_created"
+  | "guest_dream_claimed";
 
 export function trackEvent(
   name: AnalyticsEvent,

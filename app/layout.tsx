@@ -14,6 +14,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import Header from "./components/header";
 import { SupportFloatingButton } from "@/components/support-floating-button";
 import { AuthEventTracker } from "./components/auth-event-tracker";
+import { PendingGuestDreamClaimer } from "./components/pending-guest-dream-claimer";
 
 const inter = Inter({ subsets: ["latin"] });
 const italianno = Italianno({
@@ -160,6 +161,7 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <AuthEventTracker />
           </Suspense>
+          <PendingGuestDreamClaimer />
         </QueryProvider>
       </body>
     </html>

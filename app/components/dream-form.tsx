@@ -5,9 +5,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useGenerateDreamStory,
+  useGenerateGuestDream,
   useDailyWeavingStatus,
 } from "@/hooks/use-dream-api";
-import { BookOpen, Clock } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import type { GuestDreamStory } from "@/lib/api";
+import { signInWithGoogle } from "@/lib/google-sign-in";
+import { GUEST_DREAM_MAX_LENGTH, savePendingGuestDream } from "@/lib/guest-dream";
+import { BookOpen, Clock, Moon } from "lucide-react";
 import { toast } from "sonner";
 import { EMOTION_OPTIONS, GENRE_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 
@@ -17,17 +22,33 @@ export default function DreamForm() {
   const [selectedEmotion, setSelectedEmotion] = useState("");
   const [selectedVibe, setSelectedVibe] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("");
+  const [guestStory, setGuestStory] = useState<GuestDreamStory | null>(null);
+  const [guestLimitMessage, setGuestLimitMessage] = useState<string | null>(null);
+  const [isRedirectingToLogin, setIsRedirectingToLogin] = useState(false);
   const router = useRouter();
+  const { user, loading: isLoadingAuth } = useAuth();
+  const isGuest = !isLoadingAuth && !user;
 
-  const { mutateAsync: generateStory, isPending: isSubmitting } =
+  const { mutateAsync: generateStory, isPending: isSubmittingStory } =
     useGenerateDreamStory();
+  const { mutateAsync: generateGuestStory, isPending: isSubmittingGuest } =
+    useGenerateGuestDream();
+  const isSubmitting = isSubmittingStory || isSubmittingGuest;
 
-  // 🌙 일일 꿈 생성 상태 조회
+  // 🌙 일일 꿈 생성 상태 조회 (로그인한 사용자만)
   const {
     data: weavingStatus,
     isLoading: isLoadingStatus,
     error: statusError,
-  } = useDailyWeavingStatus();
+  } = useDailyWeavingStatus({ enabled: !!user });
+
+  // 게스트 → Google 로그인. 옮길 체험 이야기가 있으면 리다이렉트 전에 기록해 둔다.
+  const handleGuestLogin = async (guestDreamId?: string) => {
+    if (guestDreamId) savePendingGuestDream(guestDreamId);
+    setIsRedirectingToLogin(true);
+    await signInWithGoogle(guestDreamId ? "/library/dreams" : "/dreams/new");
+    setIsRedirectingToLogin(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +75,17 @@ export default function DreamForm() {
       story_preference_length: undefined, // 기본값
     };
 
+    if (isGuest) {
+      const result = await generateGuestStory(dreamRequest);
+      if (result.success && result.data) {
+        setGuestStory(result.data);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (result.errorCode === "guest_limit_reached") {
+        setGuestLimitMessage(result.error ?? null);
+      }
+      return;
+    }
+
     const result = await generateStory(dreamRequest);
 
     // 성공 시에만 페이지 이동
@@ -63,14 +95,92 @@ export default function DreamForm() {
   };
 
   // 로딩 상태 처리
-  if (isLoadingStatus) {
+  if (isLoadingAuth || isLoadingStatus) {
     return (
       <div className="oneiri-bg-secondary max-w-2xl mx-auto rounded-lg">
         <div className="text-center space-y-4 p-8">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary mx-auto"></div>
           <p className="oneiri-text-secondary">
-            얼마나 많은 이야기를 만들었는지 확인하고 있어요
+            {isLoadingAuth
+              ? "꿈 조각을 받을 준비를 하고 있어요"
+              : "얼마나 많은 이야기를 만들었는지 확인하고 있어요"}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 게스트 체험 결과: 이야기를 보여주고 로그인으로 서재 저장·꿈 그림을 이어준다.
+  if (isGuest && guestStory) {
+    return (
+      <div className="space-y-6">
+        <article className="oneiri-bg-secondary p-5 sm:p-8 rounded-lg space-y-4 sm:space-y-6">
+          <p className="text-xs sm:text-sm text-oneiri-violet text-center">
+            ✨ 당신의 꿈 조각이 이야기가 되었어요
+          </p>
+          <h2 className="font-['Inter'] text-xl sm:text-3xl font-medium oneiri-accent text-center">
+            {guestStory.generated_story_title}
+          </h2>
+          <div className="space-y-4 oneiri-text-primary leading-relaxed text-sm sm:text-base">
+            {guestStory.generated_story_content
+              .split(/\n\s*\n/)
+              .filter((paragraph) => paragraph.trim())
+              .map((paragraph, index) => (
+                <p key={index} className="whitespace-pre-line">
+                  {paragraph.trim()}
+                </p>
+              ))}
+          </div>
+        </article>
+
+        <div className="text-center space-y-3 sm:space-y-4 p-4 sm:p-6 bg-gradient-to-b from-oneiri-violet/10 to-accent-primary/10 rounded-lg border border-oneiri-violet/20">
+          <p className="oneiri-text-primary/80 text-sm sm:text-base leading-relaxed">
+            이 이야기는 아직 별빛 서재 밖에 머물러 있어요.
+            <br />
+            로그인하면 서재에 담기고, 이 장면을 그린 꿈 그림도 받을 수 있어요.
+          </p>
+          <button
+            onClick={() => handleGuestLogin(guestStory.id)}
+            disabled={isRedirectingToLogin}
+            className="w-full oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-['Inter'] font-medium py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+          >
+            {isRedirectingToLogin ? (
+              <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-bg-primary border-t-transparent"></div>
+            ) : (
+              "Google로 로그인하고 서재에 저장하기 · 꿈 그림 받기"
+            )}
+          </button>
+          <p className="text-xs oneiri-text-secondary">
+            체험 이야기는 7일 동안 보관돼요.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 게스트 체험 한도 도달
+  if (isGuest && guestLimitMessage) {
+    return (
+      <div className="oneiri-bg-secondary max-w-2xl mx-auto rounded-lg">
+        <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-8 bg-gradient-to-b from-oneiri-violet/10 to-accent-primary/10 rounded-lg border border-oneiri-violet/20">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-oneiri-violet/20 rounded-full flex items-center justify-center">
+            <Moon className="w-6 h-6 sm:w-8 sm:h-8 text-oneiri-violet" />
+          </div>
+          <div className="space-y-2 sm:space-y-3">
+            <h2 className="font-['Inter'] text-lg sm:text-2xl font-medium oneiri-text-primary">
+              오늘의 체험 이야기는 모두 엮어졌어요
+            </h2>
+            <p className="oneiri-text-primary/80 leading-relaxed max-w-md mx-auto text-sm sm:text-base">
+              {guestLimitMessage}
+            </p>
+          </div>
+          <button
+            onClick={() => handleGuestLogin()}
+            disabled={isRedirectingToLogin}
+            className="w-full oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-['Inter'] font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
+          >
+            Google로 로그인하고 꿈 엮기
+          </button>
         </div>
       </div>
     );
@@ -165,11 +275,24 @@ export default function DreamForm() {
   const remainingCount = weavingStatus?.weaving_status?.remaining ?? 2; // 기본값 2
   const isFormDisabled =
     isSubmitting ||
+    isLoadingAuth ||
     isLoadingStatus ||
     (weavingStatus?.weaving_status?.has_reached_limit ?? false);
 
   return (
     <div className="space-y-6">
+      {isGuest && (
+        <div className="bg-gradient-to-r from-oneiri-violet/10 to-accent-primary/10 p-3 sm:p-4 rounded-lg border border-oneiri-violet/20 space-y-1">
+          <h3 className="font-['Inter'] font-medium oneiri-text-primary text-sm sm:text-base">
+            로그인 없이 한 편, 먼저 만나보세요
+          </h3>
+          <p className="text-xs sm:text-sm oneiri-text-primary/80">
+            꿈 조각을 들려주시면 바로 이야기로 엮어드려요. 마음에 들면 로그인해서
+            서재에 담고 꿈 그림도 받을 수 있어요.
+          </p>
+        </div>
+      )}
+
       {/* 🌙 꿈 생성 상태 표시 */}
       {weavingStatus && !weavingStatus.weaving_status?.has_reached_limit && (
         <div className="bg-gradient-to-r from-oneiri-violet/10 to-accent-primary/10 p-3 sm:p-4 rounded-lg border border-oneiri-violet/20">
@@ -218,6 +341,7 @@ export default function DreamForm() {
             placeholder="어젯밤, 당신의 꿈 이야기는 어떻게 시작되었나요? 스쳐 지나간 장면, 희미한 목소리, 마음속에 남은 감정 등 무엇이든 좋아요."
             className="w-full h-36 sm:h-48 px-3 sm:px-4 py-2 sm:py-3 oneiri-bg-primary border border-text-secondary/30 focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-sm sm:text-base"
             required
+            maxLength={isGuest ? GUEST_DREAM_MAX_LENGTH : undefined}
             disabled={isFormDisabled}
           />
         </div>

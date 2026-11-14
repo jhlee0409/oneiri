@@ -133,6 +133,92 @@ export async function generateDreamStory(
   }
 }
 
+export interface GuestDreamStory {
+  id: string;
+  generated_story_title: string;
+  generated_story_content: string;
+}
+
+/**
+ * 비로그인 체험 꿈 스토리 생성. 서재 저장과 이미지는 로그인 후 claim으로 이어진다.
+ */
+export async function generateGuestDream(
+  dreamData: DreamRequest
+): Promise<APIResponse<GuestDreamStory>> {
+  try {
+    const response = await fetch(`/api/guest/dreams/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dreamData),
+    });
+    const result = await response.json();
+
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: result.oneiri_message || result.error,
+        errorCode: "guest_limit_reached",
+      };
+    }
+    if (!response.ok || !result.success) {
+      throw new Error(result.oneiri_message || result.error || "스토리 생성에 실패했습니다");
+    }
+
+    return { success: true, data: result.guest_dream };
+  } catch (error) {
+    console.error("Guest dream generation failed:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다",
+    };
+  }
+}
+
+/**
+ * - claimed: 서재로 옮겨짐
+ * - gone: 없음/이미 옮겨짐/기간 만료 → 다시 시도할 필요 없음
+ * - retry: 네트워크·서버 오류 → 다음 방문에 다시 시도
+ */
+export type ClaimGuestDreamResult =
+  | { status: "claimed"; dreamId: string }
+  | { status: "gone" }
+  | { status: "retry" };
+
+/**
+ * 게스트 체험 꿈을 로그인한 사용자의 서재로 옮긴다.
+ */
+export async function claimGuestDream(
+  guestDreamId: string
+): Promise<ClaimGuestDreamResult> {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) return { status: "retry" };
+
+    const response = await fetch(`/api/dreams/claim`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ guestDreamId }),
+    });
+    if (response.ok) {
+      const result = (await response.json()) as { dreamId: string };
+      return { status: "claimed", dreamId: result.dreamId };
+    }
+    if ([400, 404, 409, 410].includes(response.status)) return { status: "gone" };
+    return { status: "retry" };
+  } catch (error) {
+    console.error("Guest dream claim failed:", error);
+    return { status: "retry" };
+  }
+}
+
 /**
  * 사용자의 꿈 목록 조회
  */
