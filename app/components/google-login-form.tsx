@@ -1,31 +1,14 @@
 "use client";
-import { supabase } from "@/utils/supabase/client";
+import { signInWithGoogle as startGoogleSignIn } from "@/lib/google-sign-in";
 import { useState } from "react";
 import Link from "next/link";
-
-const getURL = () => {
-  let url =
-    process?.env?.NEXT_PUBLIC_SITE_URL ?? // Set this to your site URL in production env.
-    process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Automatically set by Vercel.
-    "http://localhost:3000/";
-  // Make sure to include `https://` when not localhost.
-  url = url.startsWith("http") ? url : `https://${url}`;
-  // Make sure to include a trailing `/`.
-  url = url.endsWith("/") ? url : `${url}/`;
-  return url;
-};
 
 export default function GoogleLoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   async function signInWithGoogle() {
     setIsLoading(true);
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: getURL() + "auth/callback",
-      },
-    });
+    await startGoogleSignIn();
     setIsLoading(false);
   }
 

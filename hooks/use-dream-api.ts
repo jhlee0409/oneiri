@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import {
   generateDreamStory,
+  generateGuestDream,
   getUserDreams,
   getDreamById,
   updateDream,
@@ -24,13 +25,14 @@ import {
 /**
  * 🌙 일일 꿈 생성 상태 조회 Hook
  */
-export function useDailyWeavingStatus() {
+export function useDailyWeavingStatus({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery<
     APIResponse<DailyWeavingStatus>,
     Error,
     DailyWeavingStatus | null
   >({
     queryKey: ["daily-weaving-status"],
+    enabled,
     queryFn: getDailyWeavingStatus,
     select: (response) => {
       if (!response.success || !response.data) {
@@ -157,6 +159,22 @@ export function useGenerateDreamStory() {
     onError: (error) => {
       console.error("Dream generation error:", error);
       toast.error("네트워크 오류가 발생했습니다.");
+    },
+  });
+}
+
+/**
+ * 비로그인 체험 꿈 스토리 생성 Hook
+ */
+export function useGenerateGuestDream() {
+  return useMutation({
+    mutationFn: generateGuestDream,
+    onSuccess: (response) => {
+      if (response.success) {
+        trackEvent("guest_dream_created");
+      } else if (response.errorCode !== "guest_limit_reached") {
+        toast.error(response.error || "꿈의 실이 엉켜버렸어요. 다시 한번 시도해주세요.");
+      }
     },
   });
 }

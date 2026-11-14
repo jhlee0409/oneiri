@@ -1,4 +1,3 @@
-import { STORY_GENRES } from "@/lib/constants";
 import {
   callGemini,
   GEMINI_MODELS,
@@ -66,17 +65,11 @@ const RESPONSE_SCHEMA = {
   required: ["story_title", "story_content", "image_prompt"],
 } as const;
 
-function genreLabel(value: string): string {
-  const genre = STORY_GENRES.find((g) => g.value === value);
-  return genre ? `${genre.label} — ${genre.description}` : value;
-}
-
 function buildUserPrompt(input: DreamStoryInput): string {
   const preferences = [
     input.dreamEmotion && `- 꿈에서 느낀 감정: ${input.dreamEmotion}`,
     input.storyPreferenceMood && `- 원하는 분위기: ${input.storyPreferenceMood}`,
-    input.storyPreferenceGenre &&
-      `- 원하는 장르: ${genreLabel(input.storyPreferenceGenre)}`,
+    input.storyPreferenceGenre && `- 원하는 장르: ${input.storyPreferenceGenre}`,
     input.dreamCharacters?.trim() && `- 등장인물: ${input.dreamCharacters.trim()}`,
     input.dreamObjects?.trim() && `- 중요한 사물: ${input.dreamObjects.trim()}`,
     input.dreamKeywords?.length && `- 키워드: ${input.dreamKeywords.join(", ")}`,

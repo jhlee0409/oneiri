@@ -3,12 +3,9 @@ import { createAdminClient } from "@/lib/server/supabase-admin";
 import { getUserFromRequest } from "@/lib/server/auth";
 import { DAILY_WEAVING_LIMIT, getKstNow } from "@/lib/server/kst";
 import { DreamStoryError, generateDreamStory } from "@/lib/server/dream-story";
+import { parseDreamRequest } from "@/lib/server/dream-request";
 
 export const maxDuration = 60;
-
-function str(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
-}
 
 export async function POST(request: Request) {
   try {
@@ -39,9 +36,10 @@ export async function POST(request: Request) {
     }
 
     const supabase = createAdminClient();
-    const rawData = (await request.json()) as Record<string, unknown>;
-    const dreamInputText = str(rawData.dreamInputText) || str(rawData.dream_input_text);
-    if (!dreamInputText || dreamInputText.trim().length < 5) {
+    const requestData = parseDreamRequest(
+      (await request.json()) as Record<string, unknown>
+    );
+    if (!requestData) {
       return NextResponse.json(
         {
           error: "꿈 내용을 5글자 이상 입력해주세요",
@@ -50,21 +48,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const keywords = rawData.dreamKeywords || rawData.dream_keywords;
-    const requestData = {
-      dreamInputText: dreamInputText.trim(),
-      dreamKeywords: Array.isArray(keywords) ? (keywords as string[]) : undefined,
-      dreamEmotion: str(rawData.dreamEmotion) || str(rawData.dream_emotion),
-      storyPreferenceGenre:
-        str(rawData.storyPreferenceGenre) || str(rawData.story_preference_genre),
-      storyPreferenceLength:
-        str(rawData.storyPreferenceLength) || str(rawData.story_preference_length),
-      storyPreferenceMood:
-        str(rawData.storyPreferenceMood) || str(rawData.story_preference_mood),
-      dreamCharacters: str(rawData.dreamCharacters) || str(rawData.dream_characters),
-      dreamObjects: str(rawData.dreamObjects) || str(rawData.dream_objects),
-    };
 
     const { kstDateString } = getKstNow();
 
