@@ -20,7 +20,6 @@ import { useDreamById } from "@/hooks/use-dream-api";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
-import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { supabase } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { UserAvatar } from "@/components/ui/user-avatar";

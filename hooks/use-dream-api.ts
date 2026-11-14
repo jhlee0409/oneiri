@@ -16,7 +16,6 @@ import {
 } from "@/lib/api";
 import {
   DreamRequest,
-  DreamRecord,
   DreamsListResponse,
   APIResponse,
   AnalysisReport,
@@ -418,13 +417,7 @@ export function useGenerateDreamImage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      dreamId,
-      imagePrompt,
-    }: {
-      dreamId: string;
-      imagePrompt: string;
-    }) => {
+    mutationFn: async ({ dreamId }: { dreamId: string }) => {
       const { supabase } = await import("@/utils/supabase/client");
 
       const {
@@ -442,10 +435,7 @@ export function useGenerateDreamImage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({
-            dreamId,
-            imagePrompt,
-          }),
+          body: JSON.stringify({ dreamId }),
         }
       );
 

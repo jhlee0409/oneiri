@@ -12,9 +12,7 @@ import {
   LogOut,
   Info,
   Camera,
-  Upload,
   X,
-  RotateCcw,
 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/supabase";

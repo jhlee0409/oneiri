@@ -15,7 +15,6 @@ import {
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
-import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import ViewPublicPageButton from "./view-public-page-button";
 import { findEmotion, findMood } from "@/lib/find";
 interface DreamStoryDisplayProps {
@@ -59,10 +58,7 @@ export default function DreamSharedDisplay({
       sessionStorage.setItem(sessionKey, now.toString());
       
       generateImage(
-        {
-          dreamId: dream.id,
-          imagePrompt: dream.generated_image_prompt,
-        },
+        { dreamId: dream.id },
         {
           onSuccess: () => {
             // 성공 시 세션 스토리지 정리

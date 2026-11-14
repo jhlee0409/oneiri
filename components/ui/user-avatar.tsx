@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { User as UserIcon } from "lucide-react";
-import { supabase } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
 import { getUserProfile } from "@/lib/user-profile-cache";

@@ -5,6 +5,10 @@ import { callGemini, GEMINI_MODELS, type GeminiResponse } from "@/lib/server/gem
 
 export const maxDuration = 60;
 
+/** 이미지 모델에 용도와 스타일을 알리는 프레이밍. 장면 묘사는 이야기 생성 단계에서 만든다. */
+const IMAGE_PROMPT_FRAME =
+  "An illustration for a personal dream journal entry, capturing one moment of the dream as a cinematic, surreal dreamlike photograph.";
+
 export async function POST(request: Request) {
   try {
     const user = await getUserFromRequest(request);
@@ -12,15 +16,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { dreamId, imagePrompt } = (await request.json()) as {
-      dreamId?: string;
-      imagePrompt?: string;
-    };
-    if (!dreamId || !imagePrompt) {
+    const { dreamId } = (await request.json()) as { dreamId?: string };
+    if (!dreamId) {
+      return NextResponse.json({ error: "dreamId is required" }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+    const { data: dream, error: dreamError } = await supabase
+      .from("dreams")
+      .select("generated_image_prompt, generated_image_url")
+      .eq("id", dreamId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (dreamError) {
+      console.error("Dream lookup error:", dreamError);
+      return NextResponse.json({ error: "Failed to load dream" }, { status: 500 });
+    }
+    if (!dream) {
+      return NextResponse.json({ error: "Dream not found" }, { status: 404 });
+    }
+    if (dream.generated_image_url) {
       return NextResponse.json(
-        { error: "dreamId and imagePrompt are required" },
-        { status: 400 }
+        { error: "Image already generated", imageUrl: dream.generated_image_url },
+        { status: 409 }
       );
+    }
+    if (!dream.generated_image_prompt) {
+      return NextResponse.json({ error: "Dream has no image prompt" }, { status: 400 });
     }
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -31,13 +53,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createAdminClient();
-    const optimizedPrompt = `Create a dreamlike, artistic image based on this description: ${imagePrompt}. Style: surreal, ethereal, dreamy atmosphere with soft lighting and mystical elements. High quality, detailed, photorealistic rendering.`;
-
     const geminiResponse = await callGemini(GEMINI_MODELS.IMAGE, geminiApiKey, {
-      contents: [{ parts: [{ text: optimizedPrompt }] }],
+      contents: [
+        { parts: [{ text: `${IMAGE_PROMPT_FRAME}\n\n${dream.generated_image_prompt}` }] },
+      ],
       generationConfig: {
         responseModalities: ["IMAGE"],
+        imageConfig: { aspectRatio: "16:9", imageSize: "1K" },
         thinkingConfig: { thinkingLevel: "minimal" },
       },
     });

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Twitter, Mail, Heart } from "lucide-react";
+import { Github, Mail, Heart } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { DiscordIcon } from "@/components/icons/discord";
 import { APP_CONFIG } from "@/lib/constants";

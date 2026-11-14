@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { createClient, SUPABASE_URL } from "@/utils/supabase/client";
-import { Sparkles, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 
 interface ArchetypeCardData {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AuthGuard from "../../../components/auth-guard";
 import DreamStoryDisplay from "../../../components/dream-story-display";
 import { createClient } from "@/utils/supabase/server";
@@ -110,12 +111,12 @@ export default async function DreamStoryDetailPage(props: PageProps) {
             <p className="oneiri-text-secondary mb-6">
               올바른 꿈 이야기 링크가 아닙니다.
             </p>
-            <a
+            <Link
               href="/library/dreams"
               className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
             >
               꿈 서재로 돌아가기
-            </a>
+            </Link>
           </div>
         </div>
       </div>
