@@ -19,6 +19,7 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import { EMOTION_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { useUserAnalysisReports } from "@/hooks/use-dream-api";
 import { formatKoreanDate } from "@/lib/utils";
+import DreamInsights from "./dream-insights";
 
 function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   return (
@@ -335,6 +336,8 @@ export default function DreamJournal() {
             : "꿈의 의미를 탐구하는 공간"}
         </p>
       </header>
+
+      <DreamInsights dreamCount={dreamEntries.length} />
 
       {/* 탭 네비게이션 */}
       <div className="mb-6 sm:mb-8">

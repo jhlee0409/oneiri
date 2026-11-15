@@ -14,6 +14,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import Header from "./components/header";
 import { SupportFloatingButton } from "@/components/support-floating-button";
 import { AuthEventTracker } from "./components/auth-event-tracker";
+import { ReminderOpenTracker } from "./components/reminder-open-tracker";
 import { PendingGuestDreamClaimer } from "./components/pending-guest-dream-claimer";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -160,6 +161,7 @@ export default async function RootLayout({
           <GoogleAnalytics gaId="G-ZLXEKL2EZJ" />
           <Suspense fallback={null}>
             <AuthEventTracker />
+            <ReminderOpenTracker />
           </Suspense>
           <PendingGuestDreamClaimer />
         </QueryProvider>
