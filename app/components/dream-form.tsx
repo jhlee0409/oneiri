@@ -15,6 +15,7 @@ import { GUEST_DREAM_MAX_LENGTH, savePendingGuestDream } from "@/lib/guest-dream
 import { BookOpen, Clock, Moon } from "lucide-react";
 import { toast } from "sonner";
 import { EMOTION_OPTIONS, GENRE_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
+import { offerMorningReminder } from "@/lib/push-reminder";
 
 export default function DreamForm() {
   const [dreamText, setDreamText] = useState("");
@@ -88,9 +89,10 @@ export default function DreamForm() {
 
     const result = await generateStory(dreamRequest);
 
-    // 성공 시에만 페이지 이동
+    // 성공 시에만 페이지 이동하고, 아침 꿈 알림을 한 번 제안한다.
     if (result.success) {
       router.push("/library/dreams");
+      void offerMorningReminder((href) => router.push(href));
     }
   };
 

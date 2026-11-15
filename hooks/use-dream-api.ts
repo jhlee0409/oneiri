@@ -14,6 +14,9 @@ import {
   getPopularTags,
   getDailyWeavingStatus,
   DailyWeavingStatus,
+  getDreamStreak,
+  getDreamPatternReport,
+  generateDreamPatternReport,
 } from "@/lib/api";
 import {
   DreamRequest,
@@ -508,5 +511,54 @@ export function useUserAnalysisReports() {
       return data || [];
     },
     staleTime: 5 * 60 * 1000, // 5분
+  });
+}
+
+/**
+ * KST 기준 꿈 연속 기록 Hook
+ */
+export function useDreamStreak() {
+  return useQuery({
+    queryKey: ["dream-streak"],
+    queryFn: getDreamStreak,
+    staleTime: 0, // 서재에 들어올 때마다 오늘 기록 여부를 새로 반영
+  });
+}
+
+/**
+ * 가장 최근 꿈 패턴 리포트 Hook (없으면 null)
+ */
+export function useDreamPatternReport() {
+  return useQuery({
+    queryKey: ["dream-pattern-report"],
+    queryFn: getDreamPatternReport,
+    staleTime: 0, // 새 꿈이 생기면 다시 만들기 버튼을 바로 보여준다
+  });
+}
+
+/**
+ * 꿈 패턴 리포트 생성 Hook
+ */
+export function useGenerateDreamPatternReport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: generateDreamPatternReport,
+    onSuccess: (response) => {
+      if (response.success && response.data) {
+        queryClient.setQueryData(["dream-pattern-report"], response.data);
+        if (!response.data.cached) {
+          trackEvent("pattern_report_generated", {
+            dream_count: response.data.dreamCount,
+          });
+        }
+      } else {
+        toast.error(response.error || "패턴 리포트를 만들지 못했어요.");
+      }
+    },
+    onError: (error) => {
+      console.error("Dream pattern report error:", error);
+      toast.error("네트워크 오류가 발생했습니다.");
+    },
   });
 }

@@ -8,6 +8,8 @@ import {
   APIResponse,
 } from "@/types/supabase";
 import { getUserProfiles } from "./user-profile-cache";
+import type { DreamStreak } from "@/lib/server/streak";
+import type { DreamPatternReport } from "@/lib/server/dream-patterns";
 
 // 일일 꿈 생성 상태 타입 정의
 export interface DailyWeavingStatus {
@@ -705,6 +707,166 @@ export async function getPublicDreams(
     };
   } catch (error) {
     console.error("공개 꿈 목록 조회 실패:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다",
+    };
+  }
+}
+
+// 아침 꿈 알림(Web Push) 구독 상태
+export interface PushReminderStatus {
+  subscribed: boolean;
+  reminder_hour: number;
+  enabled: boolean;
+}
+
+async function pushSubscriptionRequest<T>(
+  method: "GET" | "POST" | "DELETE",
+  body?: unknown,
+  query?: string
+): Promise<APIResponse<T>> {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error("로그인이 필요합니다");
+    }
+
+    const response = await fetch(
+      `/api/push/subscribe${query ? `?${query}` : ""}`,
+      {
+        method,
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          ...(body ? { "Content-Type": "application/json" } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      }
+    );
+    const result: APIResponse<T> = await response.json();
+    if (!response.ok || !result.success) {
+      return {
+        success: false,
+        error: result.error || "알림 설정을 처리하지 못했어요",
+      };
+    }
+    return result;
+  } catch (error) {
+    console.error("푸시 구독 요청 실패:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다",
+    };
+  }
+}
+
+/** 이 기기 구독의 알림 시각을 조회한다. */
+export function getPushReminderStatus(
+  endpoint: string
+): Promise<APIResponse<PushReminderStatus>> {
+  return pushSubscriptionRequest<PushReminderStatus>(
+    "GET",
+    undefined,
+    new URLSearchParams({ endpoint }).toString()
+  );
+}
+
+/** 브라우저 푸시 구독을 저장하거나 알림 시각을 바꾼다. */
+export function savePushSubscription(
+  subscription: PushSubscriptionJSON,
+  reminderHour: number
+): Promise<APIResponse<PushReminderStatus>> {
+  return pushSubscriptionRequest<PushReminderStatus>("POST", {
+    subscription,
+    reminder_hour: reminderHour,
+  });
+}
+
+/** 이 기기의 푸시 구독을 서버에서 지운다. */
+export function deletePushSubscription(
+  endpoint: string
+): Promise<APIResponse<void>> {
+  return pushSubscriptionRequest<void>("DELETE", { endpoint });
+}
+
+export type { DreamStreak, StreakDay } from "@/lib/server/streak";
+export type { DreamPatternReport } from "@/lib/server/dream-patterns";
+
+export interface DreamPatternReportResult {
+  id: string;
+  dreamCount: number;
+  createdAt: string;
+  report: DreamPatternReport;
+  /** 리포트 이후 새로 기록한 꿈이 있어 다시 만들 수 있는지 */
+  hasNewDreams: boolean;
+  /** POST에서만: 새 꿈이 없어 저장된 리포트를 그대로 돌려줬는지 */
+  cached?: boolean;
+}
+
+/** 로그인 토큰을 붙여 연속 기록·패턴 리포트 API를 호출한다. */
+async function fetchDreamInsight<T>(
+  path: string,
+  init: RequestInit = {}
+): Promise<{ status: number; body: APIResponse<T> }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) throw new Error("로그인이 필요합니다");
+
+  const response = await fetch(path, {
+    ...init,
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+  return { status: response.status, body: (await response.json()) as APIResponse<T> };
+}
+
+/**
+ * KST 기준 꿈 연속 기록 조회
+ */
+export async function getDreamStreak(): Promise<DreamStreak> {
+  const { body } = await fetchDreamInsight<DreamStreak>("/api/dreams/streak");
+  if (!body.success || !body.data) {
+    throw new Error(body.error || "연속 기록 조회에 실패했습니다");
+  }
+  return body.data;
+}
+
+/**
+ * 가장 최근 꿈 패턴 리포트 조회. 아직 없으면 null.
+ */
+export async function getDreamPatternReport(): Promise<DreamPatternReportResult | null> {
+  const { status, body } = await fetchDreamInsight<DreamPatternReportResult>(
+    "/api/dreams/patterns"
+  );
+  if (status === 404) return null;
+  if (!body.success || !body.data) {
+    throw new Error(body.error || "패턴 리포트 조회에 실패했습니다");
+  }
+  return body.data;
+}
+
+/**
+ * 꿈 패턴 리포트 생성. 새 꿈이 없으면 서버가 저장된 리포트를 돌려준다.
+ */
+export async function generateDreamPatternReport(): Promise<
+  APIResponse<DreamPatternReportResult>
+> {
+  try {
+    const { body } = await fetchDreamInsight<DreamPatternReportResult>(
+      "/api/dreams/patterns",
+      { method: "POST" }
+    );
+    return body;
+  } catch (error) {
+    console.error("Generate dream pattern report failed:", error);
     return {
       success: false,
       error:

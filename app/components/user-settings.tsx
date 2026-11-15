@@ -18,6 +18,7 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/supabase";
 import { useUserAvatar } from "@/hooks/use-user-avatar";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import MorningReminderSettings from "./morning-reminder-settings";
 
 export default function UserSettings() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -457,6 +458,8 @@ export default function UserSettings() {
           </button>
         </div>
       </section>
+
+      <MorningReminderSettings />
 
       {/* 계정 정보 섹션 */}
       <section className="oneiri-bg-secondary p-6 rounded-lg">

@@ -8,7 +8,12 @@ export type AnalyticsEvent =
   | "image_generated"
   | "share"
   | "guest_dream_created"
-  | "guest_dream_claimed";
+  | "guest_dream_claimed"
+  | "pattern_report_generated"
+  | "streak_viewed"
+  | "reminder_enabled"
+  | "reminder_disabled"
+  | "reminder_opened";
 
 export function trackEvent(
   name: AnalyticsEvent,
