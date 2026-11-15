@@ -43,6 +43,7 @@ export async function generateMetadata(props: {
     return {
       title: "찾을 수 없는 이야기",
       description: "요청하신 꿈 이야기를 찾을 수 없습니다.",
+      robots: { index: false, follow: false },
     };
   }
 
@@ -88,6 +89,8 @@ export async function generateMetadata(props: {
     // 추가 메타데이터
     authors: [{ name: "Oneiri User" }],
     category: "꿈 이야기",
+    // 로그인 전용 서재 경로. 공개 꿈은 /shared/{id}로 색인된다.
+    robots: { index: false, follow: false },
   };
 }
 
