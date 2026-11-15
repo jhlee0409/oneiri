@@ -11,6 +11,8 @@ import {
   Trash2,
   X,
   Check,
+  ImageDown,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
@@ -92,6 +94,7 @@ export default function SharedDreamDisplay({
     null
   );
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [isCreatingStoryImage, setIsCreatingStoryImage] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -394,6 +397,63 @@ export default function SharedDreamDisplay({
     } catch (error) {
       console.error("공유 링크 복사 실패:", error);
       toast.error("링크 복사에 실패했습니다.");
+    }
+  };
+
+  // 인스타그램 스토리용 이미지: 파일 공유가 되면 Web Share, 아니면 다운로드
+  const handleShareStoryImage = async () => {
+    if (!dream?.id || isCreatingStoryImage) return;
+
+    setIsCreatingStoryImage(true);
+    try {
+      const response = await fetch(`/api/share-card/${dream.id}`);
+      if (!response.ok) {
+        throw new Error(`share card request failed: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const fileName = `oneiri-${dream.id}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      // 터치 기기(모바일)에서만 공유 시트를 띄운다. 데스크톱은 바로 다운로드한다.
+      const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+      let shared = false;
+      if (isTouchDevice && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: dream.generated_story_title || "Oneiri",
+          });
+          shared = true;
+        } catch (shareError) {
+          if (
+            shareError instanceof DOMException &&
+            shareError.name === "AbortError"
+          ) {
+            return;
+          }
+          // 이미지 생성 대기 중 사용자 제스처가 만료되면(NotAllowedError) 다운로드로 대체한다.
+          console.warn("Web Share 실패, 다운로드로 대체:", shareError);
+        }
+      }
+
+      if (!shared) {
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = objectUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(objectUrl);
+        toast.success("스토리 이미지를 저장했습니다.");
+      }
+
+      trackEvent("share", { method: "story_image", content_type: "dream" });
+    } catch (error) {
+      console.error("스토리 이미지 공유 실패:", error);
+      toast.error("스토리 이미지를 만들지 못했습니다.");
+    } finally {
+      setIsCreatingStoryImage(false);
     }
   };
 
@@ -704,7 +764,7 @@ export default function SharedDreamDisplay({
         </section>
 
         {/* 소셜 액션 버튼 */}
-        <div className="flex items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-text-secondary/20 mb-8 sm:mb-12 text-sm sm:text-base">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-text-secondary/20 mb-8 sm:mb-12 text-sm sm:text-base">
           <button
             onClick={handleToggleLike}
             disabled={isTogglingLike}
@@ -743,6 +803,19 @@ export default function SharedDreamDisplay({
           >
             <Share2 className="w-5 h-5" />
             <span>공유하기</span>
+          </button>
+
+          <button
+            onClick={handleShareStoryImage}
+            disabled={isCreatingStoryImage}
+            className="flex items-center gap-2 oneiri-text-secondary hover:oneiri-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCreatingStoryImage ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <ImageDown className="w-5 h-5" />
+            )}
+            <span>스토리 이미지로 공유</span>
           </button>
         </div>
 
