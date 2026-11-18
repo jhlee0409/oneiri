@@ -383,7 +383,7 @@ export default function DreamJournal() {
               placeholder={activeTab === "dreams" ? "제목, 내용, 키워드" : "리포트 내용"}
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="h-11 w-full rounded-lg border border-line bg-bg-secondary pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/70 focus:border-text-secondary"
+              className="h-11 w-full rounded-lg border border-text-secondary/70 bg-bg-secondary pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary focus:border-text-primary"
             />
           </div>
           {activeTab === "dreams" && (

@@ -18,7 +18,20 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { UserProfile } from "@/types/supabase";
 import { useUserAvatar } from "@/hooks/use-user-avatar";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import MorningReminderSettings from "./morning-reminder-settings";
+
+const fieldClass =
+  "w-full min-h-11 p-3 rounded-lg border border-text-secondary/70 focus:border-accent-primary oneiri-bg-primary oneiri-text-primary placeholder:oneiri-text-secondary";
 
 export default function UserSettings() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -27,9 +40,15 @@ export default function UserSettings() {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [withdrawalConfirmText, setWithdrawalConfirmText] = useState("");
   const [isProcessingWithdrawal, setIsProcessingWithdrawal] = useState(false);
+  const [withdrawalError, setWithdrawalError] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  // 프로필 저장 결과는 토스트 대신 저장 버튼 아래에 남겨 둔다.
+  const [profileMessage, setProfileMessage] = useState<{
+    kind: "saved" | "error";
+    text: string;
+  } | null>(null);
 
   // 아바타 관련 상태
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -84,16 +103,17 @@ export default function UserSettings() {
 
     // 파일 크기 검증 (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("파일 크기는 5MB 이하여야 합니다.");
+      setProfileMessage({ kind: "error", text: "이미지는 5MB 이하만 올릴 수 있어요." });
       return;
     }
 
     // 파일 타입 검증
     if (!file.type.startsWith("image/")) {
-      toast.error("이미지 파일만 업로드 가능합니다.");
+      setProfileMessage({ kind: "error", text: "이미지 파일만 올릴 수 있어요." });
       return;
     }
 
+    setProfileMessage(null);
     setAvatarFile(file);
     setShouldDeleteAvatar(false); // 새 파일 선택 시 삭제 플래그 해제
 
@@ -126,9 +146,9 @@ export default function UserSettings() {
 
   // 통합된 프로필 저장 함수
   const handleSaveProfile = async () => {
-    if (!user || !profile) return;
-
+    if (!user || !profile || isUpdatingProfile || !hasChanges()) return;
     setIsUpdatingProfile(true);
+    setProfileMessage(null);
     try {
       let newAvatarUrl = profile.avatar_url;
 
@@ -201,10 +221,13 @@ export default function UserSettings() {
       // 6. 아바타 훅 새로고침
       await refetchAvatar();
 
-      toast.success("프로필이 성공적으로 저장되었습니다.");
+      setProfileMessage({ kind: "saved", text: "프로필을 저장했어요." });
     } catch (error) {
       console.error("프로필 저장 오류:", error);
-      toast.error("프로필 저장 중 오류가 발생했습니다.");
+      setProfileMessage({
+        kind: "error",
+        text: "프로필을 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+      });
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -220,20 +243,23 @@ export default function UserSettings() {
     return nameChanged || avatarChanged;
   };
 
-  const handleWithdrawal = async () => {
+  const handleWithdrawal = async (event: React.MouseEvent) => {
+    // 처리하는 동안 대화상자를 열어 두고, 실패하면 그 안에 이유를 보여 준다.
+    event.preventDefault();
     if (withdrawalConfirmText !== "탈퇴합니다") {
-      toast.error("확인 문구를 정확히 입력해주세요.");
+      setWithdrawalError("확인 문구를 정확히 입력해 주세요.");
       return;
     }
 
     setIsProcessingWithdrawal(true);
+    setWithdrawalError(null);
 
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) {
-        toast.error("로그인이 필요합니다.");
+        setWithdrawalError("로그인이 풀렸어요. 다시 로그인한 뒤 시도해 주세요.");
         return;
       }
 
@@ -259,18 +285,26 @@ export default function UserSettings() {
       });
 
       // 로그아웃 처리 및 메인 페이지로 이동
+      setShowWithdrawalModal(false);
       await supabase.auth.signOut();
       router.push("/");
     } catch (error) {
       console.error("탈퇴 처리 오류:", error);
-      toast.error(
+      setWithdrawalError(
         error instanceof Error
           ? error.message
           : "탈퇴 처리 중 오류가 발생했습니다."
       );
     } finally {
       setIsProcessingWithdrawal(false);
-      setShowWithdrawalModal(false);
+    }
+  };
+
+  const handleWithdrawalOpenChange = (open: boolean) => {
+    setShowWithdrawalModal(open);
+    if (!open) {
+      setWithdrawalConfirmText("");
+      setWithdrawalError(null);
     }
   };
 
@@ -290,8 +324,9 @@ export default function UserSettings() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="oneiri-bg-secondary p-6 rounded-lg animate-pulse">
+      <div className="space-y-6" role="status">
+        <span className="sr-only">설정을 불러오고 있어요</span>
+        <div className="oneiri-bg-secondary p-6 rounded-lg animate-pulse" aria-hidden="true">
           <div className="h-6 bg-line rounded w-1/4 mb-4"></div>
           <div className="h-4 bg-line rounded w-1/2"></div>
         </div>
@@ -299,13 +334,21 @@ export default function UserSettings() {
     );
   }
 
+  const avatarPreviewSrc = shouldDeleteAvatar ? null : avatarPreview ?? avatarUrl;
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* 프로필 설정 섹션 */}
-      <section className="oneiri-bg-secondary p-4 sm:p-6 rounded-lg">
+      <section
+        aria-labelledby="settings-profile-heading"
+        className="oneiri-bg-secondary p-4 sm:p-6 rounded-lg"
+      >
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <User className="w-4 h-4 sm:w-5 sm:h-5 oneiri-accent" />
-          <h2 className="text-lg sm:text-xl font-semibold oneiri-text-primary">
+          <User className="w-4 h-4 sm:w-5 sm:h-5 oneiri-accent" aria-hidden="true" />
+          <h2
+            id="settings-profile-heading"
+            className="text-lg sm:text-xl font-semibold oneiri-text-primary"
+          >
             프로필 정보
           </h2>
         </div>
@@ -313,62 +356,61 @@ export default function UserSettings() {
         <div className="space-y-4 sm:space-y-6">
           {/* 아바타 섹션 */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium oneiri-text-primary mb-2 sm:mb-3">
+            <p className="block text-xs sm:text-sm font-medium oneiri-text-primary mb-2 sm:mb-3">
               프로필 이미지
-            </label>
+            </p>
 
             <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-              {/* 프로필 이미지 미리보기 */}
-              <div className="relative group mx-auto sm:mx-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-bg-primary flex items-center justify-center border-2 border-line cursor-pointer transition-all duration-200 group-hover:border-accent-primary">
-                  {shouldDeleteAvatar ? (
-                    <div className="w-full h-full bg-bg-primary flex items-center justify-center">
-                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-text-secondary" />
-                    </div>
-                  ) : avatarPreview ? (
+              {/* 프로필 이미지: 눌러서 새 이미지 고르기 */}
+              <div className="relative mx-auto sm:mx-0">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUpdatingProfile}
+                  aria-label="프로필 이미지 바꾸기"
+                  aria-describedby="settings-avatar-help"
+                  className="group relative flex w-16 h-16 sm:w-20 sm:h-20 items-center justify-center overflow-hidden rounded-full border-2 border-line bg-bg-primary transition-colors hover:border-accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {avatarPreviewSrc ? (
                     <ImageWithFallback
-                      src={avatarPreview}
-                      alt="미리보기"
+                      src={avatarPreviewSrc}
+                      alt=""
                       width={80}
                       height={80}
                       className="w-full h-full object-cover"
-                      fallbackMessage="미리보기"
-                    />
-                  ) : avatarUrl ? (
-                    <ImageWithFallback
-                      src={avatarUrl}
-                      alt="프로필 이미지"
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                      fallbackMessage="프로필 이미지"
+                      containerClassName="w-full h-full"
+                      fallbackMessage="이미지 없음"
                     />
                   ) : (
-                    <User className="w-8 h-8 text-text-secondary" />
+                    <User className="w-6 h-6 sm:w-8 sm:h-8 text-text-secondary" aria-hidden="true" />
                   )}
-
-                  {/* 호버 오버레이 - 이미지 선택 */}
-                  <div
-                    className="absolute rounded-full inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                    onClick={() => fileInputRef.current?.click()}
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 flex items-center justify-center rounded-full bg-bg-primary/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
                   >
                     <Camera className="w-6 h-6 text-text-primary" />
-                  </div>
-                </div>
+                  </span>
+                </button>
 
-                {/* 변경사항 취소 버튼 (우측 상단 X) */}
+                {/* 변경사항 취소 (우측 상단 X): 보이는 원은 작아도 누르는 영역은 44px */}
                 {(avatarPreview || shouldDeleteAvatar) && (
                   <button
+                    type="button"
                     onClick={cancelAvatarChanges}
                     disabled={isUpdatingProfile}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-bg-secondary border border-line hover:border-text-secondary rounded-full flex items-center justify-center text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                    title="변경사항 취소"
+                    aria-label="이미지 변경 취소"
+                    className="group absolute -top-4 -right-4 flex h-11 w-11 items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <X className="w-3 h-3" />
+                    <span
+                      aria-hidden="true"
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-text-secondary bg-bg-secondary text-text-primary shadow-md transition-colors group-hover:border-text-primary"
+                    >
+                      <X className="w-4 h-4" />
+                    </span>
                   </button>
                 )}
 
-                {/* 숨겨진 파일 입력 */}
+                {/* 숨겨진 파일 입력: 위 버튼이 연다 */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -379,204 +421,243 @@ export default function UserSettings() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <div className="text-sm oneiri-text-primary">
-                  <p className="font-medium">프로필 이미지</p>
-                  <p className="text-xs oneiri-text-secondary mt-1">
-                    이미지를 클릭하여 변경하세요
-                  </p>
-                </div>
+                <p id="settings-avatar-help" className="text-xs oneiri-text-secondary break-keep">
+                  이미지를 눌러 바꿀 수 있어요. JPG·PNG 이미지를 5MB까지 올릴 수 있어요.
+                </p>
 
                 {/* 아바타 삭제 버튼 (기존 아바타가 있을 때만) */}
                 {profile?.avatar_url &&
                   !shouldDeleteAvatar &&
                   !avatarPreview && (
                     <button
+                      type="button"
                       onClick={handleAvatarDelete}
                       disabled={isUpdatingProfile}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-danger border border-danger/40 rounded-lg hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-fit"
+                      className="flex min-h-11 items-center gap-2 px-3 py-2 text-sm text-danger border border-danger/40 rounded-lg hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-fit"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
                       아바타 삭제
                     </button>
                   )}
 
                 {/* 삭제 예약된 상태 표시 */}
                 {shouldDeleteAvatar && (
-                  <div className="flex items-center gap-2 px-3 py-2 text-sm text-danger bg-danger/10 border border-danger/40 rounded-lg w-fit">
-                    <Trash2 className="w-4 h-4" />
-                    삭제 예약됨
-                  </div>
+                  <p className="flex items-center gap-2 px-3 py-2 text-sm text-danger bg-danger/10 border border-danger/40 rounded-lg w-fit">
+                    <Trash2 className="w-4 h-4" aria-hidden="true" />
+                    저장하면 이미지가 지워져요
+                  </p>
                 )}
               </div>
-            </div>
-
-            <div className="text-xs oneiri-text-secondary mt-2 space-y-1">
-              <p>JPG, PNG 파일만 업로드 가능하며, 최대 크기는 5MB입니다.</p>
-              {hasChanges() && (
-                <p className="text-accent-primary font-medium">
-                  변경사항이 있습니다. 하단의 '프로필 저장' 버튼을 클릭하여
-                  저장하세요.
-                </p>
-              )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium oneiri-text-primary mb-2">
+            <label
+              htmlFor="settings-email"
+              className="block text-sm font-medium oneiri-text-primary mb-2"
+            >
               이메일
             </label>
             <input
+              id="settings-email"
               type="email"
               value={user?.email || ""}
-              disabled
-              className="w-full p-3 rounded-lg border border-line bg-bg-primary oneiri-text-secondary"
+              readOnly
+              aria-describedby="settings-email-help"
+              className="w-full min-h-11 p-3 rounded-lg border border-line bg-bg-primary oneiri-text-secondary"
             />
-            <p className="text-xs oneiri-text-secondary mt-1">
-              이메일은 변경할 수 없습니다.
+            <p id="settings-email-help" className="text-xs oneiri-text-secondary mt-1">
+              이메일은 바꿀 수 없어요.
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium oneiri-text-primary mb-2">
+            <label
+              htmlFor="settings-nickname"
+              className="block text-sm font-medium oneiri-text-primary mb-2"
+            >
               닉네임
             </label>
             <input
+              id="settings-nickname"
               type="text"
+              autoComplete="nickname"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="표시될 닉네임을 입력하세요"
-              className="w-full p-3 rounded-lg border border-line focus:border-accent-primary focus:outline-none oneiri-bg-primary oneiri-text-primary"
+              placeholder="다른 사람에게 보일 이름"
+              className={fieldClass}
             />
           </div>
 
-          <button
-            onClick={handleSaveProfile}
-            disabled={isUpdatingProfile || !hasChanges()}
-            className="px-4 py-2 oneiri-accent-bg text-bg-primary rounded-lg hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isUpdatingProfile ? "저장 중..." : "프로필 저장"}
-          </button>
+          <div className="space-y-2">
+            {/* 저장 직후 disabled가 되면 포커스가 빠지므로 aria-disabled로 막는다 */}
+            <button
+              type="button"
+              onClick={handleSaveProfile}
+              aria-disabled={isUpdatingProfile || !hasChanges() || undefined}
+              aria-describedby={hasChanges() ? "settings-unsaved" : undefined}
+              className="min-h-11 px-4 py-2 oneiri-accent-bg text-bg-primary font-medium rounded-lg hover:brightness-110 aria-disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:hover:brightness-100"
+            >
+              {isUpdatingProfile ? "저장하고 있어요…" : "프로필 저장"}
+            </button>
+            {hasChanges() && (
+              <p id="settings-unsaved" className="text-xs text-accent-primary">
+                바꾼 내용이 있어요. 프로필 저장을 눌러야 반영돼요.
+              </p>
+            )}
+            <p role="status" className="text-sm oneiri-text-secondary empty:hidden">
+              {profileMessage?.kind === "saved" ? profileMessage.text : ""}
+            </p>
+            {profileMessage?.kind === "error" && (
+              <p role="alert" className="text-sm text-danger break-keep">
+                {profileMessage.text}
+              </p>
+            )}
+          </div>
         </div>
       </section>
 
       <MorningReminderSettings />
 
       {/* 계정 정보 섹션 */}
-      <section className="oneiri-bg-secondary p-6 rounded-lg">
+      <section
+        aria-labelledby="settings-account-heading"
+        className="oneiri-bg-secondary p-4 sm:p-6 rounded-lg"
+      >
         <div className="flex items-center gap-3 mb-6">
-          <Info className="w-5 h-5 oneiri-accent" />
-          <h2 className="text-xl font-semibold oneiri-text-primary">
+          <Info className="w-5 h-5 oneiri-accent" aria-hidden="true" />
+          <h2
+            id="settings-account-heading"
+            className="text-xl font-semibold oneiri-text-primary"
+          >
             계정 정보
           </h2>
         </div>
 
-        <div className="space-y-3 text-sm oneiri-text-secondary">
+        <dl className="space-y-3 text-sm oneiri-text-secondary">
           <div className="flex justify-between">
-            <span>가입일:</span>
-            <span>
+            <dt>가입일</dt>
+            <dd>
               {profile?.created_at
                 ? new Date(profile.created_at).toLocaleDateString("ko-KR")
                 : "-"}
-            </span>
+            </dd>
           </div>
           <div className="flex justify-between">
-            <span>계정 상태:</span>
-            <span className="text-accent-primary">활성</span>
+            <dt>계정 상태</dt>
+            <dd className="text-accent-primary">활성</dd>
           </div>
           <div className="flex justify-between">
-            <span>마지막 업데이트:</span>
-            <span>
+            <dt>마지막 업데이트</dt>
+            <dd>
               {profile?.updated_at
                 ? new Date(profile.updated_at).toLocaleDateString("ko-KR")
                 : "-"}
-            </span>
+            </dd>
           </div>
-        </div>
+        </dl>
       </section>
 
       {/* 계정 관리 섹션 */}
-      <section className="oneiri-bg-secondary p-6 rounded-lg">
+      <section
+        aria-labelledby="settings-manage-heading"
+        className="oneiri-bg-secondary p-4 sm:p-6 rounded-lg"
+      >
         <div className="flex items-center gap-3 mb-6">
-          <Shield className="w-5 h-5 oneiri-accent" />
-          <h2 className="text-xl font-semibold oneiri-text-primary">
+          <Shield className="w-5 h-5 oneiri-accent" aria-hidden="true" />
+          <h2
+            id="settings-manage-heading"
+            className="text-xl font-semibold oneiri-text-primary"
+          >
             계정 관리
           </h2>
         </div>
 
-        <div className="flex gap-4 justify-end">
+        <div className="flex flex-wrap gap-3 sm:gap-4 justify-end">
           <button
+            type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
             className="flex min-h-11 items-center gap-2 px-4 py-2 border border-line text-text-primary rounded-lg hover:bg-bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" aria-hidden="true" />
             {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
           </button>
 
-          <button
-            onClick={() => setShowWithdrawalModal(true)}
-            className="flex items-center gap-2 px-4 py-2 text-danger border border-danger/40 rounded-lg hover:bg-danger/10 transition-colors"
+          {/* 탈퇴 확인: 포커스를 가두고 Esc·취소로 닫으면 이 버튼으로 돌아온다 */}
+          <AlertDialog
+            open={showWithdrawalModal}
+            onOpenChange={handleWithdrawalOpenChange}
           >
-            <Trash2 className="w-4 h-4" />
-            회원 탈퇴
-          </button>
-        </div>
-      </section>
-
-      {/* 탈퇴 확인 모달 */}
-      {showWithdrawalModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-bg-secondary border border-line rounded-lg p-6 max-w-md w-full">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-danger" />
-              <h3 className="text-lg font-semibold oneiri-text-primary">
-                회원 탈퇴 확인
-              </h3>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <p className="font-medium text-danger">
-                정말로 탈퇴하시겠습니까? 모든 데이터는 복구할 수 없습니다.
-              </p>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                className="flex min-h-11 items-center gap-2 px-4 py-2 text-danger border border-danger/40 rounded-lg hover:bg-danger/10 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" aria-hidden="true" />
+                회원 탈퇴
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="w-[calc(100%-2rem)] max-w-md rounded-lg border-line bg-bg-secondary">
+              <AlertDialogHeader className="text-left">
+                <AlertDialogTitle className="flex items-center gap-3 text-lg font-semibold oneiri-text-primary">
+                  <AlertTriangle className="w-6 h-6 text-danger" aria-hidden="true" />
+                  회원 탈퇴 확인
+                </AlertDialogTitle>
+                <AlertDialogDescription className="font-medium text-danger break-keep">
+                  정말 탈퇴할까요? 모든 데이터는 복구할 수 없어요.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
 
               <div>
-                <label className="block text-sm font-medium oneiri-text-primary mb-2">
-                  '탈퇴합니다'를 입력하세요
+                <label
+                  htmlFor="settings-withdrawal-confirm"
+                  className="block text-sm font-medium oneiri-text-primary mb-2"
+                >
+                  확인을 위해 &apos;탈퇴합니다&apos;를 입력해 주세요
                 </label>
                 <input
+                  id="settings-withdrawal-confirm"
                   type="text"
+                  autoComplete="off"
                   value={withdrawalConfirmText}
                   onChange={(e) => setWithdrawalConfirmText(e.target.value)}
+                  aria-invalid={withdrawalError ? true : undefined}
+                  aria-describedby={withdrawalError ? "settings-withdrawal-error" : undefined}
                   placeholder="탈퇴합니다"
-                  className="w-full p-3 rounded-lg border border-line focus:border-danger focus:outline-none oneiri-bg-primary oneiri-text-primary"
+                  className="w-full min-h-11 p-3 rounded-lg border border-text-secondary/70 focus:border-danger oneiri-bg-primary oneiri-text-primary placeholder:oneiri-text-secondary"
                 />
+                {withdrawalError && (
+                  <p
+                    id="settings-withdrawal-error"
+                    role="alert"
+                    className="mt-2 text-sm text-danger break-keep"
+                  >
+                    {withdrawalError}
+                  </p>
+                )}
               </div>
-            </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowWithdrawalModal(false);
-                  setWithdrawalConfirmText("");
-                }}
-                className="flex-1 px-4 py-2 border border-line text-text-secondary rounded-lg hover:bg-bg-primary"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleWithdrawal}
-                disabled={
-                  withdrawalConfirmText !== "탈퇴합니다" ||
-                  isProcessingWithdrawal
-                }
-                className="flex-1 px-4 py-2 text-danger border border-danger/40 rounded-lg hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isProcessingWithdrawal ? "처리 중..." : "탈퇴 완료"}
-              </button>
-            </div>
-          </div>
+              <AlertDialogFooter className="gap-2 sm:space-x-0">
+                <AlertDialogCancel className="mt-0 min-h-11 flex-1 border-line bg-transparent text-text-primary hover:bg-line/40 hover:text-text-primary sm:mt-0">
+                  취소
+                </AlertDialogCancel>
+                <button
+                  type="button"
+                  onClick={handleWithdrawal}
+                  disabled={
+                    withdrawalConfirmText !== "탈퇴합니다" ||
+                    isProcessingWithdrawal
+                  }
+                  className="min-h-11 flex-1 px-4 py-2 text-danger border border-danger/40 rounded-md hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isProcessingWithdrawal ? "처리하고 있어요…" : "탈퇴 완료"}
+                </button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-      )}
+      </section>
     </div>
   );
 }

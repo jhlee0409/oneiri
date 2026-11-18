@@ -10,7 +10,7 @@ import {
 } from "@/hooks/use-dream-api";
 
 const actionClass =
-  "inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-secondary aria-disabled:cursor-not-allowed aria-disabled:opacity-60";
 
 /** 꿈 페이지 아래, 이 꿈 하나의 상징 리포트로 이어지는 조용한 섹션. 꿈 주인에게만 마운트한다. */
 export default function DreamSymbolReading({ dreamId }: { dreamId: string }) {
@@ -20,10 +20,13 @@ export default function DreamSymbolReading({ dreamId }: { dreamId: string }) {
   const create = useCreateDreamSymbolReading();
   const reportId = reading.data;
 
-  const readSymbols = () =>
+  // 기다리는 동안 버튼을 disabled로 바꾸면 포커스가 빠지므로 중복 요청만 막는다.
+  const readSymbols = () => {
+    if (create.isPending) return;
     create.mutate(dreamId, {
       onSuccess: (result) => router.push(`/analysis/${result.reportId}`),
     });
+  };
 
   return (
     <section aria-labelledby={headingId} className="mt-12">
@@ -47,7 +50,7 @@ export default function DreamSymbolReading({ dreamId }: { dreamId: string }) {
           <button
             type="button"
             className={actionClass}
-            disabled={create.isPending}
+            aria-disabled={create.isPending || undefined}
             aria-busy={create.isPending}
             onClick={readSymbols}
           >

@@ -128,8 +128,10 @@ export default function NoticesClient() {
     return (
       <div className="min-h-screen oneiri-bg-primary py-6 md:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="oneiri-bg-secondary rounded-lg shadow-lg p-4 md:p-8">
-            <div className="animate-pulse">
+          <div className="oneiri-bg-secondary rounded-lg shadow-lg p-4 md:p-8" role="status">
+            <h1 className="sr-only">업데이트 공지사항</h1>
+            <span className="sr-only">공지사항을 불러오고 있어요</span>
+            <div className="animate-pulse" aria-hidden="true">
               <div className="h-6 md:h-8 oneiri-bg-primary rounded mb-4"></div>
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
@@ -151,16 +153,17 @@ export default function NoticesClient() {
       <div className="min-h-screen oneiri-bg-primary py-6 md:py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="oneiri-bg-secondary rounded-lg shadow-lg p-4 md:p-8 text-center">
-            <Megaphone className="w-12 h-12 md:w-16 md:h-16 oneiri-accent mx-auto mb-4" />
+            <Megaphone className="w-12 h-12 md:w-16 md:h-16 oneiri-accent mx-auto mb-4" aria-hidden="true" />
             <h1 className="text-xl md:text-2xl font-bold oneiri-text-primary mb-4">
               공지사항을 불러올 수 없습니다
             </h1>
-            <p className="oneiri-text-secondary mb-6 text-sm md:text-base">
+            <p role="alert" className="oneiri-text-secondary mb-6 text-sm md:text-base">
               {error}
             </p>
             <button
+              type="button"
               onClick={fetchReleases}
-              className="px-4 md:px-6 py-2 oneiri-accent-bg text-bg-primary rounded-lg hover:brightness-110 transition-colors text-sm md:text-base"
+              className="min-h-11 px-4 md:px-6 py-2 oneiri-accent-bg text-bg-primary rounded-lg hover:brightness-110 transition-colors text-sm md:text-base"
             >
               다시 시도
             </button>
@@ -177,7 +180,7 @@ export default function NoticesClient() {
           {/* 헤더 */}
           <div className="text-center mb-6 md:mb-8">
             <div className="flex items-center justify-center gap-2 md:gap-3 mb-3 md:mb-4">
-              <Megaphone className="w-6 h-6 md:w-8 md:h-8 oneiri-accent" />
+              <Megaphone className="w-6 h-6 md:w-8 md:h-8 oneiri-accent" aria-hidden="true" />
               <h1 className="text-xl md:text-3xl font-bold oneiri-text-primary">
                 업데이트 공지사항
               </h1>
@@ -190,90 +193,98 @@ export default function NoticesClient() {
           {/* 릴리즈 목록 */}
           {releases.length === 0 ? (
             <div className="text-center py-8 md:py-12">
-              <Megaphone className="w-12 h-12 md:w-16 md:h-16 oneiri-text-secondary mx-auto mb-4 opacity-50" />
+              <Megaphone className="w-12 h-12 md:w-16 md:h-16 oneiri-text-secondary mx-auto mb-4 opacity-50" aria-hidden="true" />
               <p className="oneiri-text-secondary text-base md:text-lg">
                 아직 공지사항이 없습니다.
               </p>
             </div>
           ) : (
-            <div className="space-y-4 md:space-y-6">
-              {releases.map((release, index) => (
-                <div
-                  key={release.id}
-                  className="oneiri-bg-primary border border-line rounded-lg overflow-hidden"
-                >
-                  {/* 릴리즈 헤더 */}
-                  <div
-                    className="p-4 md:p-6 cursor-pointer hover:bg-text-secondary/5 transition-colors"
-                    onClick={() => toggleExpanded(release.id)}
+            <ul className="space-y-4 md:space-y-6">
+              {releases.map((release, index) => {
+                const expanded = expandedReleases.has(release.id);
+                const title = release.name || release.tag_name;
+                const panelId = `release-${release.id}`;
+                return (
+                  <li
+                    key={release.id}
+                    className="oneiri-bg-primary border border-line rounded-lg overflow-hidden"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
-                        <div className="flex-shrink-0">
-                          {index === 0 && (
-                            <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-accent-primary text-bg-primary">
-                              최신
-                            </span>
-                          )}
-                          {release.prerelease && (
-                            <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium border border-line text-text-secondary">
-                              프리릴리즈
-                            </span>
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h2 className="text-lg md:text-xl font-semibold oneiri-text-primary truncate">
-                            {release.name || release.tag_name}
-                          </h2>
-                          <div className="flex items-center gap-1 md:gap-2 mt-1">
-                            <Calendar className="w-3 h-3 md:w-4 md:h-4 oneiri-text-secondary flex-shrink-0" />
-                            <span className="oneiri-text-secondary text-xs md:text-sm">
-                              {formatDate(release.published_at)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-                        <a
-                          href={release.html_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1 md:p-2 oneiri-text-secondary hover:oneiri-accent transition-colors"
-                          onClick={(e) => e.stopPropagation()}
+                    {/* 릴리즈 헤더: 제목 버튼으로 펼치고, 원문 링크는 따로 둔다 */}
+                    <div className="flex items-start gap-1 md:gap-2 p-2 md:p-4">
+                      <h2 className="min-w-0 flex-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleExpanded(release.id)}
+                          aria-expanded={expanded}
+                          aria-controls={panelId}
+                          className="flex w-full min-h-11 items-center gap-2 md:gap-4 rounded-md p-2 text-left transition-colors hover:bg-text-secondary/5"
                         >
-                          <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
-                        </a>
-                        {expandedReleases.has(release.id) ? (
-                          <ChevronUp className="w-4 h-4 md:w-5 md:h-5 oneiri-text-secondary" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 md:w-5 md:h-5 oneiri-text-secondary" />
-                        )}
-                      </div>
+                          {(index === 0 || release.prerelease) && (
+                            <span className="flex-shrink-0">
+                              {index === 0 && (
+                                <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-accent-primary text-bg-primary">
+                                  최신
+                                </span>
+                              )}
+                              {release.prerelease && (
+                                <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium border border-line text-text-secondary">
+                                  프리릴리즈
+                                </span>
+                              )}
+                            </span>
+                          )}
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-lg md:text-xl font-semibold oneiri-text-primary truncate">
+                              {title}
+                            </span>
+                            <span className="mt-1 flex items-center gap-1 md:gap-2 font-normal">
+                              <Calendar className="w-3 h-3 md:w-4 md:h-4 oneiri-text-secondary flex-shrink-0" aria-hidden="true" />
+                              <span className="oneiri-text-secondary text-xs md:text-sm">
+                                {formatDate(release.published_at)}
+                              </span>
+                            </span>
+                          </span>
+                          {expanded ? (
+                            <ChevronUp className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 oneiri-text-secondary" aria-hidden="true" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 oneiri-text-secondary" aria-hidden="true" />
+                          )}
+                        </button>
+                      </h2>
+                      <a
+                        href={release.html_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${title} GitHub에서 보기 (새 창)`}
+                        className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md oneiri-text-secondary hover:oneiri-accent transition-colors md:mt-1"
+                      >
+                        <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                      </a>
                     </div>
-                  </div>
 
-                  {/* 릴리즈 내용 (확장 시) */}
-                  {expandedReleases.has(release.id) && (
-                    <div className="px-4 md:px-6 pb-4 md:pb-6 border-t border-line">
-                      <div className="pt-4">
-                        {release.body ? (
-                          <div
-                            className="prose prose-sm md:prose-lg max-w-none oneiri-text-primary/90 leading-relaxed"
-                            dangerouslySetInnerHTML={{
-                              __html: formatReleaseBody(release.body),
-                            }}
-                          />
-                        ) : (
-                          <p className="oneiri-text-secondary italic text-sm md:text-base">
-                            이 릴리즈에 대한 상세 설명이 없습니다.
-                          </p>
-                        )}
+                    {/* 릴리즈 내용 (확장 시) */}
+                    {expanded && (
+                      <div id={panelId} className="px-4 md:px-6 pb-4 md:pb-6 border-t border-line">
+                        <div className="pt-4">
+                          {release.body ? (
+                            <div
+                              className="prose prose-sm md:prose-lg max-w-none oneiri-text-primary/90 leading-relaxed"
+                              dangerouslySetInnerHTML={{
+                                __html: formatReleaseBody(release.body),
+                              }}
+                            />
+                          ) : (
+                            <p className="oneiri-text-secondary italic text-sm md:text-base">
+                              이 릴리즈에 대한 상세 설명이 없습니다.
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
 
           {/* 푸터 */}

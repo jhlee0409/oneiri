@@ -138,8 +138,10 @@ export default function NewAnalysisClient() {
 
         <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
           <CardHeader className="pb-4 sm:pb-6">
-            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-              <MoonStar className="h-5 w-5 sm:h-6 sm:w-6" />꿈 분석하기
+            <CardTitle asChild className="flex items-center gap-2 text-lg sm:text-xl">
+              <h2>
+                <MoonStar className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />꿈 분석하기
+              </h2>
             </CardTitle>
             <CardDescription className="text-sm sm:text-base leading-relaxed">
               검열하거나 다듬지 않은, 기억나는 그대로의 꿈을 들려주세요. 분석의
@@ -147,46 +149,66 @@ export default function NewAnalysisClient() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-2 sm:pt-4">
-            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              aria-busy={isLoading}
+              className="space-y-4 sm:space-y-6"
+            >
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    꿈 내용을 자유롭게 적어보세요
-                  </label>
-                </div>
+                <label
+                  htmlFor="analysis-dream"
+                  className="block text-sm font-medium text-muted-foreground"
+                >
+                  꿈 내용을 자유롭게 적어보세요
+                </label>
                 <Textarea
+                  id="analysis-dream"
                   value={dreamContent}
                   onChange={(e) => setDreamContent(e.target.value)}
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={
+                    error ? "analysis-dream-hint analysis-dream-error" : "analysis-dream-hint"
+                  }
                   placeholder="어젯밤 꾼 꿈이나 기억에 남는 꿈을 자세히 적어주세요..."
-                  className="min-h-[180px] sm:min-h-[220px] lg:min-h-[260px] resize-none text-sm sm:text-base leading-relaxed focus:ring-2 transition-all duration-200"
+                  className="min-h-[180px] sm:min-h-[220px] lg:min-h-[260px] resize-none border-text-secondary/70 text-sm sm:text-base leading-relaxed transition-all duration-200"
                   disabled={isLoading}
                 />
+                <p id="analysis-dream-hint" className="text-xs text-muted-foreground">
+                  10자 이상 2,000자 이내로 적어 주세요.{" "}
+                  <span className="tabular-nums">({dreamContent.trim().length}자)</span>
+                </p>
 
                 {/* 접이식 꿈 기록 팁 */}
                 <div className="border border-primary/20 rounded-lg bg-primary/5">
                   <button
                     type="button"
                     onClick={() => setShowTips(!showTips)}
-                    className="w-full p-3 sm:p-4 flex items-center justify-between text-left hover:bg-primary/10 transition-colors rounded-lg"
+                    aria-expanded={showTips}
+                    aria-controls="analysis-tips"
+                    className="w-full min-h-11 p-3 sm:p-4 flex items-center justify-between text-left hover:bg-primary/10 transition-colors rounded-lg"
                   >
-                    <div className="flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary" />
+                    <span className="flex items-center gap-2">
+                      <Lightbulb className="h-4 w-4 text-primary" aria-hidden="true" />
                       <span className="text-sm font-medium text-primary">
                         꿈 기록 팁 보기
                       </span>
                       <span className="text-xs text-muted-foreground hidden sm:inline">
                         더 좋은 분석을 위한 가이드
                       </span>
-                    </div>
+                    </span>
                     {showTips ? (
-                      <ChevronUp className="h-4 w-4 text-primary" />
+                      <ChevronUp className="h-4 w-4 text-primary" aria-hidden="true" />
                     ) : (
-                      <ChevronDown className="h-4 w-4 text-primary" />
+                      <ChevronDown className="h-4 w-4 text-primary" aria-hidden="true" />
                     )}
                   </button>
 
                   {showTips && (
-                    <div className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-4 border-t border-primary/20 mt-0">
+                    <div
+                      id="analysis-tips"
+                      className="px-3 sm:px-4 pb-3 sm:pb-4 space-y-4 border-t border-primary/20 mt-0"
+                    >
                       <div className="pt-3 sm:pt-4">
                         <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
                           어떻게 적어야 할지 막막하신가요? 완벽한 꿈 기록은
@@ -197,9 +219,9 @@ export default function NewAnalysisClient() {
                           <div className="flex gap-2 sm:gap-3">
                             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
-                              <h4 className="text-xs font-medium mb-1">
+                              <h3 className="text-xs font-medium mb-1">
                                 첫 장면부터 시작
-                              </h4>
+                              </h3>
                               <p className="text-xs text-muted-foreground leading-relaxed">
                                 깨어났을 때 떠오른 첫 이미지부터 적어보세요.
                                 어떤 장소, 인물, 사물이든 좋아요.
@@ -210,9 +232,9 @@ export default function NewAnalysisClient() {
                           <div className="flex gap-2 sm:gap-3">
                             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
-                              <h4 className="text-xs font-medium mb-1">
+                              <h3 className="text-xs font-medium mb-1">
                                 감각적 묘사
-                              </h4>
+                              </h3>
                               <p className="text-xs text-muted-foreground leading-relaxed">
                                 무엇을 보고, 들고, 느꼈나요? 감각적 느낌을 함께
                                 적으면 더 풍부한 분석이 가능해요.
@@ -223,9 +245,9 @@ export default function NewAnalysisClient() {
                           <div className="flex gap-2 sm:gap-3">
                             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
-                              <h4 className="text-xs font-medium mb-1">
+                              <h3 className="text-xs font-medium mb-1">
                                 구체적 감정 표현
-                              </h4>
+                              </h3>
                               <p className="text-xs text-muted-foreground leading-relaxed">
                                 '기뻤다' 보다는 '가슴 벅차게 기뻤다'처럼
                                 구체적으로 표현해보세요.
@@ -236,9 +258,9 @@ export default function NewAnalysisClient() {
                           <div className="flex gap-2 sm:gap-3">
                             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
-                              <h4 className="text-xs font-medium mb-1">
+                              <h3 className="text-xs font-medium mb-1">
                                 기묘한 순간
-                              </h4>
+                              </h3>
                               <p className="text-xs text-muted-foreground leading-relaxed">
                                 이상하거나 반복되는 요소들이 중요한 메시지일 수
                                 있어요.
@@ -249,9 +271,9 @@ export default function NewAnalysisClient() {
                           <div className="flex gap-2 sm:gap-3">
                             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
-                              <h4 className="text-xs font-medium mb-1">
+                              <h3 className="text-xs font-medium mb-1">
                                 편안하게 표현
-                              </h4>
+                              </h3>
                               <p className="text-xs text-muted-foreground leading-relaxed">
                                 완벽하게 정리하려 하지 마세요. 떠오르는 그대로
                                 편하게 적어주세요.
@@ -266,33 +288,36 @@ export default function NewAnalysisClient() {
               </div>
 
               {error && (
-                <div className="text-xs sm:text-sm text-danger p-3 sm:p-4 rounded-lg border border-danger/40">
+                <p
+                  id="analysis-dream-error"
+                  role="alert"
+                  className="text-xs sm:text-sm text-danger p-3 sm:p-4 rounded-lg border border-danger/40 break-keep"
+                >
                   {error}
-                </div>
+                </p>
               )}
 
               <Button
                 type="submit"
                 className="w-full h-12 sm:h-14 text-sm sm:text-base font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 size="lg"
-                disabled={isLoading || !dreamContent.trim()}
+                disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                    <span className="hidden sm:inline">
-                      꿈을 분석하고 있습니다...
-                    </span>
-                    <span className="sm:hidden">분석 중...</span>
+                    <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" aria-hidden="true" />
+                    분석하고 있어요…
                   </>
                 ) : (
                   <>
-                    <MoonStar className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden sm:inline">내 꿈 분석하기</span>
-                    <span className="sm:hidden">분석하기</span>
+                    <MoonStar className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
+                    내 꿈 분석하기
                   </>
                 )}
               </Button>
+              <p role="status" className="text-xs sm:text-sm text-center text-muted-foreground empty:hidden">
+                {isLoading ? "보통 20초 안팎이에요. 이 화면을 닫지 마세요." : ""}
+              </p>
             </form>
           </CardContent>
         </Card>

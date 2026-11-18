@@ -169,9 +169,9 @@ export default function PrivacyPage() {
               </p>
 
               <div className="oneiri-bg-primary border border-line rounded-lg p-6">
-                <h4 className="font-semibold oneiri-text-primary mb-3">
+                <h3 className="font-semibold oneiri-text-primary mb-3">
                   위탁 업체: Supabase Inc.
-                </h4>
+                </h3>
                 <div className="space-y-2 text-sm oneiri-text-secondary">
                   <div>
                     <strong>위탁 업무:</strong>
@@ -216,9 +216,9 @@ export default function PrivacyPage() {
               </div>
 
               <div className="bg-bg-secondary border border-line rounded-lg p-6 mt-4">
-                <h4 className="font-semibold text-text-primary mb-3">
+                <h3 className="font-semibold text-text-primary mb-3">
                   위탁 업체: Google LLC (Gemini API)
-                </h4>
+                </h3>
                 <div className="space-y-2 text-sm text-text-secondary">
                   <div>
                     <strong>위탁 업무:</strong>
@@ -303,9 +303,9 @@ export default function PrivacyPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold oneiri-text-primary mb-2">
+                  <h3 className="font-semibold oneiri-text-primary mb-2">
                     파기 절차
-                  </h4>
+                  </h3>
                   <p>
                     이용자가 입력한 정보는 목적 달성 후 별도의 DB에
                     옮겨져(종이의 경우 별도의 서류함) 내부 방침 및 기타 관련
@@ -313,9 +313,9 @@ export default function PrivacyPage() {
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-semibold oneiri-text-primary mb-2">
+                  <h3 className="font-semibold oneiri-text-primary mb-2">
                     파기 방법
-                  </h4>
+                  </h3>
                   <ul className="list-disc pl-8 space-y-1">
                     <li>
                       전자적 파일 형태: 기록을 재생할 수 없도록 안전한 방법으로

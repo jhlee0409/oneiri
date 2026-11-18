@@ -130,8 +130,9 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
     }
   }, [archetypeKey]);
 
-  // 3D 기울기 효과를 위한 마우스 움직임 처리
+  // 3D 기울기 효과를 위한 마우스 움직임 처리 (동작 줄이기 설정이면 기울이지 않는다)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const card = e.currentTarget;
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -147,6 +148,7 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
   };
 
   const handleMouseEnter = () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setIsHovered(true);
   };
 
@@ -201,33 +203,37 @@ export function ArchetypeCard({ archetypeKey }: ArchetypeCardProps) {
         <CardContent className="p-0">
           {/* 카드 이름 - 이미지 위로 이동 */}
           <div className="p-4 pb-2 text-center">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1">
               <h3 className="text-lg font-bold text-primary tracking-wide">
                 {cardData.name}
               </h3>
-              {/* 설명 툴팁 아이콘 */}
-              <div className="relative">
-                <Info
-                  className="w-4 h-4 text-muted-foreground hover:text-primary cursor-help transition-colors"
-                  onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
-                />
-                {/* 툴팁 */}
-                {showTooltip && (
-                  <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 w-64 p-3 bg-popover border border-border rounded-lg shadow-lg text-sm text-popover-foreground leading-relaxed">
-                    {cardData.description}
-                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-popover border-l border-t border-border rotate-45"></div>
-                  </div>
-                )}
-              </div>
+              {/* 카드 설명: 마우스·키보드·터치 모두 눌러서 펼친다 */}
+              <button
+                type="button"
+                onClick={() => setShowTooltip((open) => !open)}
+                aria-expanded={showTooltip}
+                aria-controls="archetype-description"
+                aria-label={`${cardData.name} 설명`}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-primary"
+              >
+                <Info className="w-4 h-4" aria-hidden="true" />
+              </button>
             </div>
+            {showTooltip && (
+              <p
+                id="archetype-description"
+                className="mt-2 text-left text-sm leading-relaxed text-popover-foreground break-keep"
+              >
+                {cardData.description}
+              </p>
+            )}
           </div>
 
           {/* 카드 이미지 영역 */}
           <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10 mx-4 rounded-lg">
             <ImageWithFallback
               src={imageUrl}
-              alt={archetypeKey}
+              alt={`${cardData.name} 원형 카드 그림`}
               fill
               className="object-cover"
               fallbackMessage={

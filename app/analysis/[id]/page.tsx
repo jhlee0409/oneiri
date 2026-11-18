@@ -263,9 +263,11 @@ async function AnalysisReportContent({
           {/* 원본 꿈 내용 */}
           <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
             <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Eye className="h-5 w-5 sm:h-6 sm:w-6" />
-                분석된 꿈 내용
+              <CardTitle asChild className="flex items-center gap-2 text-lg sm:text-xl">
+                <h2>
+                  <Eye className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                  분석된 꿈 내용
+                </h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -280,9 +282,11 @@ async function AnalysisReportContent({
           {/* 주요 상징 및 장면 */}
           <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
             <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
-                꿈의 주요 상징 및 장면
+              <CardTitle asChild className="flex items-center gap-2 text-lg sm:text-xl">
+                <h2>
+                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                  꿈의 주요 상징 및 장면
+                </h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -303,9 +307,11 @@ async function AnalysisReportContent({
           {/* 정서적 흐름 */}
           <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
             <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
-                이야기의 정서적 흐름
+              <CardTitle asChild className="flex items-center gap-2 text-lg sm:text-xl">
+                <h2>
+                  <Heart className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                  이야기의 정서적 흐름
+                </h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -320,8 +326,8 @@ async function AnalysisReportContent({
             {/* 프로이트적 관점 */}
             <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
               <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="text-base sm:text-lg">
-                  관점 A: 프로이트적 해석
+                <CardTitle asChild className="text-base sm:text-lg">
+                  <h2>관점 A: 프로이트적 해석</h2>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -334,8 +340,8 @@ async function AnalysisReportContent({
             {/* 융의 관점 */}
             <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
               <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="text-base sm:text-lg">
-                  관점 B: 융의 분석심리학적 해석
+                <CardTitle asChild className="text-base sm:text-lg">
+                  <h2>관점 B: 융의 분석심리학적 해석</h2>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -349,9 +355,11 @@ async function AnalysisReportContent({
           {/* Oneiri의 종합 해석 */}
           <Card className="border-line bg-bg-secondary">
             <CardHeader className="pb-3 sm:pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                <MoonStar className="h-5 w-5 sm:h-6 sm:w-6" />
-                Oneiri의 종합 해석
+              <CardTitle asChild className="flex items-center gap-2 text-lg sm:text-xl">
+                <h2>
+                  <MoonStar className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                  Oneiri의 종합 해석
+                </h2>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -367,9 +375,11 @@ async function AnalysisReportContent({
           {reportData.report_data.archetypeCardKey && (
             <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
               <CardHeader className="pb-3 sm:pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                  <CreditCard className="h-5 w-5 sm:h-6 sm:w-6" />
-                  당신의 꿈 원형 카드
+                <CardTitle asChild className="flex items-center gap-2 text-lg sm:text-xl">
+                  <h2>
+                    <CreditCard className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+                    당신의 꿈 원형 카드
+                  </h2>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-2">
                   AI가 분석한 당신의 꿈에서 가장 핵심적인 심리적 테마를 대표하는
@@ -402,7 +412,7 @@ async function AnalysisReportContent({
                   <p className="text-sm sm:text-base leading-relaxed font-medium text-muted-foreground italic">
                     "{reportData.report_data.oneiriNote}"
                   </p>
-                  <div className="mt-4 text-xs text-muted-foreground/70">
+                  <div className="mt-4 text-xs text-muted-foreground">
                     — Oneiri
                   </div>
                 </div>
@@ -414,7 +424,7 @@ async function AnalysisReportContent({
           <Card className="shadow-lg border-0 bg-card/50 backdrop-blur">
             <CardContent className="pt-4 sm:pt-6">
               <div className="text-center text-muted-foreground">
-                <Lightbulb className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" />
+                <Lightbulb className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 sm:mb-3" aria-hidden="true" />
                 <p className="text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
                   이 분석이 도움이 되었나요? 꿈은 개인적인 경험이므로, 이 해석을
                   참고 자료로 활용하시고 자신만의 해석을 더해보세요.

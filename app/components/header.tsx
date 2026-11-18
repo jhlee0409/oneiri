@@ -73,7 +73,7 @@ export default function Header({ user: initialUser }: Props) {
   const recordButton = (
     <Link
       href="/dreams/new"
-      className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-accent-primary px-4 text-sm font-medium text-bg-primary transition-[filter] duration-200 hover:brightness-110"
+      className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-accent-primary px-4 text-sm font-medium text-bg-primary transition-[filter] duration-200 hover:brightness-110"
     >
       <PenLine className="h-4 w-4" aria-hidden="true" />꿈 기록하기
     </Link>
@@ -82,7 +82,7 @@ export default function Header({ user: initialUser }: Props) {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg-primary/90 backdrop-blur supports-[backdrop-filter]:bg-bg-primary/75">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
-        <Link href="/" className="flex items-center gap-2" aria-label="Oneiri 홈">
+        <Link href="/" className="flex min-h-11 items-center gap-2" aria-label="Oneiri 홈">
           <Image src="/oneiri_logo.png" alt="" width={32} height={32} className="rounded-full" />
           <span className="font-italianno text-2xl font-bold text-text-primary">Oneiri</span>
         </Link>
@@ -96,7 +96,7 @@ export default function Header({ user: initialUser }: Props) {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative py-2 text-sm font-medium transition-colors",
+                  "relative inline-flex min-h-11 items-center text-sm font-medium transition-colors",
                   active
                     ? "text-text-primary after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-accent-primary"
                     : "text-text-secondary hover:text-text-primary"
@@ -111,13 +111,17 @@ export default function Header({ user: initialUser }: Props) {
         <div className="hidden items-center gap-4 md:flex">
           {pathname !== "/dreams/new" && recordButton}
           {user ? (
-            <Link href="/settings" aria-label="설정" className="rounded-full">
+            <Link
+              href="/settings"
+              aria-label="설정"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full"
+            >
               <UserAvatar user={user} size="md" className="transition-opacity hover:opacity-80" />
             </Link>
           ) : (
             <Link
               href={loginPath(pathname)}
-              className="text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+              className="inline-flex min-h-11 items-center text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
             >
               로그인
             </Link>
@@ -129,13 +133,13 @@ export default function Header({ user: initialUser }: Props) {
             aria-label="메뉴 열기"
             className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-text-secondary hover:text-text-primary md:hidden"
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6" aria-hidden="true" />
           </SheetTrigger>
           <SheetContent side="right" className="flex w-80 max-w-[85vw] flex-col border-line bg-bg-secondary p-0">
             <SheetTitle className="sr-only">메뉴</SheetTitle>
             {user && (
               <div className="flex items-center gap-3 border-b border-line px-5 pb-5 pt-12">
-                <UserAvatar user={user} size="md" />
+                <UserAvatar user={user} size="md" className="shrink-0" />
                 <div className="min-w-0">
                   <p className="truncate font-medium text-text-primary">
                     {displayName || user.user_metadata?.full_name || "꿈꾸는자"}

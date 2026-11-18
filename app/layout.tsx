@@ -145,10 +145,19 @@ export default async function RootLayout({
         >
           {JSON.stringify(jsonLdData)}
         </Script>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:inline-flex focus:min-h-11 focus:items-center focus:rounded-lg focus:bg-bg-secondary focus:px-4 focus:text-sm focus:font-medium focus:text-text-primary"
+        >
+          본문으로 건너뛰기
+        </a>
         <QueryProvider>
           {/* <UpdateBanner /> */}
           <Header user={user} />
-          <main className="flex-1">{children}</main>
+          {/* 건너뛰기 링크의 도착점. 포커스 테두리는 상호작용 요소에만 그린다. */}
+          <main id="main" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </main>
           <Footer />
           <SupportFloatingButton />
           <Toaster />

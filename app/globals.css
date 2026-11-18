@@ -14,7 +14,7 @@
     --text-primary: 236 230 216; /* 아이보리 잉크 #ECE6D8 */
     --text-secondary: 154 147 132; /* 흐린 잉크 #9A9384 */
     --accent-primary: 201 165 72; /* 금실 #C9A548 */
-    --danger: 180 83 62; /* 인주 #B4533E */
+    --danger: 198 108 88; /* 인주 #C66C58 — 밤·서가 바탕에서 작은 글씨 4.5:1 이상 */
     --paper: 244 237 224; /* 종이 #F4EDE0 */
     --ink: 31 27 22; /* 먹 #1F1B16 */
 
@@ -33,8 +33,8 @@
     --muted-foreground: 41 9% 56%;
     --accent: 236 20% 16%;
     --accent-foreground: 42 33% 89%;
-    --destructive: 11 49% 47%;
-    --destructive-foreground: 42 33% 89%;
+    --destructive: 11 48% 56%;
+    --destructive-foreground: 234 27% 8%;
     --border: 236 16% 20%;
     --input: 236 16% 20%;
     --ring: 43 54% 54%;
@@ -119,4 +119,12 @@
 /* react-medium-image-zoom 확대 배경을 밤색으로 */
 [data-rmiz-modal-overlay="visible"] {
   background-color: rgb(var(--bg-primary) / 0.96);
+}
+
+/* 확대 버튼: 키보드로 포커스했을 때 보이는 크기를 터치 최소 44px로 (라이브러리 CSS보다 늦게 로드돼도 이기도록 요소 선택자를 붙인다) */
+button[data-rmiz-btn-zoom],
+button[data-rmiz-btn-unzoom] {
+  height: 44px;
+  width: 44px;
+  padding: 11px;
 }

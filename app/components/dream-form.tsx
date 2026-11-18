@@ -108,6 +108,7 @@ export default function DreamForm() {
   const guestTitleRef = useRef<HTMLHeadingElement>(null);
   const [dreamText, setDreamText] = useState("");
   const [showEmptyError, setShowEmptyError] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [keywords, setKeywords] = useState("");
   const [selectedEmotion, setSelectedEmotion] = useState("");
   const [selectedVibe, setSelectedVibe] = useState("");
@@ -158,6 +159,8 @@ export default function DreamForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setSubmitError(null);
 
     if (!dreamText.trim()) {
       setShowEmptyError(true);
@@ -166,7 +169,7 @@ export default function DreamForm() {
 
     // 제한 확인
     if (weavingStatus?.weaving_status?.has_reached_limit) {
-      toast.error("오늘은 두 편을 모두 만들었어요.");
+      setSubmitError("오늘은 두 편을 모두 만들었어요.");
       return;
     }
 
@@ -184,22 +187,35 @@ export default function DreamForm() {
       story_preference_length: undefined,
     };
 
-    if (isGuest) {
-      const result = await generateGuestStory(dreamRequest);
-      if (result.success && result.data) {
-        setGuestStory(result.data);
-      } else if (result.errorCode === "guest_limit_reached") {
-        setGuestLimitMessage(result.error ?? null);
+    // 실패는 훅이 토스트로도 알리지만, 토스트는 금방 사라지므로 폼 안에 오류를 남겨 둔다.
+    try {
+      if (isGuest) {
+        const result = await generateGuestStory(dreamRequest);
+        if (result.success && result.data) {
+          setGuestStory(result.data);
+        } else if (result.errorCode === "guest_limit_reached") {
+          setGuestLimitMessage(result.error ?? null);
+        } else {
+          setSubmitError(result.error || "이야기를 만들지 못했어요. 다시 시도해 주세요.");
+        }
+        return;
       }
-      return;
-    }
 
-    const result = await generateStory(dreamRequest);
+      const result = await generateStory(dreamRequest);
 
-    // 성공하면 방금 엮은 이야기를 바로 보여주고, 아침 꿈 알림을 한 번 제안한다.
-    if (result.success && result.data) {
-      router.push(`/library/dreams/${result.data.dreamId}`);
-      void offerMorningReminder((href) => router.push(href));
+      // 성공하면 방금 엮은 이야기를 바로 보여주고, 아침 꿈 알림을 한 번 제안한다.
+      if (result.success && result.data) {
+        router.push(`/library/dreams/${result.data.dreamId}`);
+        void offerMorningReminder((href) => router.push(href));
+      } else {
+        setSubmitError(
+          result.oneiriMessage?.title ||
+            result.error ||
+            "이야기를 만들지 못했어요. 다시 시도해 주세요."
+        );
+      }
+    } catch {
+      setSubmitError("연결이 끊겨 이야기를 만들지 못했어요. 다시 시도해 주세요.");
     }
   };
 
@@ -208,7 +224,7 @@ export default function DreamForm() {
     return (
       <div className="oneiri-bg-secondary max-w-2xl mx-auto rounded-lg">
         <div className="text-center space-y-4 p-8" role="status">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary mx-auto" aria-hidden="true"></div>
           <p className="oneiri-text-secondary">
             {isLoadingAuth
               ? "기록할 준비를 하고 있어요"
@@ -256,10 +272,17 @@ export default function DreamForm() {
             <button
               onClick={() => handleGuestLogin(guestStory.id)}
               disabled={isRedirectingToLogin}
-              className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-medium py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+              aria-busy={isRedirectingToLogin}
+              className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:opacity-70 disabled:cursor-not-allowed text-bg-primary font-medium py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {isRedirectingToLogin ? (
-                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-bg-primary border-t-transparent"></div>
+                <>
+                  <span
+                    className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-bg-primary border-t-transparent"
+                    aria-hidden="true"
+                  />
+                  Google로 이동하고 있어요…
+                </>
               ) : (
                 "Google로 저장하고 그림 받기"
               )}
@@ -295,7 +318,7 @@ export default function DreamForm() {
             <button
               onClick={() => handleGuestLogin()}
               disabled={isRedirectingToLogin}
-              className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
+              className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:opacity-70 disabled:cursor-not-allowed text-bg-primary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
             >
               Google로 로그인하고 꿈 기록하기
             </button>
@@ -405,6 +428,12 @@ export default function DreamForm() {
   ]
     .filter(Boolean)
     .join(" ");
+  const submitDescribedBy = [
+    showError && "dreamText-error",
+    submitError && "dream-submit-error",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <form
@@ -431,8 +460,8 @@ export default function DreamForm() {
           }}
           placeholder="예: 마지막 기차를 놓쳤는데 달이 승강장으로 들어왔어요. 장면 하나만 적어도 돼요."
           className={cn(
-            "w-full h-40 sm:h-48 px-3 sm:px-4 py-3 oneiri-bg-primary border focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base leading-relaxed",
-            showError ? "border-danger" : "border-line"
+            "w-full h-40 sm:h-48 px-3 sm:px-4 py-3 oneiri-bg-primary border focus:border-accent-primary resize-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base leading-relaxed",
+            showError ? "border-danger" : "border-text-secondary/70"
           )}
           maxLength={isGuest ? GUEST_DREAM_MAX_LENGTH : undefined}
           disabled={isFormDisabled}
@@ -474,9 +503,9 @@ export default function DreamForm() {
       <div className="space-y-2">
         <button
           type="submit"
-          disabled={isFormDisabled}
-          aria-describedby={showError ? "dreamText-error" : undefined}
-          className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:opacity-70 disabled:cursor-not-allowed text-bg-primary font-medium py-3 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-base"
+          aria-disabled={isFormDisabled || undefined}
+          aria-describedby={submitDescribedBy || undefined}
+          className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 aria-disabled:opacity-70 aria-disabled:cursor-not-allowed text-bg-primary font-medium py-3 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-base"
         >
           {isSubmitting ? (
             <>
@@ -493,6 +522,15 @@ export default function DreamForm() {
         <p role="status" className="text-xs sm:text-sm text-center oneiri-text-secondary empty:hidden">
           {isSubmitting ? "보통 10초 안팎이에요. 이 화면을 닫지 마세요." : ""}
         </p>
+        {submitError && (
+          <p
+            id="dream-submit-error"
+            role="alert"
+            className="text-sm text-center text-danger break-keep"
+          >
+            {submitError}
+          </p>
+        )}
       </div>
 
       <details className="group border-t border-line pt-2">
@@ -528,7 +566,7 @@ export default function DreamForm() {
               onChange={(e) => setKeywords(e.target.value)}
               aria-describedby="keywords-help"
               placeholder="예: 붉은 문, 거대한 시계"
-              className="w-full min-h-11 px-3 sm:px-4 py-2 oneiri-bg-primary border border-line focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base"
+              className="w-full min-h-11 px-3 sm:px-4 py-2 oneiri-bg-primary border border-text-secondary/70 focus:border-accent-primary oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base"
               disabled={isFormDisabled}
             />
             <p id="keywords-help" className="text-xs oneiri-text-secondary break-keep">

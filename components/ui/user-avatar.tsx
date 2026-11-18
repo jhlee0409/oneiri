@@ -92,8 +92,10 @@ export function UserAvatar({
     return "";
   };
 
+  // 아바타는 늘 이름 옆이나 이름 붙은 링크 안에 놓이므로 장식으로 둔다.
   return (
     <div
+      aria-hidden="true"
       className={cn(
         "rounded-full overflow-hidden bg-bg-secondary border border-line flex items-center justify-center",
         sizeClasses[size],
@@ -105,7 +107,7 @@ export function UserAvatar({
       ) : avatarUrl ? (
         <ImageWithFallback
           src={avatarUrl}
-          alt={displayName || "프로필 이미지"}
+          alt=""
           width={size === "sm" ? 24 : size === "md" ? 32 : 48}
           height={size === "sm" ? 24 : size === "md" ? 32 : 48}
           className="w-full h-full object-cover"

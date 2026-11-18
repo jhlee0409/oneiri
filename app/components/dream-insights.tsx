@@ -193,7 +193,9 @@ function PatternReportRow({ dreamCount }: { dreamCount: number }) {
   const generate = useGenerateDreamPatternReport();
   const [expanded, setExpanded] = useState(false);
 
+  // 엮는 동안 버튼을 disabled로 바꾸면 포커스가 빠지므로 중복 요청만 막는다.
   const onGenerate = () => {
+    if (generate.isPending) return;
     generate.mutate(undefined, {
       onSuccess: (response) => {
         if (response.success) setExpanded(true);
@@ -206,6 +208,21 @@ function PatternReportRow({ dreamCount }: { dreamCount: number }) {
   const locked = !result && dreamCount < PATTERN_MIN_DREAMS;
   const generating = generate.isPending;
   const remaining = PATTERN_MIN_DREAMS - dreamCount;
+  // 버튼이 비활성화되면 그 안의 문구 변화는 읽히지 않으므로 진행·실패를 따로 알린다.
+  const generateFailed =
+    generate.isError || (generate.data && !generate.data.success);
+  const generateStatus = (
+    <>
+      <p role="status" className="sr-only">
+        {generating ? "여러 밤의 꿈을 엮고 있어요. 보통 20초 안팎이에요." : ""}
+      </p>
+      {generateFailed && !generating && (
+        <p role="alert" className="w-full pb-2 text-sm text-text-primary break-keep">
+          {generate.data?.error || "패턴 리포트를 만들지 못했어요. 잠시 후 다시 시도해 주세요."}
+        </p>
+      )}
+    </>
+  );
 
   if (locked) {
     return (
@@ -232,11 +249,12 @@ function PatternReportRow({ dreamCount }: { dreamCount: number }) {
         <button
           type="button"
           onClick={onGenerate}
-          disabled={generating}
-          className="ml-auto inline-flex min-h-11 items-center rounded-lg border border-line px-4 text-sm text-text-primary transition-colors hover:bg-bg-secondary disabled:opacity-60"
+          aria-disabled={generating || undefined}
+          className="ml-auto inline-flex min-h-11 items-center rounded-lg border border-line px-4 text-sm text-text-primary transition-colors hover:bg-bg-secondary aria-disabled:opacity-60"
         >
           {generating ? "꿈들을 엮는 중이에요…" : "패턴 리포트 만들기"}
         </button>
+        {generateStatus}
       </div>
     );
   }
@@ -250,9 +268,9 @@ function PatternReportRow({ dreamCount }: { dreamCount: number }) {
           aria-hidden="true"
         />
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-text-secondary">
+          <h2 className="text-xs font-normal text-text-secondary">
             꿈 패턴 리포트 · {result.dreamCount}편으로 엮음 · {formatKoreanDate(result.createdAt)}
-          </p>
+          </h2>
           <p className="mt-1 font-serif text-base leading-relaxed text-text-primary break-keep sm:text-lg">
             {result.report.oneLineSummary}
           </p>
@@ -275,8 +293,8 @@ function PatternReportRow({ dreamCount }: { dreamCount: number }) {
               <button
                 type="button"
                 onClick={onGenerate}
-                disabled={generating}
-                className="inline-flex min-h-11 items-center gap-1.5 px-2 text-sm text-text-secondary hover:text-text-primary disabled:opacity-60"
+                aria-disabled={generating || undefined}
+                className="inline-flex min-h-11 items-center gap-1.5 px-2 text-sm text-text-secondary hover:text-text-primary aria-disabled:opacity-60"
               >
                 <RefreshCw
                   className={`h-3.5 w-3.5 ${generating ? "animate-spin" : ""}`}
@@ -289,6 +307,7 @@ function PatternReportRow({ dreamCount }: { dreamCount: number }) {
           </div>
         </div>
       </div>
+      {generateStatus}
       {expanded && (
         <div id="pattern-report-body">
           <PatternReportBody result={result} />
