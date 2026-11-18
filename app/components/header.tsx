@@ -16,13 +16,14 @@ type Props = {
   user: User | null;
 };
 
+// 꿈 해석은 각 꿈 상세의 「이 꿈의 상징 읽기」로 들어간다.
 const NAV_LINKS = [
   { href: "/library/dreams", label: "서재", requiresUser: true },
-  { href: "/analysis/new", label: "꿈 해석", requiresUser: true },
   { href: "/dreams", label: "둘러보기", requiresUser: false },
 ];
 
 function isActive(pathname: string, href: string) {
+  if (href === "/dreams") return pathname === "/dreams" || pathname.startsWith("/shared");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

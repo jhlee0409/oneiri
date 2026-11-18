@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Copy, Check, Heart, HeartOff, PenLine } from "lucide-react";
+import { ArrowLeft, Copy, Check, Heart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
   useDreamById,
   useFavoriteToggle,
@@ -12,30 +11,62 @@ import {
   useGenerateDreamImage,
   usePublicToggle,
 } from "@/hooks/use-dream-api";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import Zoom from "react-medium-image-zoom";
-import "react-medium-image-zoom/dist/styles.css";
-import ViewPublicPageButton from "./view-public-page-button";
+import { useAuth } from "@/hooks/use-auth";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 import { findEmotion, findMood } from "@/lib/find";
+import DreamPage, { type DreamImageState } from "./dream-page";
+import DreamSymbolReading from "./dream-symbol-reading";
 import DreamPostcardOffer from "./dream-postcard-offer";
+
 interface DreamStoryDisplayProps {
   dreamId: string;
 }
 
-export default function DreamSharedDisplay({
-  dreamId,
-}: DreamStoryDisplayProps) {
+const quietAction =
+  "inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50";
+
+function BackToLibrary() {
+  return (
+    <Link
+      href="/library/dreams"
+      className="inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+    >
+      <ArrowLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+      서재
+    </Link>
+  );
+}
+
+export default function DreamStoryDisplay({ dreamId }: DreamStoryDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const router = useRouter();
   const hasTriggeredImageGeneration = useRef(false);
+  const { user } = useAuth();
   const { data: dream, isLoading, error } = useDreamById(dreamId);
   const { toggleFavorite, isLoading: isToggling } = useFavoriteToggle();
   const { togglePublic, isLoading: isTogglingPublic } = usePublicToggle();
   const { mutate: deleteDream, isPending: isDeleting } = useDeleteDream();
-  const { mutate: generateImage, isPending: isGeneratingImage } =
-    useGenerateDreamImage();
+  const {
+    mutate: generateImage,
+    isPending: isGeneratingImage,
+    isError: imageGenerationFailed,
+  } = useGenerateDreamImage();
 
-  // 이미지가 없고 프롬프트가 있을 때 자동으로 이미지 생성 (한 번만)
+  // 이미지가 없고 프롬프트가 있을 때 자동으로 이미지 생성 (한 화면에서 한 번만)
   useEffect(() => {
     if (
       dream?.id &&
@@ -48,7 +79,7 @@ export default function DreamSharedDisplay({
       const sessionKey = `image-generation-${dream.id}`;
       const lastAttempt = sessionStorage.getItem(sessionKey);
       const now = Date.now();
-      
+
       // 5분 이내에 시도한 적이 있으면 재시도하지 않음
       if (lastAttempt && now - parseInt(lastAttempt) < 5 * 60 * 1000) {
         hasTriggeredImageGeneration.current = true;
@@ -57,19 +88,13 @@ export default function DreamSharedDisplay({
 
       hasTriggeredImageGeneration.current = true;
       sessionStorage.setItem(sessionKey, now.toString());
-      
+
       generateImage(
         { dreamId: dream.id },
         {
-          onSuccess: () => {
-            // 성공 시 세션 스토리지 정리
-            sessionStorage.removeItem(sessionKey);
-          },
-          onError: () => {
-            // 에러 발생 시 세션 스토리지에서 제거하여 재시도 가능하게 함
-            sessionStorage.removeItem(sessionKey);
-            hasTriggeredImageGeneration.current = false;
-          },
+          // 끝나면(성공·실패 모두) 기록을 지워 다음 방문에서 다시 시도할 수 있게 한다.
+          // 실패해도 이 화면에서는 재시도하지 않는다 — 실패할 때마다 즉시 다시 요청하는 루프를 막는다.
+          onSettled: () => sessionStorage.removeItem(sessionKey),
         }
       );
     }
@@ -97,35 +122,37 @@ export default function DreamSharedDisplay({
     toggleFavorite(dream.id, dream.is_favorite || false);
   }, [dream?.id, dream?.is_favorite, toggleFavorite]);
 
-  const handleDelete = useCallback(() => {
-    if (!dream?.id) return;
+  const handleDelete = useCallback(
+    (event: React.MouseEvent) => {
+      // 삭제가 끝날 때까지 대화상자를 열어 둔다.
+      event.preventDefault();
+      if (!dream?.id) return;
 
-    const dreamId = dream.id;
-
-    toast("이 꿈 이야기를 삭제하시겠습니까?", {
-      description: "삭제된 이야기는 복구할 수 없습니다.",
-      action: {
-        label: "삭제",
-        onClick: () => {
-          deleteDream(dreamId, {
-            onSuccess: () => {
-              router.push("/library/dreams");
-            },
-          });
+      deleteDream(dream.id, {
+        onSuccess: (response) => {
+          if (response.success) {
+            router.push("/library/dreams");
+          } else {
+            setDeleteOpen(false);
+          }
         },
-      },
-      cancel: {
-        label: "취소",
-        onClick: () => console.log("삭제 취소됨"),
-      },
-    });
-  }, [dream?.id, deleteDream, router]);
+        onError: () => setDeleteOpen(false),
+      });
+    },
+    [dream?.id, deleteDream, router]
+  );
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="flex justify-center items-center py-24">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary"></div>
+      <div className="mx-auto max-w-[720px] pb-16 sm:px-6 sm:pt-4">
+        <div className="px-6 sm:px-0">
+          <BackToLibrary />
+        </div>
+        <div role="status" className="overflow-hidden bg-paper sm:rounded-lg">
+          <div className="aspect-video w-full animate-pulse bg-ink/[0.06] motion-reduce:animate-none" />
+          <p className="px-6 py-10 text-sm text-ink/70 sm:px-12">
+            이야기를 펼치고 있어요…
+          </p>
         </div>
       </div>
     );
@@ -133,257 +160,155 @@ export default function DreamSharedDisplay({
 
   if (error || !dream) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center py-24">
-          <h2 className="text-xl font-medium oneiri-text-primary mb-4">
-            꿈 이야기를 찾을 수 없습니다
-          </h2>
-          <p className="oneiri-text-secondary mb-6">
-            요청하신 꿈 이야기가 존재하지 않거나 삭제되었습니다.
-          </p>
-          <Link
-            href="/library/dreams"
-            className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            서재로 돌아가기
-          </Link>
-        </div>
+      <div className="mx-auto max-w-[720px] px-6 py-24 text-center">
+        <h2 className="font-serif text-xl text-text-primary">
+          이 꿈 이야기를 찾을 수 없어요
+        </h2>
+        <p className="mt-3 text-text-secondary break-keep">
+          이미 지웠거나 주소가 잘못되었을 수 있어요.
+        </p>
+        <Link
+          href="/library/dreams"
+          className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-text-primary underline underline-offset-4"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          서재로 돌아가기
+        </Link>
       </div>
     );
   }
 
+  const imageState: DreamImageState = dream.generated_image_url
+    ? "ready"
+    : !dream.generated_image_prompt
+    ? "none"
+    : imageGenerationFailed
+    ? "failed"
+    : "drawing";
+  const isOwner = !!user && user.id === dream.user_id;
+  const isFavorite = !!dream.is_favorite;
+  const isPublic = !!dream.is_public;
+  const title = dream.generated_story_title || "무제";
+
   return (
-    <div className="min-h-screen oneiri-bg-primary">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* 뒤로 가기 네비게이션 */}
-        <nav className="flex gap-6 mb-12 pb-6 border-b border-line">
-          <Link
-            href="/library/dreams"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            서재로 돌아가기
-          </Link>
-          <Link
-            href="/dreams/new"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
-          >
-            <PenLine className="w-4 h-4 mr-2" />
-            새 꿈 기록하기
-          </Link>
-        </nav>
+    <div className="mx-auto max-w-[720px] pb-16 sm:px-6 sm:pt-4">
+      <nav aria-label="이전 화면" className="px-6 sm:px-0">
+        <BackToLibrary />
+      </nav>
 
-        {/* 스토리 제목 */}
-        <header className="mb-12">
-          <div className="flex items-start justify-between">
-            <h1 className="font-serif text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight flex-1">
-              {dream.generated_story_title || "무제"}
-            </h1>
-            <button
-              onClick={handleToggleFavorite}
-              disabled={isToggling}
-              className="ml-4 p-2 oneiri-text-secondary hover:text-accent-primary transition-colors disabled:opacity-50"
-              title={dream.is_favorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
+      <DreamPage
+        title={dream.generated_story_title}
+        createdAt={dream.created_at}
+        content={dream.generated_story_content}
+        imageUrl={dream.generated_image_url}
+        imageState={imageState}
+        details={[
+          dream.dream_emotion ? findEmotion(dream.dream_emotion)?.label : null,
+          dream.story_preference_mood
+            ? findMood(dream.story_preference_mood)?.label
+            : null,
+        ]}
+        sourceLabel="내가 적은 꿈"
+        sourceText={dream.dream_input_text}
+        keywords={dream.dream_keywords}
+      />
+
+      <div className="mx-6 mt-8 flex flex-col gap-2 border-y border-line py-2 sm:mx-0 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-h-11 flex-wrap items-center gap-x-3">
+          <Switch
+            id="dream-public"
+            checked={isPublic}
+            onCheckedChange={handleTogglePublic}
+            disabled={isTogglingPublic}
+          />
+          <Label
+            htmlFor="dream-public"
+            className="cursor-pointer py-3 text-sm font-normal text-text-primary break-keep"
+          >
+            다른 사람도 볼 수 있게 공개
+          </Label>
+          {isPublic && (
+            <Link
+              href={`/shared/${dream.id}`}
+              className="inline-flex min-h-11 items-center text-sm text-text-secondary underline underline-offset-4 transition-colors hover:text-text-primary"
             >
-              {dream.is_favorite ? (
-                <Heart className="w-6 h-6 fill-current text-accent-primary" />
-              ) : (
-                <HeartOff className="w-6 h-6" />
-              )}
-            </button>
-          </div>
-        </header>
-
-        {/* 꿈 메타데이터 */}
-        <div className="mb-12 pb-6 border-b border-line">
-          <div className="flex items-center gap-6 text-sm oneiri-text-secondary flex-wrap">
-            {dream.dream_emotion && (
-              <span className="flex items-center gap-2">
-                <span className="text-lg">
-                  {findEmotion(dream.dream_emotion)?.emoji}
-                </span>
-                <span>{findEmotion(dream.dream_emotion)?.label}</span>
-              </span>
-            )}
-            {dream.story_preference_mood && (
-              <span className="oneiri-text-primary font-medium">
-                {findMood(dream.story_preference_mood)?.label}
-              </span>
-            )}
-            {dream.dream_keywords && dream.dream_keywords.length > 0 && (
-              <div className="flex gap-2">
-                {dream.dream_keywords.map((keyword, index) => (
-                  <span key={index} className="oneiri-text-secondary">
-                    #{keyword}
-                  </span>
-                ))}
-              </div>
-            )}
-            <span className="oneiri-text-secondary/70">
-              {dream.created_at &&
-                new Date(dream.created_at).toLocaleDateString("ko-KR")}
-            </span>
-          </div>
+              공개 페이지 보기
+            </Link>
+          )}
         </div>
-        {/* 공개여부 설정 */}
-        <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-medium oneiri-text-primary mb-1">
-                공개 설정
-              </h2>
-              <p className="text-sm oneiri-text-secondary">
-                {dream.is_public
-                  ? "다른 사용자들이 이 꿈 이야기를 볼 수 있습니다"
-                  : "나만 볼 수 있는 비공개 꿈 이야기입니다"}
-              </p>
-              {dream.id && dream.is_public && (
-                <div className="flex items-center gap-4 mt-3">
-                  <ViewPublicPageButton
-                    dreamId={dream.id}
-                    isPublic={dream.is_public || false}
-                  />
-                </div>
-              )}
-            </div>
-            <button
-              onClick={handleTogglePublic}
-              disabled={isTogglingPublic}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                dream.is_public
-                  ? "oneiri-accent-bg"
-                  : "bg-line"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-text-primary transition-transform ${
-                  dream.is_public ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
-        </section>
-        {/* 생성된 이미지 */}
-        {dream.generated_image_url ? (
-          <div className="mb-12">
-            <div className="relative group flex justify-center">
-              <Zoom>
-                <ImageWithFallback
-                  src={dream.generated_image_url}
-                  alt={dream.generated_story_title || "꿈의 풍경"}
-                  className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform"
-                  width={1024}
-                  height={1024}
-                  fallbackMessage="꿈의 풍경"
-                />
-              </Zoom>
-            </div>
-          </div>
-        ) : dream.generated_image_prompt ? (
-          <div className="mb-12">
-            <div className="h-96 bg-bg-secondary flex items-center justify-center oneiri-text-secondary rounded-lg border-2 border-dashed border-line">
-              <div className="text-center p-8">
-                <div className="font-medium text-lg mb-2">
-                  {isGeneratingImage
-                    ? "꿈의 풍경을 그리는 중..."
-                    : "이미지를 준비하고 있어요..."}
-                </div>
-                <div className="text-sm mb-4">
-                  AI 아티스트가 당신의 꿈에서 영감을 얻고 있습니다
-                </div>
-                {isGeneratingImage && (
-                  <div className="flex justify-center mb-4">
-                    <div className="animate-pulse flex space-x-1">
-                      <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
-                      <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
-                      <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="h-64 oneiri-bg-secondary flex items-center justify-center oneiri-text-secondary mb-12 rounded-lg">
-            <div className="text-center">
-              <div className="font-medium">이미지 없는 꿈 이야기</div>
-              <div className="text-sm">
-                상상 속에서 펼쳐지는 이야기를 즐겨보세요
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* 메인 스토리 콘텐츠 */}
-        <main className="mb-12">
-          <div className="prose prose-lg max-w-none">
-            {dream.generated_story_content ? (
-              dream.generated_story_content
-                .split("\n\n")
-                .map((paragraph, index) => (
-                  <p
-                    key={index}
-                    className="oneiri-text-primary leading-relaxed mb-6 last:mb-0 text-lg"
-                  >
-                    {paragraph}
-                  </p>
-                ))
-            ) : (
-              <p className="oneiri-text-secondary italic">
-                아직 이야기가 생성되지 않았습니다.
-              </p>
-            )}
-          </div>
-        </main>
-
-        {/* 원본 꿈 입력 */}
-        <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
-          <h2 className="text-lg font-medium oneiri-text-primary mb-3">
-            당신이 속삭여준 꿈의 조각들
-          </h2>
-          <p className="oneiri-text-primary/80 leading-relaxed italic">
-            "{dream.dream_input_text || "꿈의 내용이 없습니다."}"
-          </p>
-        </section>
-
-        <DreamPostcardOffer dreamId={dreamId} ownerId={dream.user_id} />
-
-        {/* 액션 버튼 */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <div className="-mx-3 flex flex-wrap items-center sm:mx-0 sm:-mr-3">
           <button
+            type="button"
             onClick={handleCopyStory}
             disabled={!dream.generated_story_content}
-            className="w-full sm:w-auto oneiri-accent-bg hover:brightness-110 disabled:bg-text-secondary text-bg-primary font-medium py-3 px-6 transition-colors disabled:cursor-not-allowed flex items-center justify-center rounded-lg"
+            className={quietAction}
           >
             {copied ? (
-              <>
-                <Check className="w-4 h-4 mr-2" />
-                담아갔어요!
-              </>
+              <Check className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             ) : (
-              <>
-                <Copy className="w-4 h-4 mr-2" />
-                이야기 담아가기
-              </>
+              <Copy className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             )}
+            <span aria-live="polite">{copied ? "복사했어요" : "이야기 복사"}</span>
           </button>
 
           <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="w-full sm:w-auto bg-transparent hover:bg-danger/10 text-danger disabled:oneiri-text-secondary font-medium py-3 px-6 border border-danger/40 transition-colors disabled:cursor-not-allowed rounded-lg"
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={isToggling}
+            aria-pressed={isFavorite}
+            className={cn(quietAction, isFavorite && "text-text-primary")}
           >
-            {isDeleting ? (
-              <span className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-danger border-t-transparent mr-2"></div>
-                삭제하는 중...
-              </span>
-            ) : (
-              "꿈 이야기 삭제"
-            )}
+            <Heart
+              className={cn(
+                "h-4 w-4",
+                isFavorite && "fill-current text-accent-primary"
+              )}
+              strokeWidth={1.5}
+              aria-hidden
+            />
+            즐겨찾기
           </button>
+
+          <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                disabled={isDeleting}
+                className={cn(quietAction, "hover:text-danger")}
+              >
+                삭제
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="w-[calc(100%-2rem)] max-w-md rounded-lg border-line bg-bg-secondary">
+              <AlertDialogHeader className="text-left">
+                <AlertDialogTitle className="font-serif text-xl font-normal text-text-primary">
+                  이 꿈을 지울까요?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-text-secondary break-keep">
+                  ‘{title}’의 이야기와 장면이 함께 사라지고, 되돌릴 수 없어요.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="gap-2 sm:space-x-0">
+                <AlertDialogCancel className="mt-0 min-h-11 border-line bg-transparent text-text-primary hover:bg-line/40 hover:text-text-primary sm:mt-0">
+                  취소
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="min-h-11 border border-danger/40 bg-transparent text-danger hover:bg-danger/10"
+                >
+                  {isDeleting ? "지우는 중…" : "지우기"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
+      </div>
+
+      <div className="mt-12 space-y-12 px-6 sm:px-0">
+        {isOwner && dream.id && <DreamSymbolReading dreamId={dream.id} />}
+        <DreamPostcardOffer dreamId={dreamId} ownerId={dream.user_id} />
       </div>
     </div>
   );

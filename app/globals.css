@@ -115,3 +115,8 @@
     color: rgb(var(--text-secondary));
   }
 }
+
+/* react-medium-image-zoom 확대 배경을 밤색으로 */
+[data-rmiz-modal-overlay="visible"] {
+  background-color: rgb(var(--bg-primary) / 0.96);
+}
