@@ -65,7 +65,7 @@ export function useDailyWeavingStatus({ enabled = true }: { enabled?: boolean } 
             title: "오늘의 꿈 이야기를 기다리고 있어요",
             content: "어떤 꿈의 조각들이 당신을 찾아왔나요?",
             encouragement:
-              "가장 사소한 조각이 가장 특별한 이야기가 되기도 해요. ✨",
+              "가장 사소한 조각이 가장 특별한 이야기가 되기도 해요.",
           },
           todays_dreams: [],
           total_dreams: 0,
@@ -147,7 +147,7 @@ export function useGenerateDreamStory() {
           });
         } else {
           toast.error(
-            "오늘의 꿈 이야기는 모두 서재에 담겼습니다. 내일 밤 다시 만나요! 🌙"
+            "오늘의 꿈 이야기는 모두 서재에 담겼습니다. 내일 밤 다시 만나요!"
           );
         }
       } else {
@@ -465,7 +465,7 @@ export function useGenerateDreamImage() {
     onSuccess: (response, { dreamId }) => {
       if (response.success) {
         trackEvent("image_generated");
-        toast.success("✨ 꿈의 이미지가 성공적으로 생성되었습니다!");
+        toast.success("꿈의 이미지가 성공적으로 생성되었습니다!");
         // 관련 캐시 무효화하여 UI 자동 업데이트
         queryClient.invalidateQueries({ queryKey: ["dream", dreamId] });
         queryClient.invalidateQueries({ queryKey: ["user-dreams"] });

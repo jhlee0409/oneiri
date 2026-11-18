@@ -20,7 +20,7 @@ const steps = [
 
 export function SolutionSection() {
   return (
-    <section className="oneiri-bg-primary border-t border-text-secondary/15">
+    <section className="oneiri-bg-primary border-t border-line">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 md:py-24">
         <h2 className="font-serif text-2xl font-bold oneiri-text-primary sm:text-3xl">
           아침 1분, 이렇게 남아요

@@ -96,7 +96,7 @@ export default function UpdateBanner({ className = "" }: UpdateBannerProps) {
             {/* 오른쪽 닫기 버튼 - absolute로 고정 */}
             <button
               onClick={handleDismiss}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 hover:bg-bg-primary/10 rounded transition-colors"
               aria-label="업데이트 알림 닫기"
             >
               <X className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function UpdateBanner({ className = "" }: UpdateBannerProps) {
             {/* 오른쪽 닫기 버튼 */}
             <button
               onClick={handleDismiss}
-              className="p-1 hover:bg-white/10 rounded transition-colors"
+              className="p-1 hover:bg-bg-primary/10 rounded transition-colors"
               aria-label="업데이트 알림 닫기"
             >
               <X className="w-5 h-5" />
@@ -133,7 +133,7 @@ export default function UpdateBanner({ className = "" }: UpdateBannerProps) {
       </Link>
 
       {/* 하단 구분선 */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-white/20"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-bg-primary/20"></div>
     </div>
   );
 }

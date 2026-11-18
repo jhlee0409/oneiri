@@ -166,7 +166,7 @@ export default function MorningReminderSettings() {
             value={hour}
             disabled={support !== "supported" || isLoading || isSaving}
             onChange={(e) => handleHourChange(Number(e.target.value))}
-            className="p-2 rounded-lg border border-gray-300 focus:border-accent-primary focus:outline-none oneiri-bg-primary oneiri-text-primary text-sm disabled:opacity-50"
+            className="p-2 rounded-lg border border-line focus:border-accent-primary focus:outline-none oneiri-bg-primary oneiri-text-primary text-sm disabled:opacity-50"
           >
             {REMINDER_HOURS.map((h) => (
               <option key={h} value={h}>
@@ -178,19 +178,19 @@ export default function MorningReminderSettings() {
         </div>
 
         {support === "ios-needs-install" && (
-          <p className="text-xs text-amber-600">
+          <p className="text-xs text-accent-primary">
             iPhone·iPad에서는 Safari 공유 버튼의 &apos;홈 화면에 추가&apos;로
             Oneiri를 설치한 뒤, 홈 화면 앱에서 알림을 켤 수 있어요.
           </p>
         )}
         {support === "unsupported" && (
-          <p className="text-xs text-amber-600">
+          <p className="text-xs text-accent-primary">
             이 브라우저는 알림을 지원하지 않아요. 최신 Chrome, Edge, Safari 등에서
             시도해 주세요.
           </p>
         )}
         {support === "supported" && permissionDenied && !enabled && (
-          <p className="text-xs text-amber-600">
+          <p className="text-xs text-accent-primary">
             알림 권한이 차단되어 있어요. 브라우저 주소창의 사이트 설정에서 알림을
             허용한 뒤 다시 켜 주세요.
           </p>

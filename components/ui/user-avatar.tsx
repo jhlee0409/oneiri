@@ -89,19 +89,19 @@ export function UserAvatar({
     if (user?.user_metadata?.full_name) {
       return user.user_metadata.full_name.charAt(0).toUpperCase();
     }
-    return "🌙";
+    return "";
   };
 
   return (
     <div
       className={cn(
-        "rounded-full overflow-hidden bg-gray-200 flex items-center justify-center",
+        "rounded-full overflow-hidden bg-bg-secondary border border-line flex items-center justify-center",
         sizeClasses[size],
         className
       )}
     >
       {loading ? (
-        <div className="animate-pulse bg-gray-300 w-full h-full rounded-full" />
+        <div className="animate-pulse bg-line w-full h-full rounded-full" />
       ) : avatarUrl ? (
         <ImageWithFallback
           src={avatarUrl}
@@ -115,14 +115,14 @@ export function UserAvatar({
       ) : displayName || user?.user_metadata?.full_name ? (
         <span
           className={cn(
-            "font-medium text-gray-600",
+            "font-medium text-text-primary",
             size === "sm" ? "text-xs" : size === "md" ? "text-sm" : "text-lg"
           )}
         >
           {getInitials()}
         </span>
       ) : (
-        <UserIcon className={cn("text-gray-400", iconSizes[size])} />
+        <UserIcon className={cn("text-text-secondary", iconSizes[size])} />
       )}
     </div>
   );

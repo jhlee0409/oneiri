@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "인증이 필요합니다",
-          oneiri_message: "별빛 서재에 입장하려면 먼저 인증이 필요해요. 🌟",
+          oneiri_message: "별빛 서재에 입장하려면 먼저 인증이 필요해요.",
         },
         { status: 401 }
       );
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
       {
         error: error instanceof Error ? error.message : "Unknown error",
         oneiri_message:
-          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요. 🌟",
+          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요.",
       },
       { status: 500 }
     );

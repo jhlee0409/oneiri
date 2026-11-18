@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function FinalCTASection() {
   return (
-    <section className="oneiri-bg-primary border-t border-text-secondary/15">
+    <section className="oneiri-bg-primary border-t border-line">
       <div className="mx-auto max-w-2xl px-5 py-20 text-center sm:px-8 md:py-28">
         <h2 className="font-serif text-2xl font-bold oneiri-text-primary break-keep sm:text-3xl">
           잊히기 전에, 오늘 아침의 꿈을 적어 볼까요?

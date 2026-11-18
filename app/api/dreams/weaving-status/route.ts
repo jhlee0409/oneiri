@@ -10,7 +10,7 @@ export async function GET(request: Request) {
         {
           success: false,
           error: "인증이 필요합니다",
-          oneiri_message: "별빛 서재에 입장하려면 먼저 인증이 필요해요. 🌟",
+          oneiri_message: "별빛 서재에 입장하려면 먼저 인증이 필요해요.",
         },
         { status: 401 }
       );
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
           success: false,
           error: "유효하지 않은 인증 토큰입니다",
           oneiri_message:
-            "별빛이 흐려져 서재에 들어갈 수 없어요. 다시 시도해주세요. ✨",
+            "별빛이 흐려져 서재에 들어갈 수 없어요. 다시 시도해주세요.",
         },
         { status: 401 }
       );
@@ -74,13 +74,13 @@ export async function GET(request: Request) {
       oneiriMessage = {
         title: "오늘의 꿈 이야기를 기다리고 있어요",
         content: `오늘은 아직 꿈을 만들지 않았어요. ${DAILY_LIMIT}편의 아름다운 이야기를 만들 수 있어요!`,
-        encouragement: "가장 사소한 꿈의 조각이 가장 특별한 이야기가 되기도 해요. ✨",
+        encouragement: "가장 사소한 꿈의 조각이 가장 특별한 이야기가 되기도 해요.",
       };
     } else {
       oneiriMessage = {
         title: "더 많은 꿈을 만들 수 있어요",
         content: `오늘 ${remaining}편의 꿈을 더 만들 수 있어요. 별빛이 당신의 이야기를 기다리고 있어요!`,
-        encouragement: "각 꿈의 조각이 별빛으로 변해가는 과정을 지켜보세요. ✨🌟",
+        encouragement: "각 꿈의 조각이 별빛으로 변해가는 과정을 지켜보세요.",
       };
     }
 
@@ -128,7 +128,7 @@ export async function GET(request: Request) {
         success: false,
         error: "서버 내부 오류가 발생했습니다",
         oneiri_message:
-          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요. 🌟",
+          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요.",
       },
       { status: 500 }
     );

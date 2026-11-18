@@ -160,7 +160,7 @@ export default function NoticesClient() {
             </p>
             <button
               onClick={fetchReleases}
-              className="px-4 md:px-6 py-2 oneiri-accent-bg text-white rounded-lg hover:bg-accent-secondary transition-colors text-sm md:text-base"
+              className="px-4 md:px-6 py-2 oneiri-accent-bg text-bg-primary rounded-lg hover:brightness-110 transition-colors text-sm md:text-base"
             >
               다시 시도
             </button>
@@ -183,7 +183,7 @@ export default function NoticesClient() {
               </h1>
             </div>
             <p className="oneiri-text-secondary text-sm md:text-lg">
-              Oneiri의 최신 업데이트와 새로운 기능을 확인해보세요 ✨
+              Oneiri의 최신 업데이트와 새로운 기능을 확인해보세요
             </p>
           </div>
 
@@ -200,7 +200,7 @@ export default function NoticesClient() {
               {releases.map((release, index) => (
                 <div
                   key={release.id}
-                  className="oneiri-bg-primary border border-text-secondary/20 rounded-lg overflow-hidden"
+                  className="oneiri-bg-primary border border-line rounded-lg overflow-hidden"
                 >
                   {/* 릴리즈 헤더 */}
                   <div
@@ -211,12 +211,12 @@ export default function NoticesClient() {
                       <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
                         <div className="flex-shrink-0">
                           {index === 0 && (
-                            <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-gradient-to-r from-oneiri-violet to-oneiri-purple text-white">
+                            <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-accent-primary text-bg-primary">
                               최신
                             </span>
                           )}
                           {release.prerelease && (
-                            <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-yellow-100 text-yellow-800">
+                            <span className="inline-flex items-center px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium border border-line text-text-secondary">
                               프리릴리즈
                             </span>
                           )}
@@ -254,7 +254,7 @@ export default function NoticesClient() {
 
                   {/* 릴리즈 내용 (확장 시) */}
                   {expandedReleases.has(release.id) && (
-                    <div className="px-4 md:px-6 pb-4 md:pb-6 border-t border-text-secondary/10">
+                    <div className="px-4 md:px-6 pb-4 md:pb-6 border-t border-line">
                       <div className="pt-4">
                         {release.body ? (
                           <div
@@ -277,7 +277,7 @@ export default function NoticesClient() {
           )}
 
           {/* 푸터 */}
-          <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-text-secondary/20 text-center">
+          <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-line text-center">
             <p className="oneiri-text-secondary text-sm md:text-base">
               더 많은 업데이트 정보는{" "}
               <a

@@ -195,9 +195,7 @@ export default function NewAnalysisClient() {
 
                         <div className="grid gap-3 sm:gap-4">
                           <div className="flex gap-2 sm:gap-3">
-                            <span className="text-sm flex-shrink-0 mt-0.5">
-                              ✨
-                            </span>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
                               <h4 className="text-xs font-medium mb-1">
                                 첫 장면부터 시작
@@ -210,9 +208,7 @@ export default function NewAnalysisClient() {
                           </div>
 
                           <div className="flex gap-2 sm:gap-3">
-                            <span className="text-sm flex-shrink-0 mt-0.5">
-                              👁️
-                            </span>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
                               <h4 className="text-xs font-medium mb-1">
                                 감각적 묘사
@@ -225,9 +221,7 @@ export default function NewAnalysisClient() {
                           </div>
 
                           <div className="flex gap-2 sm:gap-3">
-                            <span className="text-sm flex-shrink-0 mt-0.5">
-                              💭
-                            </span>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
                               <h4 className="text-xs font-medium mb-1">
                                 구체적 감정 표현
@@ -240,9 +234,7 @@ export default function NewAnalysisClient() {
                           </div>
 
                           <div className="flex gap-2 sm:gap-3">
-                            <span className="text-sm flex-shrink-0 mt-0.5">
-                              🔄
-                            </span>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
                               <h4 className="text-xs font-medium mb-1">
                                 기묘한 순간
@@ -255,9 +247,7 @@ export default function NewAnalysisClient() {
                           </div>
 
                           <div className="flex gap-2 sm:gap-3">
-                            <span className="text-sm flex-shrink-0 mt-0.5">
-                              🎭
-                            </span>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-primary" aria-hidden="true" />
                             <div>
                               <h4 className="text-xs font-medium mb-1">
                                 편안하게 표현
@@ -276,7 +266,7 @@ export default function NewAnalysisClient() {
               </div>
 
               {error && (
-                <div className="text-xs sm:text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 p-3 sm:p-4 rounded-lg border border-red-200 dark:border-red-800">
+                <div className="text-xs sm:text-sm text-danger p-3 sm:p-4 rounded-lg border border-danger/40">
                   {error}
                 </div>
               )}

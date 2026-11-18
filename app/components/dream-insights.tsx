@@ -23,12 +23,11 @@ import { formatKoreanDate } from "@/lib/utils";
 const PATTERN_MIN_DREAMS = 3;
 const STREAK_VIEWED_KEY = "oneiri:streak_viewed";
 
-// 테마 색(--accent-primary 등)은 CSS 변수라 `/투명도` 수식어가 적용되지 않아 opacity로 흐리게 한다.
 function streakDotClass(day: StreakDay, isToday: boolean): string {
   if (day.count >= 2) return "bg-accent-primary";
-  if (day.count === 1) return "bg-accent-primary opacity-60";
+  if (day.count === 1) return "bg-accent-primary/60";
   if (isToday) return "border border-accent-primary";
-  return "bg-text-secondary opacity-25";
+  return "bg-text-secondary/25";
 }
 
 function StreakCard() {
@@ -67,18 +66,18 @@ function StreakCard() {
   return (
     <section
       aria-label="꿈 연속 기록"
-      className="oneiri-bg-secondary rounded-lg p-4 sm:p-5 border border-text-secondary/20"
+      className="oneiri-bg-secondary rounded-lg p-4 sm:p-5 border border-line"
     >
       <div className="flex items-start gap-3">
         <div
-          className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-oneiri-violet/15 ${
-            currentStreak > 0 ? "oneiri-accent" : "text-oneiri-violet"
+          className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-accent-primary/10 ${
+            currentStreak > 0 ? "oneiri-accent" : "text-text-secondary"
           }`}
         >
           {currentStreak > 0 ? <Flame className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="font-['Inter'] text-base sm:text-lg font-medium oneiri-text-primary">
+          <h2 className="text-base sm:text-lg font-medium oneiri-text-primary">
             {headline}
           </h2>
           <p className="text-xs sm:text-sm oneiri-text-secondary mt-0.5">{subline}</p>
@@ -131,7 +130,7 @@ function PatternReportBody({ result }: { result: DreamPatternReportResult }) {
           <ul className="space-y-3">
             {report.recurringSymbols.map((item) => (
               <li key={item.symbol}>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-oneiri-violet/15 text-oneiri-violet text-xs font-medium">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-accent-primary/10 text-accent-primary text-xs font-medium">
                   {item.symbol} · {item.count}번
                 </span>
                 <p className="mt-1 oneiri-text-primary/80 leading-relaxed">{item.note}</p>
@@ -199,14 +198,14 @@ function PatternReportCard({ dreamCount }: { dreamCount: number }) {
   return (
     <section
       aria-label="꿈 패턴 리포트"
-      className="oneiri-bg-secondary rounded-lg p-4 sm:p-5 border border-text-secondary/20"
+      className="oneiri-bg-secondary rounded-lg p-4 sm:p-5 border border-line"
     >
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-oneiri-violet/15 text-oneiri-violet flex items-center justify-center">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent-primary/10 text-accent-primary flex items-center justify-center">
           {locked ? <Lock className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="font-['Inter'] text-base sm:text-lg font-medium oneiri-text-primary">
+          <h2 className="text-base sm:text-lg font-medium oneiri-text-primary">
             꿈 패턴 리포트
           </h2>
           <p className="text-xs sm:text-sm oneiri-text-secondary mt-0.5">
@@ -234,14 +233,14 @@ function PatternReportCard({ dreamCount }: { dreamCount: number }) {
             </span>
           </div>
           <div
-            className="h-1.5 rounded-full bg-oneiri-violet/15 overflow-hidden"
+            className="h-1.5 rounded-full bg-line overflow-hidden"
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={PATTERN_MIN_DREAMS}
             aria-valuenow={dreamCount}
           >
             <div
-              className="h-full bg-oneiri-violet rounded-full transition-all"
+              className="h-full bg-accent-primary rounded-full transition-all"
               style={{ width: `${(Math.min(dreamCount, PATTERN_MIN_DREAMS) / PATTERN_MIN_DREAMS) * 100}%` }}
             />
           </div>
@@ -265,7 +264,7 @@ function PatternReportCard({ dreamCount }: { dreamCount: number }) {
 
       {result && (
         <>
-          <p className="mt-4 font-['Inter'] text-base sm:text-lg oneiri-text-primary leading-relaxed">
+          <p className="mt-4 font-serif text-base sm:text-lg oneiri-text-primary leading-relaxed">
             “{result.report.oneLineSummary}”
           </p>
 
@@ -288,7 +287,7 @@ function PatternReportCard({ dreamCount }: { dreamCount: number }) {
                 type="button"
                 onClick={onGenerate}
                 disabled={generating}
-                className="ml-auto inline-flex items-center border border-accent-primary oneiri-accent hover:bg-oneiri-violet/10 disabled:opacity-60 text-xs sm:text-sm font-medium py-1.5 px-3 rounded-lg transition-colors"
+                className="ml-auto inline-flex items-center border border-accent-primary oneiri-accent hover:bg-accent-primary/10 disabled:opacity-60 text-xs sm:text-sm font-medium py-1.5 px-3 rounded-lg transition-colors"
               >
                 <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${generating ? "animate-spin" : ""}`} />
                 {generating ? "다시 엮는 중…" : "새 꿈까지 담아 다시 만들기"}

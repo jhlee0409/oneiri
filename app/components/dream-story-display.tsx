@@ -157,7 +157,7 @@ export default function DreamSharedDisplay({
     <div className="min-h-screen oneiri-bg-primary">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* 뒤로 가기 네비게이션 */}
-        <nav className="flex gap-6 mb-12 pb-6 border-b border-text-secondary/20">
+        <nav className="flex gap-6 mb-12 pb-6 border-b border-line">
           <Link
             href="/library/dreams"
             className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
@@ -177,17 +177,17 @@ export default function DreamSharedDisplay({
         {/* 스토리 제목 */}
         <header className="mb-12">
           <div className="flex items-start justify-between">
-            <h1 className="font-['Inter'] text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight flex-1">
+            <h1 className="font-serif text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight flex-1">
               {dream.generated_story_title || "무제"}
             </h1>
             <button
               onClick={handleToggleFavorite}
               disabled={isToggling}
-              className="ml-4 p-2 oneiri-text-secondary hover:text-oneiri-garnet transition-colors disabled:opacity-50"
+              className="ml-4 p-2 oneiri-text-secondary hover:text-accent-primary transition-colors disabled:opacity-50"
               title={dream.is_favorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
             >
               {dream.is_favorite ? (
-                <Heart className="w-6 h-6 fill-current text-oneiri-garnet" />
+                <Heart className="w-6 h-6 fill-current text-accent-primary" />
               ) : (
                 <HeartOff className="w-6 h-6" />
               )}
@@ -196,7 +196,7 @@ export default function DreamSharedDisplay({
         </header>
 
         {/* 꿈 메타데이터 */}
-        <div className="mb-12 pb-6 border-b border-text-secondary/20">
+        <div className="mb-12 pb-6 border-b border-line">
           <div className="flex items-center gap-6 text-sm oneiri-text-secondary flex-wrap">
             {dream.dream_emotion && (
               <span className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function DreamSharedDisplay({
         <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-['Inter'] text-lg font-medium oneiri-text-primary mb-1">
+              <h2 className="text-lg font-medium oneiri-text-primary mb-1">
                 공개 설정
               </h2>
               <p className="text-sm oneiri-text-secondary">
@@ -253,11 +253,11 @@ export default function DreamSharedDisplay({
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
                 dream.is_public
                   ? "oneiri-accent-bg"
-                  : "bg-gray-300 dark:bg-text-secondary/70 border border-gray-400 dark:border-text-secondary/50"
+                  : "bg-line"
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-4 w-4 transform rounded-full bg-text-primary transition-transform ${
                   dream.is_public ? "translate-x-6" : "translate-x-1"
                 }`}
               />
@@ -282,15 +282,8 @@ export default function DreamSharedDisplay({
           </div>
         ) : dream.generated_image_prompt ? (
           <div className="mb-12">
-            <div className="h-96 bg-gradient-to-br from-oneiri-violet/10 to-accent-primary/10 flex items-center justify-center oneiri-text-secondary rounded-lg border-2 border-dashed border-text-secondary/30">
+            <div className="h-96 bg-bg-secondary flex items-center justify-center oneiri-text-secondary rounded-lg border-2 border-dashed border-line">
               <div className="text-center p-8">
-                <div className="text-4xl mb-4">
-                  {isGeneratingImage ? (
-                    <div className="animate-spin">🎨</div>
-                  ) : (
-                    "🎨"
-                  )}
-                </div>
                 <div className="font-medium text-lg mb-2">
                   {isGeneratingImage
                     ? "꿈의 풍경을 그리는 중..."
@@ -302,9 +295,9 @@ export default function DreamSharedDisplay({
                 {isGeneratingImage && (
                   <div className="flex justify-center mb-4">
                     <div className="animate-pulse flex space-x-1">
-                      <div className="w-2 h-2 bg-oneiri-violet rounded-full"></div>
-                      <div className="w-2 h-2 bg-oneiri-violet rounded-full"></div>
-                      <div className="w-2 h-2 bg-oneiri-violet rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
+                      <div className="w-2 h-2 bg-accent-primary rounded-full"></div>
                     </div>
                   </div>
                 )}
@@ -314,7 +307,6 @@ export default function DreamSharedDisplay({
         ) : (
           <div className="h-64 oneiri-bg-secondary flex items-center justify-center oneiri-text-secondary mb-12 rounded-lg">
             <div className="text-center">
-              <div className="text-2xl mb-2">📖</div>
               <div className="font-medium">이미지 없는 꿈 이야기</div>
               <div className="text-sm">
                 상상 속에서 펼쳐지는 이야기를 즐겨보세요
@@ -347,8 +339,7 @@ export default function DreamSharedDisplay({
 
         {/* 원본 꿈 입력 */}
         <section className="oneiri-bg-secondary p-6 mb-12 rounded-lg">
-          <h2 className="font-['Inter'] text-lg font-medium oneiri-text-primary mb-3 flex items-center">
-            <span className="text-xl mr-2">💭</span>
+          <h2 className="text-lg font-medium oneiri-text-primary mb-3">
             당신이 속삭여준 꿈의 조각들
           </h2>
           <p className="oneiri-text-primary/80 leading-relaxed italic">
@@ -363,7 +354,7 @@ export default function DreamSharedDisplay({
           <button
             onClick={handleCopyStory}
             disabled={!dream.generated_story_content}
-            className="w-full sm:w-auto oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary text-bg-primary font-['Inter'] font-medium py-3 px-6 transition-colors disabled:cursor-not-allowed flex items-center justify-center rounded-lg"
+            className="w-full sm:w-auto oneiri-accent-bg hover:brightness-110 disabled:bg-text-secondary text-bg-primary font-medium py-3 px-6 transition-colors disabled:cursor-not-allowed flex items-center justify-center rounded-lg"
           >
             {copied ? (
               <>
@@ -381,11 +372,11 @@ export default function DreamSharedDisplay({
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="w-full sm:w-auto oneiri-bg-secondary hover:bg-oneiri-garnet/10 disabled:oneiri-bg-primary text-oneiri-garnet disabled:oneiri-text-secondary font-['Inter'] font-medium py-3 px-6 border border-oneiri-garnet/20 hover:border-oneiri-garnet/40 transition-colors disabled:cursor-not-allowed rounded-lg"
+            className="w-full sm:w-auto bg-transparent hover:bg-danger/10 text-danger disabled:oneiri-text-secondary font-medium py-3 px-6 border border-danger/40 transition-colors disabled:cursor-not-allowed rounded-lg"
           >
             {isDeleting ? (
               <span className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-oneiri-garnet border-t-transparent mr-2"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-danger border-t-transparent mr-2"></div>
                 삭제하는 중...
               </span>
             ) : (
@@ -393,14 +384,6 @@ export default function DreamSharedDisplay({
             )}
           </button>
         </div>
-
-        {/* 스토리 통계 */}
-        <footer className="text-center text-sm oneiri-text-secondary border-t border-text-secondary/20 pt-8">
-          <p>
-            이야기 길이: {dream.generated_story_content?.length || 0}자 • AI
-            마법으로 생성됨
-          </p>
-        </footer>
       </div>
     </div>
   );

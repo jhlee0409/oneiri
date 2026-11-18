@@ -102,11 +102,11 @@ export default function TermsPage() {
                   </ul>
                 </div>
 
-                <div className="bg-oneiri-garnet/10 border border-oneiri-garnet/20 rounded-lg p-6">
-                  <h4 className="font-semibold text-oneiri-garnet mb-3">
+                <div className="bg-bg-secondary border border-danger/40 rounded-lg p-6">
+                  <h4 className="font-semibold text-danger mb-3">
                     AI 생성 콘텐츠 관련 금지사항
                   </h4>
-                  <ul className="list-disc pl-8 space-y-2 text-oneiri-garnet/90">
+                  <ul className="list-disc pl-8 space-y-2 text-text-secondary">
                     <li>
                       <strong>상업적 이용 금지:</strong> AI가 생성한 꿈 이야기
                       및 이미지를 판매, 라이선싱, 상업적 목적으로 사용하는 행위
@@ -130,11 +130,11 @@ export default function TermsPage() {
                   </ul>
                 </div>
 
-                <div className="bg-oneiri-forest/10 border border-oneiri-forest/20 rounded-lg p-6">
-                  <h4 className="font-semibold text-oneiri-forest mb-3">
+                <div className="bg-bg-secondary border border-line rounded-lg p-6">
+                  <h4 className="font-semibold text-text-primary mb-3">
                     부적절한 콘텐츠 생성 금지
                   </h4>
-                  <ul className="list-disc pl-8 space-y-2 text-oneiri-forest/90">
+                  <ul className="list-disc pl-8 space-y-2 text-text-secondary">
                     <li>
                       <strong>불법 콘텐츠:</strong> 폭력, 혐오, 음란물, 불법
                       약물 등과 관련된 콘텐츠 생성 요청
@@ -158,11 +158,11 @@ export default function TermsPage() {
                   </ul>
                 </div>
 
-                <div className="bg-oneiri-violet/10 border border-oneiri-violet/20 rounded-lg p-6">
-                  <h4 className="font-semibold text-oneiri-violet mb-3">
+                <div className="bg-bg-secondary border border-line rounded-lg p-6">
+                  <h4 className="font-semibold text-accent-primary mb-3">
                     AI 생성물 사용 시 준수사항
                   </h4>
-                  <ul className="list-disc pl-8 space-y-2 text-oneiri-violet/90">
+                  <ul className="list-disc pl-8 space-y-2 text-text-secondary">
                     <li>
                       <strong>출처 표기:</strong> AI 생성 콘텐츠를 공유 시
                       "Oneiri AI로 생성됨" 표기 권장
@@ -187,9 +187,9 @@ export default function TermsPage() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 oneiri-bg-primary border border-text-secondary/20 rounded-lg">
+              <div className="mt-6 p-4 oneiri-bg-primary border border-line rounded-lg">
                 <p className="text-sm oneiri-text-secondary">
-                  <strong>⚠️ 중요:</strong> 위 금지사항을 위반할 경우 사전 통지
+                  <strong>중요:</strong> 위 금지사항을 위반할 경우 사전 통지
                   없이 서비스 이용이 제한되거나 계정이 정지될 수 있으며, 법적
                   책임을 질 수 있습니다. AI 생성 콘텐츠의 사용은 개인의 책임
                   하에 이루어져야 합니다.
