@@ -1,54 +1,50 @@
-import { ImageWithFallback } from "./ui/image-with-fallback";
+import Image from "next/image";
 
-const solutionItems = [
+const steps = [
   {
-    title: "당신의 꿈 조각을 들려주세요",
-    description:
-      "아주 사소한 기억이라도 괜찮아요. 흩어진 조각들을 건네주는 것에서부터, 당신의 진짜 여정이 시작됩니다.",
+    title: "장면 한 줄을 적어요",
+    description: "눈뜨자마자 떠오른 장면, 목소리, 남은 감정. 흐릿한 조각 하나여도 괜찮아요.",
     img: "/images/quill-pen.png",
-    alt: "기록하세요",
   },
   {
-    title: "숨겨진 의미를 탐험하세요",
-    description:
-      "Oneiri가 당신의 이야기 속에서 길을 찾아내고, 그 끝에서 기다리는 아름다운 '원형 카드'를 발견해 드립니다.",
+    title: "이야기와 그림을 받아요",
+    description: "그 장면을 중심으로 짧은 1인칭 이야기를 엮고, 가장 선명한 순간을 그림으로 그려요.",
     img: "/images/compass.png",
-    alt: "발견하세요",
   },
   {
-    title: "당신만의 서재를 완성하세요",
-    description:
-      "발견한 카드들이 당신의 서재를 채워갈수록, 이전에는 보이지 않던 당신만의 '꿈의 패턴'이 모습을 드러낼 거예요.",
+    title: "서재에 쌓으면 패턴이 보여요",
+    description: "꿈이 세 편 넘게 모이면 자주 돌아오는 상징과 감정의 흐름을 정리해 드려요.",
     img: "/images/book.png",
-    alt: "서재를 완성하세요",
   },
 ];
 
 export function SolutionSection() {
   return (
-    <section className="min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:h-[800px] flex items-center justify-center bg-navy-900 py-8 sm:py-12 md:py-16 lg:py-0">
-      <div className="grid-oneiri">
-        {solutionItems.map((item) => (
-          <div
-            key={item.title}
-            className="col-span-12 sm:col-span-12 md:col-span-12 lg:col-span-4 text-center bg-navy-800 rounded-lg p-8 shadow-oneiri"
-          >
-            <div className="w-1/2 sm:w-1/3 md:w-1/2 lg:w-full inline-flex items-center justify-center mb-6 mx-auto sm:mx-0 sm:mb-0 md:mx-auto lg:mx-0 lg:mb-0">
-              <ImageWithFallback
-                src={item.img}
-                alt={item.alt}
-                width={256}
-                height={256}
+    <section className="oneiri-bg-primary border-t border-text-secondary/15">
+      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 md:py-24">
+        <h2 className="font-serif text-2xl font-bold oneiri-text-primary sm:text-3xl">
+          아침 1분, 이렇게 남아요
+        </h2>
+        <ol className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+          {steps.map((step, index) => (
+            <li key={step.title} className="flex gap-5 md:flex-col md:gap-4">
+              <Image
+                src={step.img}
+                alt=""
+                width={72}
+                height={72}
+                className="h-16 w-16 shrink-0 object-contain opacity-90 md:h-20 md:w-20"
               />
-            </div>
-            <h3 className="font-sans font-semibold text-title text-slate-100 mb-2">
-              {item.title}
-            </h3>
-            <p className="text-body text-slate-300 w-4/5 mx-auto whitespace-break-spaces break-keep">
-              {item.description}
-            </p>
-          </div>
-        ))}
+              <div>
+                <p className="text-sm tabular-nums oneiri-accent">0{index + 1}</p>
+                <h3 className="mt-1 text-lg font-semibold oneiri-text-primary">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed oneiri-text-secondary break-keep">
+                  {step.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
