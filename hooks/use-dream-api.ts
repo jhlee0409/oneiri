@@ -110,17 +110,12 @@ export function useGenerateDreamStory() {
     onSuccess: (response) => {
       if (response.success) {
         trackEvent("dream_created");
-        // 성공적인 꿈 생성 완료
-        const remainingCount = response.data?.weaving_status?.remaining || 0;
+        const remainingCount = response.data?.remaining ?? 0;
 
         if (remainingCount > 0) {
-          toast.success(
-            `✨ 새로운 꿈 이야기가 당신의 서재에 담겼습니다! 오늘 ${remainingCount}편을 더 엮어낼 수 있어요.`
-          );
+          toast.success(`서재에 담았어요. 오늘 ${remainingCount}편을 더 기록할 수 있어요.`);
         } else {
-          toast.success(
-            "✨ 오늘의 마지막 꿈 이야기가 완성되었어요! 내일 밤, 다시 별빛과 함께 찾아뵐게요. 🌙"
-          );
+          toast.success("오늘의 두 편을 모두 담았어요. 내일 아침에 다시 기록할 수 있어요.");
         }
 
         // 관련 캐시 무효화 및 분석 데이터 즉시 업데이트

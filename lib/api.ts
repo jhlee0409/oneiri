@@ -1,7 +1,7 @@
 import { supabase } from "@/utils/supabase/client";
 import {
   DreamRequest,
-  DreamResponse,
+  DreamCreated,
   UserAnalytics,
   DreamRecord,
   DreamsListResponse,
@@ -84,7 +84,7 @@ export async function getDailyWeavingStatus(): Promise<
  */
 export async function generateDreamStory(
   dreamData: DreamRequest
-): Promise<APIResponse<DreamResponse>> {
+): Promise<APIResponse<DreamCreated>> {
   try {
     const {
       data: { session },
@@ -122,7 +122,10 @@ export async function generateDreamStory(
       throw new Error(result.error || "스토리 생성에 실패했습니다");
     }
 
-    return result;
+    return {
+      success: true,
+      data: { dreamId: result.dream.id, remaining: result.daily_status.remaining },
+    };
   } catch (error) {
     console.error("Dream story generation failed:", error);
     return {

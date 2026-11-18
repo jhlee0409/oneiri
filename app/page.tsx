@@ -4,6 +4,7 @@ import { SolutionSection } from "@/components/solution-section";
 import { ShowcaseSection } from "@/components/showcase-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -52,7 +53,10 @@ export default async function LandingPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isLoggedIn = !!user;
+  // 다시 찾아온 사용자는 마케팅 화면 대신 서재에서 바로 오늘 꿈을 기록한다.
+  if (user) redirect("/library/dreams");
+
+  const isLoggedIn = false;
   return (
     <>
       <HeroSection key="hero" />

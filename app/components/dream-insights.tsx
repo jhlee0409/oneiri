@@ -83,9 +83,9 @@ function StreakCard() {
           </h2>
           <p className="text-xs sm:text-sm oneiri-text-secondary mt-0.5">{subline}</p>
         </div>
-        {currentStreak === 0 && (
+        {!recordedToday && (
           <Link
-            href="/"
+            href="/dreams/new"
             className="flex-shrink-0 inline-flex items-center oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary text-xs sm:text-sm font-medium py-1.5 px-3 rounded-lg transition-colors"
           >
             <Plus className="w-3.5 h-3.5 mr-1" />

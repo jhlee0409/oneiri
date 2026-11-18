@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/client";
 import { toast } from "sonner";
+import { loginPath } from "@/lib/login-redirect";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -28,7 +29,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
       if (!loggedIn) {
         setIsLoading(false);
-        router.push("/login");
+        router.push(loginPath(`${pathname}${window.location.search}`));
         return;
       }
 
@@ -59,11 +60,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       }
 
       setIsLoading(false);
-
-      // 로그인 상태에서 로그인 페이지로 갈시 / 로 리다이렉트
-      if (loggedIn && pathname === "/login") {
-        router.push("/");
-      }
     };
 
     checkAuth();
@@ -71,8 +67,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-gray-900"></div>
+      <div className="min-h-screen oneiri-bg-primary flex items-center justify-center" role="status" aria-label="불러오는 중">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary"></div>
       </div>
     );
   }

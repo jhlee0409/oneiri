@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
+  PenLine,
   ArrowLeft,
   Heart,
   MessageCircle,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import { loginPath } from "@/lib/login-redirect";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDreamById } from "@/hooks/use-dream-api";
@@ -655,11 +657,11 @@ export default function SharedDreamDisplay({
             공유된 꿈으로 돌아가기
           </Link>
           <Link
-            href="/"
+            href="/dreams/new"
             className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
           >
-            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            새로운 꿈 조각 기록하기
+            <PenLine className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+            내 꿈도 기록하기
           </Link>
         </nav>
 
@@ -819,6 +821,21 @@ export default function SharedDreamDisplay({
           </button>
         </div>
 
+        {user?.id !== dream.user_id && (
+          <aside className="mb-8 sm:mb-12 rounded-lg border border-text-secondary/20 p-5 sm:p-6 text-center space-y-3">
+            <p className="oneiri-text-primary font-medium">어젯밤 꾼 꿈이 있나요?</p>
+            <p className="oneiri-text-secondary text-sm break-keep">
+              기억나는 장면 한 줄이면 이런 이야기가 돼요. 로그인 없이 바로 만들어 볼 수 있어요.
+            </p>
+            <Link
+              href="/dreams/new"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg oneiri-accent-bg px-5 font-medium text-bg-primary"
+            >
+              내 꿈도 이야기로 만들기
+            </Link>
+          </aside>
+        )}
+
         {/* 댓글 섹션 */}
         <section className="mb-8 sm:mb-12">
           <h2 className="font-['Inter'] text-lg sm:text-xl font-medium oneiri-text-primary mb-4 sm:mb-6">
@@ -866,7 +883,7 @@ export default function SharedDreamDisplay({
               <p className="oneiri-text-secondary text-center">
                 댓글을 작성하려면{" "}
                 <Link
-                  href="/login"
+                  href={loginPath(`/shared/${dream.id}`)}
                   className="oneiri-accent hover:text-accent-primary/80 underline"
                 >
                   로그인

@@ -12,6 +12,7 @@ import {
   FileText,
   MoonStar,
   SearchX,
+  PenLine,
 } from "lucide-react";
 import { useUserDreams } from "@/hooks/use-dream-api";
 import type { AnalysisReport, DreamRecord } from "@/types/supabase";
@@ -213,20 +214,17 @@ function EmptyState({ activeTab }: { activeTab: "dreams" | "analysis" }) {
 
   return (
     <div className="text-center py-16 sm:py-24">
-      <div className="text-3xl sm:text-4xl mb-4 sm:mb-6 oneiri-text-secondary">
-        📖
-      </div>
       <h2 className="font-['Inter'] text-xl sm:text-2xl font-medium oneiri-text-primary mb-2 sm:mb-3">
-        아직 서재가 비어있네요.
+        아직 기록한 꿈이 없어요
       </h2>
-      <p className="oneiri-text-secondary mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
-        당신의 첫 번째 꿈 이야기로 이 서재의 첫 페이지를 장식해주세요.
+      <p className="oneiri-text-secondary mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base break-keep">
+        오늘 아침 떠오른 장면 하나로 시작해 보세요.
       </p>
       <Link
-        href="/"
-        className="inline-flex items-center oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary font-medium py-2 sm:py-3 px-4 sm:px-6 transition-colors rounded-lg text-sm sm:text-base"
+        href="/dreams/new"
+        className="inline-flex min-h-11 items-center oneiri-accent-bg hover:bg-accent-primary/90 text-bg-primary font-medium py-2 sm:py-3 px-4 sm:px-6 transition-colors rounded-lg text-sm sm:text-base"
       >
-        <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />첫 이야기의 씨앗 심기
+        <PenLine className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />꿈 기록하기
       </Link>
     </div>
   );
@@ -322,19 +320,28 @@ export default function DreamJournal() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 oneiri-bg-primary min-h-screen">
       {/* 헤더 */}
-      <header className="mb-10 sm:mb-16">
-        <h1 className="font-['Inter'] text-2xl sm:text-4xl md:text-5xl font-medium oneiri-accent mb-3 sm:mb-4">
-          나의 꿈 서재
-        </h1>
-        <p className="oneiri-text-secondary text-base sm:text-lg">
-          {activeTab === "dreams"
-            ? dreamEntries.length > 0
-              ? `${dreamEntries.length}개의 꿈 이야기가 서재에 보관됨`
-              : "밤의 기억들이 모이는 공간"
-            : analysisReports.length > 0
-            ? `${analysisReports.length}개의 분석 리포트가 보관됨`
-            : "꿈의 의미를 탐구하는 공간"}
-        </p>
+      <header className="mb-8 sm:mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="font-['Inter'] text-2xl sm:text-4xl md:text-5xl font-medium oneiri-accent mb-3 sm:mb-4">
+            나의 꿈 서재
+          </h1>
+          <p className="oneiri-text-secondary text-base sm:text-lg">
+            {activeTab === "dreams"
+              ? dreamEntries.length > 0
+                ? `${dreamEntries.length}개의 꿈 이야기가 서재에 보관됨`
+                : "밤의 기억들이 모이는 공간"
+              : analysisReports.length > 0
+              ? `${analysisReports.length}개의 분석 리포트가 보관됨`
+              : "꿈의 의미를 탐구하는 공간"}
+          </p>
+        </div>
+        <Link
+          href="/dreams/new"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg oneiri-accent-bg px-5 font-medium text-bg-primary hover:bg-accent-primary/90 transition-colors"
+        >
+          <PenLine className="w-4 h-4" aria-hidden="true" />
+          오늘 꿈 기록하기
+        </Link>
       </header>
 
       <DreamInsights dreamCount={dreamEntries.length} />
@@ -351,8 +358,7 @@ export default function DreamJournal() {
             }`}
           >
             <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline">꿈 기록 </span>(
-            {dreamEntries.length})
+            <span>꿈 기록 {dreamEntries.length}</span>
           </button>
           <button
             onClick={() => setActiveTab("analysis")}
@@ -363,8 +369,7 @@ export default function DreamJournal() {
             }`}
           >
             <MoonStar className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline">분석 리포트 </span>(
-            {analysisReports.length})
+            <span>분석 리포트 {analysisReports.length}</span>
           </button>
         </div>
       </div>

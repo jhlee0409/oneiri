@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import AuthGuard from "@/app/components/auth-guard";
+import { loginPath } from "@/lib/login-redirect";
 
 export default function NewAnalysisClient() {
   const [dreamContent, setDreamContent] = useState("");
@@ -66,7 +67,7 @@ export default function NewAnalysisClient() {
       if (!session) {
         setError("로그인이 필요합니다.");
         setIsLoading(false);
-        router.push("/login");
+        router.push(loginPath("/analysis/new"));
         return;
       }
 
