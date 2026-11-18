@@ -68,32 +68,32 @@ function PostcardOffer({ dreamId }: { dreamId: string }) {
       }}
     >
       <summary className="min-h-12 cursor-pointer py-3 font-medium oneiri-text-primary focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-        이 꿈을 엽서로 간직하기
+        이 꿈을 한 페이지로 간직하기
       </summary>
       <div className="space-y-4 pb-4 pt-2">
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold oneiri-text-primary">꿈 엽서</h2>
+          <h2 className="text-xl font-semibold oneiri-text-primary">꿈 페이지</h2>
           <p className="break-keep text-sm leading-relaxed oneiri-text-secondary">
-            꿈에서 가장 선명했던 장면을, 한 장의 엽서에 담아요.
+            꿈에서 가장 선명했던 장면을, 서재의 한 페이지로 엮어요.
           </p>
         </div>
         {opened && (
-          <figure className="max-w-md space-y-2">
+          <figure className="max-w-xs space-y-2">
             <iframe
               ref={sampleRef}
               srcDoc={DREAM_POSTCARD_SAMPLE}
-              title="인쇄용 꿈 엽서 샘플: 달빛 정거장"
+              title="인쇄용 꿈 페이지 견본: 달빛 정거장"
               onLoad={() => setSampleReady(true)}
-              className="block aspect-[148/105] w-full rounded-sm"
+              className="block aspect-[148/210] w-full rounded-sm"
             />
             <figcaption className="break-keep text-sm oneiri-text-secondary">
-              가상의 꿈을 담은 인쇄용 샘플이에요. 내 꿈 내용은 사용하지 않아요.
+              가상의 꿈으로 만든 견본이에요. A5 크기로 인쇄할 수 있고, 내 꿈 내용은 사용하지 않아요.
             </figcaption>
           </figure>
         )}
         <div className="space-y-1">
           <span ref={priceRef} className="inline-block text-sm font-medium oneiri-accent">
-            예상 가격 3,900원
+            예상 가격 3,900원 · 인쇄용 파일 · 실물 배송 없음
           </span>
           <p className="break-keep text-sm leading-relaxed oneiri-text-secondary">
             아직 판매 전이에요. 관심을 남겨도 결제되거나 메일이 발송되지 않아요.
@@ -126,7 +126,7 @@ function PostcardOffer({ dreamId }: { dreamId: string }) {
         </div>
         <div role="status" className="text-sm oneiri-text-primary">
           {isPending && variables === "show" && "참여 가능 여부를 확인하고 있어요."}
-          {status === "signed_up" && "꿈 엽서에 관심을 남겼어요."}
+          {status === "signed_up" && "꿈 페이지에 관심을 남겼어요."}
           {status === "cohort_full" && "지금은 관심을 더 받지 않아요. 샘플은 인쇄할 수 있어요."}
         </div>
         {error && <p role="alert" className="text-sm oneiri-text-primary">{error.message}</p>}

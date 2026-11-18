@@ -42,19 +42,19 @@
 2. Google 계정으로 간편하게 가입하고 로그인합니다.
 3. "오늘의 꿈 조각 건네주기 ✨" 버튼을 클릭하여 꿈 이야기를 시작해보세요.
 
-## 꿈 엽서 수요 검증
+## 꿈 페이지 수요 검증
 
-- 본인 꿈 상세에서 비공개 샘플과 3,900원 단건 가격을 확인할 수 있습니다. 관심 신청만 기록하며 결제나 메일은 보내지 않습니다.
+- 본인 꿈 상세에서 「꿈 페이지」(꿈 한 편을 그림과 글로 엮은 A5 인쇄용 파일) 견본과 3,900원 예상 가격을 확인할 수 있습니다. 관심 신청만 기록하며 결제나 메일은 보내지 않습니다. 여러 페이지를 한 권으로 엮는 「꿈 책」은 이후 단계입니다.
 - GA4에서 `/dreams/new` 방문 → `dream_input_started` (게스트) → `guest_dream_created` → `guest_dream_claimed`를 봅니다. 꿈 본문이나 이메일을 GA4로 보내지 않습니다.
 - Supabase 마이그레이션을 앱보다 먼저 적용합니다. 체험 한도는 한국 시간 기준 IP당 하루 1건·전체 하루 300건이며, 모델을 호출하기 전에 차감됩니다. 실패한 시도도 비용 보호를 위해 복구하지 않습니다.
 - `story_generation_metrics`는 모델 호출별 결과·응답 시간·사용 토큰을 기록합니다. `estimated_cost_nano_usd`는 공개 단가 추정치이며, 토큰 정보가 없으면 `NULL`입니다. 실제 청구액과는 구분합니다.
-- `dream_postcard_interest`의 `postcard-3900-v1` 집계는 계정당 한 번만 셉니다. 50명 중 5명 이상이 신청하면 수작업 판매 검증으로 넘어갑니다.
+- `dream_postcard_interest`의 `page-3900-v1` 집계는 계정당 한 번만 셉니다. 50명 중 5명 이상이 신청하면 수작업 판매 검증으로 넘어갑니다. (`postcard-3900-v1`은 엽서 컨셉 시절 버전으로 노출 0건에서 종료)
 
 ```sql
 select count(*) as price_views,
        count(signed_up_at) as signups
 from public.dream_postcard_interest
-where offer_version = 'postcard-3900-v1';
+where offer_version = 'page-3900-v1';
 ```
 
 ```sql
