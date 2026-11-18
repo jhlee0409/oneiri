@@ -49,7 +49,7 @@ export function InAppBrowserNotice({
   return (
     <div
       role="status"
-      className="space-y-3 rounded-lg border border-text-secondary/30 p-4 text-left text-sm oneiri-text-primary"
+      className="space-y-3 rounded-lg border border-line p-4 text-left text-sm oneiri-text-primary"
     >
       <p className="font-medium">이 앱 안에서는 Google 로그인이 열리지 않아요.</p>
       <p className="break-keep oneiri-text-secondary">

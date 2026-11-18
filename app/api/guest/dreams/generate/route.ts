@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "로그인한 사용자는 /api/dreams/generate 를 사용해야 합니다",
-          oneiri_message: "이미 별빛 서재에 들어와 계시네요. 서재에서 꿈을 엮어주세요. 🌟",
+          oneiri_message: "이미 별빛 서재에 들어와 계시네요. 서재에서 꿈을 엮어주세요.",
         },
         { status: 400 }
       );
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "요청 본문이 너무 큽니다",
-          oneiri_message: "꿈 내용과 선택 입력을 줄여 다시 시도해주세요. 🌙",
+          oneiri_message: "꿈 내용과 선택 입력을 줄여 다시 시도해주세요.",
         },
         { status: 413 }
       );
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "꿈 내용을 5글자 이상 입력해주세요",
-          oneiri_message: "꿈의 이야기를 조금 더 자세히 들려주세요. 🌟",
+          oneiri_message: "꿈의 이야기를 조금 더 자세히 들려주세요.",
         },
         { status: 400 }
       );
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: `꿈 내용은 ${GUEST_DREAM_MAX_LENGTH}자 이하로 입력해주세요`,
-          oneiri_message: `체험에서는 ${GUEST_DREAM_MAX_LENGTH}자까지의 꿈 조각을 엮을 수 있어요. 🌙`,
+          oneiri_message: `체험에서는 ${GUEST_DREAM_MAX_LENGTH}자까지의 꿈 조각을 엮을 수 있어요.`,
         },
         { status: 400 }
       );
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "꿈의 선택 입력이 허용 범위를 초과했습니다",
-          oneiri_message: `키워드는 ${GUEST_MAX_KEYWORDS}개까지, 각 ${GUEST_MAX_KEYWORD_LENGTH}자 이하로 입력해주세요. 다른 선택 입력은 ${GUEST_MAX_OPTION_LENGTH}자까지 쓸 수 있어요. 🌙`,
+          oneiri_message: `키워드는 ${GUEST_MAX_KEYWORDS}개까지, 각 ${GUEST_MAX_KEYWORD_LENGTH}자 이하로 입력해주세요. 다른 선택 입력은 ${GUEST_MAX_OPTION_LENGTH}자까지 쓸 수 있어요.`,
         },
         { status: 400 }
       );
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
           error: "오늘의 체험 이야기를 이미 만들었습니다",
           limit_reached: true,
           oneiri_message:
-            "오늘의 체험 이야기는 이미 엮어졌어요. Google로 로그인하면 매일 두 편의 꿈을 서재에 담을 수 있어요. 🌙",
+            "오늘의 체험 이야기는 이미 엮어졌어요. Google로 로그인하면 매일 두 편의 꿈을 서재에 담을 수 있어요.",
         },
         { status: 429 }
       );
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
         {
           error: "오늘의 게스트 체험이 모두 마감되었습니다",
           oneiri_message:
-            "오늘 밤 체험의 별빛이 모두 소진되었어요. Google로 로그인하면 바로 꿈을 엮을 수 있어요. ✨",
+            "오늘 밤 체험의 별빛이 모두 소진되었어요. Google로 로그인하면 바로 꿈을 엮을 수 있어요.",
         },
         { status: 429 }
       );
@@ -169,7 +169,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "AI 응답 처리 중 오류가 발생했습니다",
-          oneiri_message: "꿈의 실이 엉켜버렸어요. 다시 한번 시도해주세요. 🧶✨",
+          oneiri_message: "꿈의 실이 엉켜버렸어요. 다시 한번 시도해주세요.",
         },
         { status: 502 }
       );
@@ -203,7 +203,7 @@ export async function POST(request: Request) {
       {
         error: error instanceof Error ? error.message : "Unknown error",
         oneiri_message:
-          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요. 🌟",
+          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요.",
       },
       { status: 500 }
     );

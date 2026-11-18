@@ -292,8 +292,8 @@ export default function UserSettings() {
     return (
       <div className="space-y-6">
         <div className="oneiri-bg-secondary p-6 rounded-lg animate-pulse">
-          <div className="h-6 bg-gray-300 rounded w-1/4 mb-4"></div>
-          <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+          <div className="h-6 bg-line rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-line rounded w-1/2"></div>
         </div>
       </div>
     );
@@ -320,10 +320,10 @@ export default function UserSettings() {
             <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
               {/* 프로필 이미지 미리보기 */}
               <div className="relative group mx-auto sm:mx-0">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200 cursor-pointer transition-all duration-200 group-hover:border-accent-primary">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-bg-primary flex items-center justify-center border-2 border-line cursor-pointer transition-all duration-200 group-hover:border-accent-primary">
                   {shouldDeleteAvatar ? (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+                    <div className="w-full h-full bg-bg-primary flex items-center justify-center">
+                      <User className="w-6 h-6 sm:w-8 sm:h-8 text-text-secondary" />
                     </div>
                   ) : avatarPreview ? (
                     <ImageWithFallback
@@ -344,7 +344,7 @@ export default function UserSettings() {
                       fallbackMessage="프로필 이미지"
                     />
                   ) : (
-                    <User className="w-8 h-8 text-gray-400" />
+                    <User className="w-8 h-8 text-text-secondary" />
                   )}
 
                   {/* 호버 오버레이 - 이미지 선택 */}
@@ -352,7 +352,7 @@ export default function UserSettings() {
                     className="absolute rounded-full inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Camera className="w-6 h-6 text-white" />
+                    <Camera className="w-6 h-6 text-text-primary" />
                   </div>
                 </div>
 
@@ -361,7 +361,7 @@ export default function UserSettings() {
                   <button
                     onClick={cancelAvatarChanges}
                     disabled={isUpdatingProfile}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-bg-secondary border border-line hover:border-text-secondary rounded-full flex items-center justify-center text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     title="변경사항 취소"
                   >
                     <X className="w-3 h-3" />
@@ -393,7 +393,7 @@ export default function UserSettings() {
                     <button
                       onClick={handleAvatarDelete}
                       disabled={isUpdatingProfile}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-fit"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-danger border border-danger/40 rounded-lg hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-fit"
                     >
                       <Trash2 className="w-4 h-4" />
                       아바타 삭제
@@ -402,7 +402,7 @@ export default function UserSettings() {
 
                 {/* 삭제 예약된 상태 표시 */}
                 {shouldDeleteAvatar && (
-                  <div className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-300 rounded-lg w-fit">
+                  <div className="flex items-center gap-2 px-3 py-2 text-sm text-danger bg-danger/10 border border-danger/40 rounded-lg w-fit">
                     <Trash2 className="w-4 h-4" />
                     삭제 예약됨
                   </div>
@@ -413,7 +413,7 @@ export default function UserSettings() {
             <div className="text-xs oneiri-text-secondary mt-2 space-y-1">
               <p>JPG, PNG 파일만 업로드 가능하며, 최대 크기는 5MB입니다.</p>
               {hasChanges() && (
-                <p className="text-amber-600 font-medium">
+                <p className="text-accent-primary font-medium">
                   변경사항이 있습니다. 하단의 '프로필 저장' 버튼을 클릭하여
                   저장하세요.
                 </p>
@@ -429,7 +429,7 @@ export default function UserSettings() {
               type="email"
               value={user?.email || ""}
               disabled
-              className="w-full p-3 rounded-lg border border-gray-300 bg-gray-100 oneiri-text-secondary"
+              className="w-full p-3 rounded-lg border border-line bg-bg-primary oneiri-text-secondary"
             />
             <p className="text-xs oneiri-text-secondary mt-1">
               이메일은 변경할 수 없습니다.
@@ -445,14 +445,14 @@ export default function UserSettings() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="표시될 닉네임을 입력하세요"
-              className="w-full p-3 rounded-lg border border-gray-300 focus:border-accent-primary focus:outline-none oneiri-bg-primary oneiri-text-primary"
+              className="w-full p-3 rounded-lg border border-line focus:border-accent-primary focus:outline-none oneiri-bg-primary oneiri-text-primary"
             />
           </div>
 
           <button
             onClick={handleSaveProfile}
             disabled={isUpdatingProfile || !hasChanges()}
-            className="px-4 py-2 oneiri-accent-bg text-white rounded-lg hover:bg-accent-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 oneiri-accent-bg text-bg-primary rounded-lg hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isUpdatingProfile ? "저장 중..." : "프로필 저장"}
           </button>
@@ -481,7 +481,7 @@ export default function UserSettings() {
           </div>
           <div className="flex justify-between">
             <span>계정 상태:</span>
-            <span className="text-green-600">활성</span>
+            <span className="text-accent-primary">활성</span>
           </div>
           <div className="flex justify-between">
             <span>마지막 업데이트:</span>
@@ -507,7 +507,7 @@ export default function UserSettings() {
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex items-center gap-2 px-4 py-2 oneiri-accent-bg text-white rounded-lg hover:bg-accent-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex min-h-11 items-center gap-2 px-4 py-2 border border-line text-text-primary rounded-lg hover:bg-bg-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <LogOut className="w-4 h-4" />
             {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
@@ -515,7 +515,7 @@ export default function UserSettings() {
 
           <button
             onClick={() => setShowWithdrawalModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-danger border border-danger/40 rounded-lg hover:bg-danger/10 transition-colors"
           >
             <Trash2 className="w-4 h-4" />
             회원 탈퇴
@@ -526,16 +526,16 @@ export default function UserSettings() {
       {/* 탈퇴 확인 모달 */}
       {showWithdrawalModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+          <div className="bg-bg-secondary border border-line rounded-lg p-6 max-w-md w-full">
             <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-500" />
+              <AlertTriangle className="w-6 h-6 text-danger" />
               <h3 className="text-lg font-semibold oneiri-text-primary">
                 회원 탈퇴 확인
               </h3>
             </div>
 
             <div className="space-y-4 mb-6">
-              <p className="font-medium text-red-600">
+              <p className="font-medium text-danger">
                 정말로 탈퇴하시겠습니까? 모든 데이터는 복구할 수 없습니다.
               </p>
 
@@ -548,7 +548,7 @@ export default function UserSettings() {
                   value={withdrawalConfirmText}
                   onChange={(e) => setWithdrawalConfirmText(e.target.value)}
                   placeholder="탈퇴합니다"
-                  className="w-full p-3 rounded-lg border border-gray-300 focus:border-red-500 focus:outline-none oneiri-bg-primary oneiri-text-primary"
+                  className="w-full p-3 rounded-lg border border-line focus:border-danger focus:outline-none oneiri-bg-primary oneiri-text-primary"
                 />
               </div>
             </div>
@@ -559,7 +559,7 @@ export default function UserSettings() {
                   setShowWithdrawalModal(false);
                   setWithdrawalConfirmText("");
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="flex-1 px-4 py-2 border border-line text-text-secondary rounded-lg hover:bg-bg-primary"
               >
                 취소
               </button>
@@ -569,7 +569,7 @@ export default function UserSettings() {
                   withdrawalConfirmText !== "탈퇴합니다" ||
                   isProcessingWithdrawal
                 }
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 text-danger border border-danger/40 rounded-lg hover:bg-danger/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessingWithdrawal ? "처리 중..." : "탈퇴 완료"}
               </button>

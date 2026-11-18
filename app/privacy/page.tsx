@@ -168,7 +168,7 @@ export default function PrivacyPage() {
                 위탁하고 있습니다.
               </p>
 
-              <div className="oneiri-bg-primary border border-text-secondary/20 rounded-lg p-6">
+              <div className="oneiri-bg-primary border border-line rounded-lg p-6">
                 <h4 className="font-semibold oneiri-text-primary mb-3">
                   위탁 업체: Supabase Inc.
                 </h4>
@@ -206,8 +206,8 @@ export default function PrivacyPage() {
                 </div>
               </div>
 
-              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
+              <div className="mt-4 p-4 bg-accent-primary/10 border border-accent-primary/30 rounded-lg">
+                <p className="text-sm text-text-primary">
                   <strong>국외 이전 고지:</strong> 위탁된 개인정보는 미국에
                   소재한 Supabase의 서버에 저장됩니다. Supabase는 SOC 2 Type 2,
                   ISO 27001 등의 보안 인증을 보유하고 있으며, 적절한
@@ -215,11 +215,11 @@ export default function PrivacyPage() {
                 </p>
               </div>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-4">
-                <h4 className="font-semibold text-gray-800 mb-3">
+              <div className="bg-bg-secondary border border-line rounded-lg p-6 mt-4">
+                <h4 className="font-semibold text-text-primary mb-3">
                   위탁 업체: Google LLC (Gemini API)
                 </h4>
-                <div className="space-y-2 text-sm text-gray-700">
+                <div className="space-y-2 text-sm text-text-secondary">
                   <div>
                     <strong>위탁 업무:</strong>
                     <ul className="list-disc pl-6 mt-1 space-y-1">
@@ -243,14 +243,14 @@ export default function PrivacyPage() {
                       href="https://policies.google.com/privacy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-purple-600 hover:text-purple-800 underline ml-1"
+                      className="text-accent-primary hover:brightness-110 underline ml-1"
                     >
                       https://policies.google.com/privacy
                     </a>
                   </div>
                 </div>
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                  <p className="text-xs text-blue-800">
+                <div className="mt-3 p-3 bg-bg-primary border border-line rounded">
+                  <p className="text-xs text-text-secondary">
                     <strong>참고:</strong> 꿈 내용 처리 시 개인을 식별할 수 있는
                     정보는 제거한 후 전송되며, Google은 API 정책에 따라 해당
                     데이터를 저장하지 않습니다.
@@ -258,7 +258,7 @@ export default function PrivacyPage() {
                 </div>
               </div>
 
-              <p className="mt-4 text-sm text-gray-600">
+              <p className="mt-4 text-sm text-text-secondary">
                 향후 추가 위탁이 발생할 경우, 위탁 내용 및 수탁 업체에 대한
                 정보를 본 방침을 통해 사전 고지하겠습니다.
               </p>
@@ -375,7 +375,7 @@ export default function PrivacyPage() {
               <h2 className="text-2xl font-semibold oneiri-text-primary mb-4 border-b-2 border-accent-primary/30 pb-2">
                 9. 개인정보 보호책임자
               </h2>
-              <div className="oneiri-bg-primary border border-text-secondary/20 rounded-lg p-6">
+              <div className="oneiri-bg-primary border border-line rounded-lg p-6">
                 <p className="mb-4 oneiri-text-primary">
                   Oneiri는 개인정보 처리에 관한 업무를 총괄해서 책임지고,
                   개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을

@@ -648,7 +648,7 @@ export default function SharedDreamDisplay({
     <div className="min-h-screen oneiri-bg-primary">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* 뒤로 가기 네비게이션 */}
-        <nav className="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-8 sm:mb-12 pb-4 sm:pb-6 border-b border-text-secondary/20">
+        <nav className="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-8 sm:mb-12 pb-4 sm:pb-6 border-b border-line">
           <Link
             href="/shared"
             className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
@@ -685,7 +685,7 @@ export default function SharedDreamDisplay({
 
         {/* 스토리 제목 */}
         <header className="mb-6 sm:mb-8">
-          <h1 className="font-['Inter'] text-2xl sm:text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-3 sm:mb-4">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-3 sm:mb-4">
             {dream.generated_story_title || "무제"}
           </h1>
 
@@ -756,8 +756,7 @@ export default function SharedDreamDisplay({
 
         {/* 원본 꿈 입력 */}
         <section className="oneiri-bg-secondary p-4 sm:p-6 mb-8 sm:mb-12 rounded-lg">
-          <h2 className="font-['Inter'] text-base sm:text-lg font-medium oneiri-text-primary mb-3 flex items-center">
-            <span className="text-lg sm:text-xl mr-2">💭</span>
+          <h2 className="text-base sm:text-lg font-medium oneiri-text-primary mb-3">
             꿈꾸는 자가 속삭여준 꿈의 조각들
           </h2>
           <p className="oneiri-text-primary/80 leading-relaxed italic text-sm sm:text-base">
@@ -766,18 +765,18 @@ export default function SharedDreamDisplay({
         </section>
 
         {/* 소셜 액션 버튼 */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-text-secondary/20 mb-8 sm:mb-12 text-sm sm:text-base">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-line mb-8 sm:mb-12 text-sm sm:text-base">
           <button
             onClick={handleToggleLike}
             disabled={isTogglingLike}
             className={`flex items-center gap-2 transition-colors ${
               user
                 ? isLiked
-                  ? "text-oneiri-garnet"
-                  : "oneiri-text-secondary hover:text-oneiri-garnet"
+                  ? "text-accent-primary"
+                  : "oneiri-text-secondary hover:text-accent-primary"
                 : isGuestLiked
-                ? "text-gray-600"
-                : "oneiri-text-secondary hover:text-gray-600"
+                ? "text-text-primary"
+                : "oneiri-text-secondary hover:text-text-primary"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <Heart
@@ -822,7 +821,7 @@ export default function SharedDreamDisplay({
         </div>
 
         {user?.id !== dream.user_id && (
-          <aside className="mb-8 sm:mb-12 rounded-lg border border-text-secondary/20 p-5 sm:p-6 text-center space-y-3">
+          <aside className="mb-8 sm:mb-12 rounded-lg border border-line p-5 sm:p-6 text-center space-y-3">
             <p className="oneiri-text-primary font-medium">어젯밤 꾼 꿈이 있나요?</p>
             <p className="oneiri-text-secondary text-sm break-keep">
               기억나는 장면 한 줄이면 이런 이야기가 돼요. 로그인 없이 바로 만들어 볼 수 있어요.
@@ -838,7 +837,7 @@ export default function SharedDreamDisplay({
 
         {/* 댓글 섹션 */}
         <section className="mb-8 sm:mb-12">
-          <h2 className="font-['Inter'] text-lg sm:text-xl font-medium oneiri-text-primary mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-medium oneiri-text-primary mb-4 sm:mb-6">
             댓글 {commentsCount}개
           </h2>
 
@@ -850,7 +849,7 @@ export default function SharedDreamDisplay({
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   placeholder="이 꿈에 대한 생각을 공유해보세요..."
-                  className="w-full px-4 py-3 oneiri-bg-secondary border border-text-secondary/20 focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder-text-secondary rounded-lg"
+                  className="w-full px-4 py-3 oneiri-bg-secondary border border-line focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder-text-secondary rounded-lg"
                   rows={3}
                   maxLength={500}
                 />
@@ -862,7 +861,7 @@ export default function SharedDreamDisplay({
                 <button
                   type="submit"
                   disabled={!commentText.trim() || isSubmittingComment}
-                  className="oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-['Inter'] font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+                  className="oneiri-accent-bg hover:brightness-110 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
                 >
                   {isSubmittingComment ? (
                     <>
@@ -879,7 +878,7 @@ export default function SharedDreamDisplay({
               </div>
             </form>
           ) : (
-            <div className="mb-8 p-4 oneiri-bg-secondary rounded-lg border border-text-secondary/20">
+            <div className="mb-8 p-4 oneiri-bg-secondary rounded-lg border border-line">
               <p className="oneiri-text-secondary text-center">
                 댓글을 작성하려면{" "}
                 <Link
@@ -910,7 +909,7 @@ export default function SharedDreamDisplay({
               comments.map((comment) => (
                 <div
                   key={comment.id}
-                  className="border-b border-text-secondary/10 pb-6 last:border-0"
+                  className="border-b border-line pb-6 last:border-0"
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -946,7 +945,7 @@ export default function SharedDreamDisplay({
                               disabled={
                                 !editingCommentText.trim() || isUpdatingComment
                               }
-                              className="p-1 oneiri-text-secondary hover:text-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-1 oneiri-text-secondary hover:text-accent-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="수정 완료"
                             >
                               <Check className="w-4 h-4" />
@@ -954,7 +953,7 @@ export default function SharedDreamDisplay({
                             <button
                               onClick={handleCancelEdit}
                               disabled={isUpdatingComment}
-                              className="p-1 oneiri-text-secondary hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-1 oneiri-text-secondary hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="수정 취소"
                             >
                               <X className="w-4 h-4" />
@@ -972,7 +971,7 @@ export default function SharedDreamDisplay({
                             <button
                               onClick={() => handleDeleteComment(comment.id)}
                               disabled={isDeletingComment === comment.id}
-                              className="p-1 oneiri-text-secondary hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-1 oneiri-text-secondary hover:text-danger transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="댓글 삭제"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -989,7 +988,7 @@ export default function SharedDreamDisplay({
                       <textarea
                         value={editingCommentText}
                         onChange={(e) => setEditingCommentText(e.target.value)}
-                        className="w-full px-3 py-2 oneiri-bg-secondary border border-text-secondary/20 focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder-text-secondary rounded-lg text-sm"
+                        className="w-full px-3 py-2 oneiri-bg-secondary border border-line focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder-text-secondary rounded-lg text-sm"
                         rows={3}
                         maxLength={500}
                         autoFocus
@@ -1008,15 +1007,6 @@ export default function SharedDreamDisplay({
             )}
           </div>
         </section>
-
-        {/* 스토리 통계 */}
-        <footer className="text-center text-sm oneiri-text-secondary border-t border-text-secondary/20 pt-8">
-          <p>
-            이야기 길이: {dream.generated_story_content?.length || 0}자 • 좋아요{" "}
-            {likesCount + guestLikesCount}개 • 댓글 {commentsCount}개 • AI
-            마법으로 생성됨
-          </p>
-        </footer>
       </div>
     </div>
   );

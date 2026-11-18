@@ -94,7 +94,7 @@ export const textUtils = {
   highlightSearch(text: string, searchTerm: string): string {
     if (!searchTerm) return text;
     const regex = new RegExp(`(${searchTerm})`, "gi");
-    return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+    return text.replace(regex, '<mark class="bg-accent-primary/30 text-text-primary">$1</mark>');
   },
 
   // Generate excerpt from long text

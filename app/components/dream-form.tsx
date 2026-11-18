@@ -88,7 +88,7 @@ function ChipRadioGroup({
                 "min-h-11 px-4 py-2 rounded-full border text-sm text-left break-keep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-secondary disabled:opacity-50 disabled:cursor-not-allowed",
                 checked
                   ? "oneiri-accent-bg border-accent-primary text-bg-primary font-medium"
-                  : "oneiri-bg-primary border-text-secondary/30 oneiri-text-primary hover:border-accent-primary/60"
+                  : "oneiri-bg-primary border-line oneiri-text-primary hover:border-accent-primary/60"
               )}
             >
               {option.label}
@@ -224,7 +224,7 @@ export default function DreamForm() {
     return (
       <div className="space-y-6">
         <article className="oneiri-bg-secondary p-5 sm:p-8 rounded-lg space-y-4 sm:space-y-6">
-          <p className="text-xs sm:text-sm text-oneiri-violet text-center">
+          <p className="text-xs sm:text-sm text-text-secondary text-center">
             꿈이 이야기가 되었어요
           </p>
           <h2
@@ -246,7 +246,7 @@ export default function DreamForm() {
           </div>
         </article>
 
-        <div className="text-center space-y-3 sm:space-y-4 p-4 sm:p-6 bg-gradient-to-b from-oneiri-violet/10 to-accent-primary/10 rounded-lg border border-oneiri-violet/20">
+        <div className="text-center space-y-3 sm:space-y-4 p-4 sm:p-6 bg-bg-secondary rounded-lg border border-line">
           <p className="oneiri-text-primary/80 text-sm sm:text-base leading-relaxed break-keep">
             로그인하면 이 이야기가 서재에 저장되고, 장면 그림도 함께 그려져요.
           </p>
@@ -277,9 +277,9 @@ export default function DreamForm() {
   if (isGuest && guestLimitMessage) {
     return (
       <div className="oneiri-bg-secondary max-w-2xl mx-auto rounded-lg">
-        <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-8 bg-gradient-to-b from-oneiri-violet/10 to-accent-primary/10 rounded-lg border border-oneiri-violet/20">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-oneiri-violet/20 rounded-full flex items-center justify-center">
-            <Moon className="w-6 h-6 sm:w-8 sm:h-8 text-oneiri-violet" aria-hidden="true" />
+        <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-8 bg-bg-secondary rounded-lg border border-line">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-accent-primary/10 rounded-full flex items-center justify-center">
+            <Moon className="w-6 h-6 sm:w-8 sm:h-8 text-accent-primary" aria-hidden="true" />
           </div>
           <div className="space-y-2 sm:space-y-3">
             <h2 className="font-serif text-lg sm:text-2xl font-medium oneiri-text-primary break-keep">
@@ -311,7 +311,7 @@ export default function DreamForm() {
       <div className="oneiri-bg-secondary max-w-2xl mx-auto rounded-lg">
         <div
           role="alert"
-          className="text-center space-y-4 p-8 bg-oneiri-garnet/10 rounded-lg border border-oneiri-garnet/20"
+          className="text-center space-y-4 p-8 rounded-lg border border-danger/40"
         >
           <p className="oneiri-text-primary break-keep">
             오늘 남은 횟수를 확인하지 못했어요. 연결을 확인하고 다시 시도해
@@ -319,7 +319,7 @@ export default function DreamForm() {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="min-h-11 bg-oneiri-garnet hover:bg-oneiri-garnet/90 oneiri-text-primary px-4 py-2 rounded-lg"
+            className="min-h-11 text-danger border border-danger/40 hover:bg-danger/10 px-4 py-2 rounded-lg"
           >
             다시 시도
           </button>
@@ -334,9 +334,9 @@ export default function DreamForm() {
 
     return (
       <div className="oneiri-bg-secondary max-w-2xl mx-auto rounded-lg">
-        <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-8 bg-gradient-to-b from-oneiri-violet/10 to-accent-primary/10 rounded-lg border border-oneiri-violet/20">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-oneiri-violet/20 rounded-full flex items-center justify-center">
-            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-oneiri-violet" aria-hidden="true" />
+        <div className="text-center space-y-4 sm:space-y-6 p-4 sm:p-8 bg-bg-secondary rounded-lg border border-line">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-accent-primary/10 rounded-full flex items-center justify-center">
+            <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-accent-primary" aria-hidden="true" />
           </div>
 
           <div className="space-y-2 sm:space-y-3">
@@ -356,7 +356,7 @@ export default function DreamForm() {
           </Link>
 
           {todaysDreams.length > 0 && (
-            <div className="p-3 sm:p-4 oneiri-bg-primary rounded-lg border border-text-secondary/20 text-left">
+            <div className="p-3 sm:p-4 oneiri-bg-primary rounded-lg border border-line text-left">
               <h3 className="font-medium oneiri-text-primary mb-2 sm:mb-3 text-sm sm:text-base">
                 오늘 만든 이야기
               </h3>
@@ -432,7 +432,7 @@ export default function DreamForm() {
           placeholder="예: 마지막 기차를 놓쳤는데 달이 승강장으로 들어왔어요. 장면 하나만 적어도 돼요."
           className={cn(
             "w-full h-40 sm:h-48 px-3 sm:px-4 py-3 oneiri-bg-primary border focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base leading-relaxed",
-            showError ? "border-red-400" : "border-text-secondary/30"
+            showError ? "border-danger" : "border-line"
           )}
           maxLength={isGuest ? GUEST_DREAM_MAX_LENGTH : undefined}
           disabled={isFormDisabled}
@@ -441,7 +441,7 @@ export default function DreamForm() {
         <div className="flex items-start justify-between gap-3 text-xs sm:text-sm">
           <div className="space-y-1">
             {showError && (
-              <p id="dreamText-error" role="alert" className="text-red-300">
+              <p id="dreamText-error" role="alert" className="text-danger">
                 꿈을 한 줄이라도 적어 주세요.
               </p>
             )}
@@ -495,7 +495,7 @@ export default function DreamForm() {
         </p>
       </div>
 
-      <details className="group border-t border-text-secondary/20 pt-2">
+      <details className="group border-t border-line pt-2">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-lg py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary [&::-webkit-details-marker]:hidden">
           <span className="min-w-0 space-y-0.5">
             <span className="block text-sm font-medium oneiri-text-primary">
@@ -528,7 +528,7 @@ export default function DreamForm() {
               onChange={(e) => setKeywords(e.target.value)}
               aria-describedby="keywords-help"
               placeholder="예: 붉은 문, 거대한 시계"
-              className="w-full min-h-11 px-3 sm:px-4 py-2 oneiri-bg-primary border border-text-secondary/30 focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base"
+              className="w-full min-h-11 px-3 sm:px-4 py-2 oneiri-bg-primary border border-line focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-base"
               disabled={isFormDisabled}
             />
             <p id="keywords-help" className="text-xs oneiri-text-secondary break-keep">

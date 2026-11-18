@@ -164,22 +164,6 @@ export const APP_CONFIG = {
   ANIMATION_SLOW: 500,
 } as const;
 
-export const TOAST_MESSAGES = {
-  DREAM_GENERATED: "✨ 꿈 이야기가 생성되었습니다!",
-  DREAM_SAVED: "💾 꿈이 저장되었습니다.",
-  DREAM_DELETED: "🗑️ 꿈이 삭제되었습니다.",
-  DREAM_FAVORITED: "⭐ 즐겨찾기에 추가되었습니다.",
-  DREAM_UNFAVORITED: "⭐ 즐겨찾기에서 제거되었습니다.",
-  PROFILE_UPDATED: "👤 프로필이 업데이트되었습니다.",
-  SIGNIN_SUCCESS: "🎉 로그인되었습니다!",
-  SIGNIN_ERROR: "😅 로그인에 실패했습니다.",
-  SIGNOUT_SUCCESS: "👋 로그아웃되었습니다.",
-  COPY_SUCCESS: "📋 클립보드에 복사되었습니다.",
-  GENERATION_ERROR: "😔 이야기 생성에 실패했습니다. 다시 시도해주세요.",
-  NETWORK_ERROR: "🌐 네트워크 오류가 발생했습니다.",
-  UNKNOWN_ERROR: "❌ 알 수 없는 오류가 발생했습니다.",
-} as const;
-
 export const PLACEHOLDER_TEXTS = {
   DREAM_INPUT:
     "어젯밤 꿈에서 어떤 일이 일어났나요? 기억나는 장면이나 느낌을 자유롭게 적어보세요...\n\n예시:\n- 어두운 숲 속을 걷고 있었는데, 갑자기 빛나는 나비가 나타났어요\n- 하늘을 날고 있었는데 구름 위에서 친구를 만났어요\n- 옛날 살던 집에서 잃어버린 물건을 찾고 있었어요",
@@ -187,30 +171,6 @@ export const PLACEHOLDER_TEXTS = {
   KEYWORDS: "예: 바다, 친구, 날기",
   CHARACTERS: "예: 친구, 가족, 낯선 사람",
   OBJECTS: "예: 자동차, 책, 열쇠",
-} as const;
-
-// Color palettes for UI theming
-export const COLORS = {
-  PRIMARY: "#8B5CF6",
-  SECONDARY: "#06B6D4",
-  SUCCESS: "#10B981",
-  WARNING: "#F59E0B",
-  ERROR: "#EF4444",
-
-  GRADIENT_DREAM: "from-purple-400 via-pink-500 to-red-500",
-  GRADIENT_NIGHT: "from-blue-900 via-purple-900 to-indigo-900",
-  GRADIENT_DAWN: "from-pink-300 via-purple-300 to-indigo-400",
-
-  TAG_COLORS: [
-    "#8B5CF6",
-    "#EC4899",
-    "#06B6D4",
-    "#10B981",
-    "#F59E0B",
-    "#EF4444",
-    "#6B7280",
-    "#8B5CF6",
-  ],
 } as const;
 
 export const GENRE_OPTIONS = [

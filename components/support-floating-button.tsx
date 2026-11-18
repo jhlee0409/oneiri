@@ -29,20 +29,20 @@ export function SupportFloatingButton() {
         <div
           role="dialog"
           aria-labelledby="support-dialog-title"
-          className="absolute bottom-20 right-0 mb-2 w-72 bg-navy-800 border border-gold-500/20 rounded-lg shadow-xl p-4"
+          className="absolute bottom-20 right-0 mb-2 w-72 bg-bg-secondary border border-line rounded-lg shadow-xl p-4"
         >
           <button
             onClick={() => setIsOpen(false)}
-            className="absolute top-2 right-2 p-1 text-slate-400 hover:text-slate-200 transition-colors"
+            className="absolute top-2 right-2 p-1 text-text-secondary hover:text-text-primary transition-colors"
             aria-label="닫기"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <h3 id="support-dialog-title" className="text-gold-500 font-semibold mb-2 text-sm">
+          <h3 id="support-dialog-title" className="text-accent-primary font-semibold mb-2 text-sm">
             고객 지원
           </h3>
-          <p className="text-slate-300 text-xs mb-3">
+          <p className="text-text-secondary text-xs mb-3">
             피드백, 버그 리포트, 기능 제안 등 무엇이든 편하게 문의해주세요!
           </p>
 
@@ -63,8 +63,8 @@ export function SupportFloatingButton() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center justify-center w-14 h-14 bg-gold-500 hover:bg-gold-600 text-navy-900 rounded-full shadow-lg transition-all duration-300 hover:scale-110",
-          isOpen && "bg-gold-600"
+          "flex items-center justify-center w-14 h-14 bg-accent-primary hover:brightness-110 text-bg-primary rounded-full shadow-lg transition-all duration-300 hover:scale-110",
+          isOpen && "brightness-110"
         )}
         aria-label="고객 지원"
       >

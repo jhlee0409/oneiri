@@ -25,7 +25,7 @@ import DreamInsights from "./dream-insights";
 function DreamEntryCard({ entry }: { entry: DreamRecord }) {
   return (
     <Link href={`/library/dreams/${entry.id}`} className="block group">
-      <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-4 sm:py-8 transition-colors hover:bg-bg-secondary/80 px-3 sm:px-4 rounded-lg">
+      <article className="oneiri-bg-secondary border-b border-line py-4 sm:py-8 transition-colors hover:bg-bg-secondary/80 px-3 sm:px-4 rounded-lg">
         <div className="flex gap-3 sm:gap-6">
           {/* 썸네일/아이콘 영역 */}
           <div className="flex-shrink-0">
@@ -42,8 +42,8 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
                 />
               </div>
             ) : entry.generated_image_prompt ? (
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-oneiri-violet/20 to-accent-primary/20 rounded-lg flex items-center justify-center">
-                <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-oneiri-violet" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-accent-primary/10 border border-line rounded-lg flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 text-accent-primary" />
               </div>
             ) : (
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-text-secondary/20 rounded-lg flex items-center justify-center">
@@ -59,14 +59,14 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-                    <h2 className="font-['Inter'] text-base sm:text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors line-clamp-1">
+                    <h2 className="font-serif text-base sm:text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors line-clamp-1">
                       {entry.generated_story_title || "무제"}
                     </h2>
                     {/* 공개 상태 뱃지 */}
                     <span
                       className={`text-xs font-medium px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap ${
                         entry.is_public
-                          ? "bg-oneiri-violet/20 text-oneiri-violet"
+                          ? "bg-accent-primary/10 text-accent-primary"
                           : "bg-text-secondary/20 oneiri-text-secondary"
                       }`}
                     >
@@ -106,7 +106,7 @@ function DreamEntryCard({ entry }: { entry: DreamRecord }) {
                 </span>
               )}
               {entry.story_preference_mood && (
-                <span className="text-xs sm:text-sm text-oneiri-violet whitespace-nowrap">
+                <span className="text-xs sm:text-sm text-accent-primary whitespace-nowrap">
                   {
                     MOOD_OPTIONS.find(
                       (mood) => mood.value === entry.story_preference_mood
@@ -147,11 +147,11 @@ function AnalysisReportCard({ report }: { report: AnalysisReport }) {
 
   return (
     <Link href={`/analysis/${report.id}`} className="block group">
-      <article className="oneiri-bg-secondary border-b border-text-secondary/20 py-4 sm:py-8 transition-colors hover:bg-bg-secondary/80 px-3 sm:px-4 rounded-lg">
+      <article className="oneiri-bg-secondary border-b border-line py-4 sm:py-8 transition-colors hover:bg-bg-secondary/80 px-3 sm:px-4 rounded-lg">
         <div className="flex gap-3 sm:gap-6">
           <div className="flex-shrink-0">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-oneiri-violet/20 to-accent-primary/20 rounded-lg flex items-center justify-center">
-              <MoonStar className="w-6 h-6 sm:w-8 sm:h-8 text-oneiri-violet" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-accent-primary/10 border border-line rounded-lg flex items-center justify-center">
+              <MoonStar className="w-6 h-6 sm:w-8 sm:h-8 text-accent-primary" />
             </div>
           </div>
 
@@ -159,7 +159,7 @@ function AnalysisReportCard({ report }: { report: AnalysisReport }) {
             <div className="mb-2 sm:mb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h2 className="font-['Inter'] text-base sm:text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors mb-1 sm:mb-2">
+                  <h2 className="text-base sm:text-xl font-medium oneiri-text-primary group-hover:oneiri-accent transition-colors mb-1 sm:mb-2">
                     꿈 분석 리포트
                   </h2>
                   <div className="flex items-center text-xs sm:text-sm oneiri-text-secondary">
@@ -196,7 +196,7 @@ function EmptyState({ activeTab }: { activeTab: "dreams" | "analysis" }) {
         <div className="text-3xl sm:text-4xl mb-4 sm:mb-6 oneiri-text-secondary flex justify-center items-center">
           <SearchX className="w-8 h-8 sm:w-10 sm:h-10" />
         </div>
-        <h2 className="font-['Inter'] text-xl sm:text-2xl font-medium oneiri-text-primary mb-2 sm:mb-3">
+        <h2 className="text-xl sm:text-2xl font-medium oneiri-text-primary mb-2 sm:mb-3">
           아직 분석된 꿈이 없네요.
         </h2>
         <p className="oneiri-text-secondary mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
@@ -214,7 +214,7 @@ function EmptyState({ activeTab }: { activeTab: "dreams" | "analysis" }) {
 
   return (
     <div className="text-center py-16 sm:py-24">
-      <h2 className="font-['Inter'] text-xl sm:text-2xl font-medium oneiri-text-primary mb-2 sm:mb-3">
+      <h2 className="text-xl sm:text-2xl font-medium oneiri-text-primary mb-2 sm:mb-3">
         아직 기록한 꿈이 없어요
       </h2>
       <p className="oneiri-text-secondary mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base break-keep">
@@ -322,7 +322,7 @@ export default function DreamJournal() {
       {/* 헤더 */}
       <header className="mb-8 sm:mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-['Inter'] text-2xl sm:text-4xl md:text-5xl font-medium oneiri-accent mb-3 sm:mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium oneiri-accent mb-3 sm:mb-4">
             나의 꿈 서재
           </h1>
           <p className="oneiri-text-secondary text-base sm:text-lg">
@@ -337,7 +337,7 @@ export default function DreamJournal() {
         </div>
         <Link
           href="/dreams/new"
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg oneiri-accent-bg px-5 font-medium text-bg-primary hover:bg-accent-primary/90 transition-colors"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-accent-primary px-5 font-medium text-bg-primary transition-[filter] hover:brightness-110 md:hidden"
         >
           <PenLine className="w-4 h-4" aria-hidden="true" />
           오늘 꿈 기록하기
@@ -348,12 +348,14 @@ export default function DreamJournal() {
 
       {/* 탭 네비게이션 */}
       <div className="mb-6 sm:mb-8">
-        <div className="flex gap-1 p-1 oneiri-bg-secondary rounded-lg">
+        <div role="tablist" aria-label="서재 보기" className="flex gap-1 p-1 oneiri-bg-secondary rounded-lg">
           <button
+            role="tab"
+            aria-selected={activeTab === "dreams"}
             onClick={() => setActiveTab("dreams")}
             className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               activeTab === "dreams"
-                ? "oneiri-accent-bg text-bg-primary"
+                ? "bg-bg-primary text-text-primary shadow-sm"
                 : "oneiri-text-secondary hover:oneiri-text-primary"
             }`}
           >
@@ -361,10 +363,12 @@ export default function DreamJournal() {
             <span>꿈 기록 {dreamEntries.length}</span>
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === "analysis"}
             onClick={() => setActiveTab("analysis")}
             className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               activeTab === "analysis"
-                ? "oneiri-accent-bg text-bg-primary"
+                ? "bg-bg-primary text-text-primary shadow-sm"
                 : "oneiri-text-secondary hover:oneiri-text-primary"
             }`}
           >
@@ -389,7 +393,7 @@ export default function DreamJournal() {
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 oneiri-bg-secondary border border-text-secondary/30 focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-sm sm:text-base"
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 oneiri-bg-secondary border border-line focus:border-accent-primary focus:outline-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-sm sm:text-base"
             />
           </div>
 
@@ -400,7 +404,7 @@ export default function DreamJournal() {
                 className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors rounded-lg ${
                   showFavoritesOnly
                     ? "bg-accent-primary/20 oneiri-accent border border-accent-primary/50"
-                    : "oneiri-bg-secondary oneiri-text-secondary border border-text-secondary/30 hover:bg-bg-secondary/80"
+                    : "oneiri-bg-secondary oneiri-text-secondary border border-line hover:bg-bg-secondary/80"
                 }`}
               >
                 <Heart

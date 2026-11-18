@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "인증이 필요합니다",
-          oneiri_message: "별빛 서재에 입장하려면 먼저 인증이 필요해요. 🌟",
+          oneiri_message: "별빛 서재에 입장하려면 먼저 인증이 필요해요.",
         },
         { status: 401 }
       );
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         {
           error: "유효하지 않은 인증 토큰입니다",
           oneiri_message:
-            "별빛이 흐려져 서재에 들어갈 수 없어요. 다시 시도해주세요. ✨",
+            "별빛이 흐려져 서재에 들어갈 수 없어요. 다시 시도해주세요.",
         },
         { status: 401 }
       );
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "꿈 내용을 5글자 이상 입력해주세요",
-          oneiri_message: "꿈의 이야기를 조금 더 자세히 들려주세요. 🌟",
+          oneiri_message: "꿈의 이야기를 조금 더 자세히 들려주세요.",
         },
         { status: 400 }
       );
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
           current_count: currentCount,
           daily_limit: DAILY_LIMIT,
           today_dreams: todayDreams || [],
-          oneiri_message: `오늘은 이미 ${DAILY_LIMIT}편의 꿈을 직조하셨어요. 별빛이 내일 다시 충전될 때까지 기다려주세요. 🌟✨`,
+          oneiri_message: `오늘은 이미 ${DAILY_LIMIT}편의 꿈을 직조하셨어요. 별빛이 내일 다시 충전될 때까지 기다려주세요.`,
         },
         { status: 429 }
       );
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "AI 응답 처리 중 오류가 발생했습니다",
-          oneiri_message: "꿈의 실이 엉켜버렸어요. 다시 한번 시도해주세요. 🧶✨",
+          oneiri_message: "꿈의 실이 엉켜버렸어요. 다시 한번 시도해주세요.",
         },
         { status: 502 }
       );
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
         daily_limit: DAILY_LIMIT,
         remaining: DAILY_LIMIT - newCount,
       },
-      oneiri_message: `새로운 꿈이 별빛으로 직조되었어요! 오늘 ${DAILY_LIMIT - newCount}편 더 만들 수 있어요. ✨🌙`,
+      oneiri_message: `새로운 꿈이 별빛으로 직조되었어요! 오늘 ${DAILY_LIMIT - newCount}편 더 만들 수 있어요.`,
     });
   } catch (error) {
     console.error("꿈 직조 오류:", error);
@@ -147,7 +147,7 @@ export async function POST(request: Request) {
       {
         error: error instanceof Error ? error.message : "Unknown error",
         oneiri_message:
-          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요. 🌟",
+          "별빛 마법에 예상치 못한 문제가 생겼어요. 잠시 후 다시 시도해주세요.",
       },
       { status: 500 }
     );

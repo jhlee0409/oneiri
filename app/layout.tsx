@@ -1,7 +1,8 @@
 import type React from "react";
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { Inter, Italianno } from "next/font/google";
+import { Gowun_Batang, Italianno } from "next/font/google";
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import Script from "next/script";
 import "./globals.css";
 import Footer from "./components/footer";
@@ -17,7 +18,14 @@ import { AuthEventTracker } from "./components/auth-event-tracker";
 import { ReminderOpenTracker } from "./components/reminder-open-tracker";
 import { PendingGuestDreamClaimer } from "./components/pending-guest-dream-claimer";
 
-const inter = Inter({ subsets: ["latin"] });
+// 이야기 제목·본문용 명조. 한글 글리프는 unicode-range 조각으로 필요할 때만 받는다.
+const gowunBatang = Gowun_Batang({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  preload: false,
+  display: "swap",
+  variable: "--font-gowun-batang",
+});
 const italianno = Italianno({
   subsets: ["latin"],
   weight: "400",
@@ -126,21 +134,9 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   return (
-    <html lang="ko">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Pretendard:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="ko" className="dark">
       <body
-        className={`${inter.className} ${italianno.variable} oneiri-bg-primary min-h-screen flex flex-col`}
+        className={`${gowunBatang.variable} ${italianno.variable} oneiri-bg-primary min-h-screen flex flex-col`}
       >
         <Script
           id="structured-data"
