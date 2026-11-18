@@ -68,15 +68,13 @@ function PostcardOffer({ dreamId }: { dreamId: string }) {
       }}
     >
       <summary className="min-h-12 cursor-pointer py-3 font-medium oneiri-text-primary focus-visible:rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-        꿈 엽서 실험 미리보기
+        이 꿈을 엽서로 간직하기
       </summary>
       <div className="space-y-4 pb-4 pt-2">
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold oneiri-text-primary">
-            <span ref={priceRef} className="inline-block">꿈 엽서 · 3,900원</span>
-          </h2>
+          <h2 className="text-xl font-semibold oneiri-text-primary">꿈 엽서</h2>
           <p className="break-keep text-sm leading-relaxed oneiri-text-secondary">
-            3,900원은 실험용 가격이에요. 지금은 판매하지 않으며, 로그인한 계정에 관심 신청만 기록해요. 결제는 없어요.
+            꿈에서 가장 선명했던 장면을, 한 장의 엽서에 담아요.
           </p>
         </div>
         {opened && (
@@ -89,10 +87,18 @@ function PostcardOffer({ dreamId }: { dreamId: string }) {
               className="block aspect-[148/105] w-full rounded-sm"
             />
             <figcaption className="break-keep text-sm oneiri-text-secondary">
-              가상의 꿈으로 만든 148 × 105 mm 엽서예요. 내 꿈 내용은 사용하지 않아요.
+              가상의 꿈을 담은 인쇄용 샘플이에요. 내 꿈 내용은 사용하지 않아요.
             </figcaption>
           </figure>
         )}
+        <div className="space-y-1">
+          <span ref={priceRef} className="inline-block text-sm font-medium oneiri-accent">
+            예상 가격 3,900원
+          </span>
+          <p className="break-keep text-sm leading-relaxed oneiri-text-secondary">
+            아직 판매 전이에요. 관심을 남겨도 결제되거나 메일이 발송되지 않아요.
+          </p>
+        </div>
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
@@ -109,7 +115,7 @@ function PostcardOffer({ dreamId }: { dreamId: string }) {
               disabled={status !== "shown" || isPending}
               onClick={() => mutate("signup")}
             >
-              {isPending && variables === "signup" ? "신청을 기록하는 중…" : "이 가격에 관심 신청하기"}
+              {isPending && variables === "signup" ? "관심을 남기는 중…" : "관심 남기기"}
             </button>
           )}
           {error && variables === "show" && (
@@ -120,8 +126,8 @@ function PostcardOffer({ dreamId }: { dreamId: string }) {
         </div>
         <div role="status" className="text-sm oneiri-text-primary">
           {isPending && variables === "show" && "참여 가능 여부를 확인하고 있어요."}
-          {status === "signed_up" && "관심 신청을 기록했어요. 결제는 없어요."}
-          {status === "cohort_full" && "이번 실험의 참여 인원이 찼어요. 샘플은 인쇄할 수 있어요."}
+          {status === "signed_up" && "꿈 엽서에 관심을 남겼어요."}
+          {status === "cohort_full" && "지금은 관심을 더 받지 않아요. 샘플은 인쇄할 수 있어요."}
         </div>
         {error && <p role="alert" className="text-sm oneiri-text-primary">{error.message}</p>}
       </div>
