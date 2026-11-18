@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useGenerateDreamStory,
@@ -16,8 +16,10 @@ import { BookOpen, Clock, Moon } from "lucide-react";
 import { toast } from "sonner";
 import { EMOTION_OPTIONS, GENRE_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { offerMorningReminder } from "@/lib/push-reminder";
+import { trackEvent } from "@/lib/analytics";
 
 export default function DreamForm() {
+  const hasStartedWriting = useRef(false);
   const [dreamText, setDreamText] = useState("");
   const [keywords, setKeywords] = useState("");
   const [selectedEmotion, setSelectedEmotion] = useState("");
@@ -339,7 +341,14 @@ export default function DreamForm() {
           <textarea
             id="dreamText"
             value={dreamText}
-            onChange={(e) => setDreamText(e.target.value)}
+            onChange={(e) => {
+              const text = e.target.value;
+              setDreamText(text);
+              if (!hasStartedWriting.current && text.trim()) {
+                hasStartedWriting.current = true;
+                trackEvent("dream_input_started", { audience: isGuest ? "guest" : "member" });
+              }
+            }}
             placeholder="어젯밤, 당신의 꿈 이야기는 어떻게 시작되었나요? 스쳐 지나간 장면, 희미한 목소리, 마음속에 남은 감정 등 무엇이든 좋아요."
             className="w-full h-36 sm:h-48 px-3 sm:px-4 py-2 sm:py-3 oneiri-bg-primary border border-text-secondary/30 focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder:oneiri-text-secondary rounded-lg text-sm sm:text-base"
             required

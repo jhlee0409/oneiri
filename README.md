@@ -42,6 +42,34 @@
 2. Google 계정으로 간편하게 가입하고 로그인합니다.
 3. "오늘의 꿈 조각 건네주기 ✨" 버튼을 클릭하여 꿈 이야기를 시작해보세요.
 
+## 꿈 엽서 수요 검증
+
+- 본인 꿈 상세에서 비공개 샘플과 3,900원 단건 가격을 확인할 수 있습니다. 관심 신청만 기록하며 결제나 메일은 보내지 않습니다.
+- GA4에서 `/dreams/new` 방문 → `dream_input_started` (게스트) → `guest_dream_created` → `guest_dream_claimed`를 봅니다. 꿈 본문이나 이메일을 GA4로 보내지 않습니다.
+- Supabase 마이그레이션을 앱보다 먼저 적용합니다. 체험 한도는 한국 시간 기준 IP당 하루 1건·전체 하루 300건이며, 모델을 호출하기 전에 차감됩니다. 실패한 시도도 비용 보호를 위해 복구하지 않습니다.
+- `story_generation_metrics`는 모델 호출별 결과·응답 시간·사용 토큰을 기록합니다. `estimated_cost_nano_usd`는 공개 단가 추정치이며, 토큰 정보가 없으면 `NULL`입니다. 실제 청구액과는 구분합니다.
+- `dream_postcard_interest`의 `postcard-3900-v1` 집계는 계정당 한 번만 셉니다. 50명 중 5명 이상이 신청하면 수작업 판매 검증으로 넘어갑니다.
+
+```sql
+select count(*) as price_views,
+       count(signed_up_at) as signups
+from public.dream_postcard_interest
+where offer_version = 'postcard-3900-v1';
+```
+
+```sql
+select audience,
+       count(*) as attempts,
+       count(*) filter (where outcome = 'generated') as generated,
+       count(*) filter (where estimated_cost_nano_usd is null) as unknown_cost,
+       sum(estimated_cost_nano_usd)::numeric / 1000000000
+         / nullif(count(*) filter (where outcome = 'generated'), 0) as estimated_usd_per_generated,
+       round(avg(elapsed_ms)) as average_ms
+from public.story_generation_metrics
+where created_at >= now() - interval '7 days'
+group by audience;
+```
+
 ## 🎨 디자인 컨셉
 
 - Oneiri는 **"평온하고 천상의 미학 (Serene and ethereal aesthetic)"**을 추구합니다. 더스티 라벤더, 페일 스카이 블루, 따뜻한 오프화이트 등 부드러운 색감과 섬세한 그라데이션, 둥근 모서리를 사용하여 편안하고 꿈결 같은 분위기를 연출합니다.

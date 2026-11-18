@@ -86,7 +86,7 @@ export async function POST(request: Request) {
 
     let story;
     try {
-      story = await generateDreamStory(requestData, geminiApiKey);
+      story = await generateDreamStory(requestData, geminiApiKey, "member");
     } catch (storyError) {
       if (!(storyError instanceof DreamStoryError)) throw storyError;
       console.error("꿈 이야기 생성 실패:", storyError.message);

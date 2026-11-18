@@ -4,6 +4,7 @@ import {
   getResponseText,
   type GeminiResponse,
 } from "@/lib/server/gemini";
+import { createAdminClient } from "@/lib/server/supabase-admin";
 
 export interface DreamStoryInput {
   dreamInputText: string;
@@ -86,47 +87,89 @@ function buildUserPrompt(input: DreamStoryInput): string {
 
 export async function generateDreamStory(
   input: DreamStoryInput,
-  apiKey: string
+  apiKey: string,
+  audience: "guest" | "member"
 ): Promise<DreamStory> {
-  const response = await callGemini(GEMINI_MODELS.TEXT, apiKey, {
-    systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-    contents: [{ role: "user", parts: [{ text: buildUserPrompt(input) }] }],
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseJsonSchema: RESPONSE_SCHEMA,
-      maxOutputTokens: 8192,
-      thinkingConfig: { thinkingLevel: "low" },
-    },
-  });
-  if (!response.ok) {
-    throw new DreamStoryError(`Gemini API ${response.status}: ${await response.text()}`);
-  }
+  const startedAt = Date.now();
+  let providerStatus: number | undefined;
+  let usage: GeminiResponse["usageMetadata"];
+  let outcome = "provider_error";
 
-  const rawResponse = (await response.json()) as GeminiResponse;
-  const text = getResponseText(rawResponse);
-  if (!text) throw new DreamStoryError("Gemini 응답에 텍스트가 없습니다.");
-
-  let parsed: { story_title?: unknown; story_content?: unknown; image_prompt?: unknown };
   try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw new DreamStoryError(`JSON 파싱 실패: ${text.substring(0, 200)}`);
-  }
-  const { story_title, story_content, image_prompt } = parsed;
-  if (
-    typeof story_title !== "string" ||
-    typeof story_content !== "string" ||
-    typeof image_prompt !== "string" ||
-    !story_title.trim() ||
-    !story_content.trim()
-  ) {
-    throw new DreamStoryError("생성된 내용이 불완전합니다.");
-  }
+    const response = await callGemini(GEMINI_MODELS.TEXT, apiKey, {
+      systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+      contents: [{ role: "user", parts: [{ text: buildUserPrompt(input) }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseJsonSchema: RESPONSE_SCHEMA,
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingLevel: "low" },
+      },
+    });
+    providerStatus = response.status;
+    const rawResponse: GeminiResponse | undefined = await response.json().catch(() => undefined);
+    usage = rawResponse?.usageMetadata;
+    if (!response.ok) throw new DreamStoryError(`Gemini API ${response.status}`);
 
-  return {
-    storyTitle: story_title.trim(),
-    storyContent: story_content.trim(),
-    imagePrompt: image_prompt.trim(),
-    rawResponse,
-  };
+    outcome = "invalid_output";
+    if (!rawResponse) throw new DreamStoryError("Gemini 응답 형식이 올바르지 않습니다.");
+    const text = getResponseText(rawResponse);
+    if (!text) throw new DreamStoryError("Gemini 응답에 텍스트가 없습니다.");
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new DreamStoryError("Gemini JSON 파싱 실패");
+    }
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !("story_title" in parsed) ||
+      typeof parsed.story_title !== "string" ||
+      !parsed.story_title.trim() ||
+      !("story_content" in parsed) ||
+      typeof parsed.story_content !== "string" ||
+      !parsed.story_content.trim() ||
+      !("image_prompt" in parsed) ||
+      typeof parsed.image_prompt !== "string" ||
+      !parsed.image_prompt.trim()
+    ) {
+      throw new DreamStoryError("생성된 내용이 불완전합니다.");
+    }
+
+    outcome = "generated";
+    return {
+      storyTitle: parsed.story_title.trim(),
+      storyContent: parsed.story_content.trim(),
+      imagePrompt: parsed.image_prompt.trim(),
+      rawResponse,
+    };
+  } finally {
+    const inputTokens = usage?.promptTokenCount;
+    const outputTokens = usage
+      ? (usage.candidatesTokenCount ?? 0) + (usage.thoughtsTokenCount ?? 0)
+      : undefined;
+    // Standard paid, uncached rates: https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash
+    const multiplier = startedAt >= Date.UTC(2027, 0, 1) ? 2 : 1;
+    const estimatedCost =
+      inputTokens === undefined || outputTokens === undefined
+        ? null
+        : (inputTokens * 750 + outputTokens * 3_750) * multiplier;
+    try {
+      const { error } = await createAdminClient().from("story_generation_metrics").insert({
+        audience,
+        model: GEMINI_MODELS.TEXT,
+        elapsed_ms: Date.now() - startedAt,
+        outcome,
+        provider_status: providerStatus ?? null,
+        input_tokens: inputTokens ?? null,
+        output_tokens: outputTokens ?? null,
+        estimated_cost_nano_usd: estimatedCost,
+      });
+      if (error) console.error("Story generation metrics insert failed:", error.code);
+    } catch {
+      console.error("Story generation metrics unavailable");
+    }
+  }
 }
