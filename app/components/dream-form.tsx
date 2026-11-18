@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { EMOTION_OPTIONS, GENRE_OPTIONS, MOOD_OPTIONS } from "@/lib/constants";
 import { offerMorningReminder } from "@/lib/push-reminder";
 import { trackEvent } from "@/lib/analytics";
+import { InAppBrowserNotice, useInAppBrowser } from "./in-app-browser-notice";
 
 export default function DreamForm() {
   const hasStartedWriting = useRef(false);
@@ -28,6 +29,8 @@ export default function DreamForm() {
   const [guestStory, setGuestStory] = useState<GuestDreamStory | null>(null);
   const [guestLimitMessage, setGuestLimitMessage] = useState<string | null>(null);
   const [isRedirectingToLogin, setIsRedirectingToLogin] = useState(false);
+  const [inAppResumeUrl, setInAppResumeUrl] = useState<string | null>(null);
+  const inAppBrowser = useInAppBrowser();
   const router = useRouter();
   const { user, loading: isLoadingAuth } = useAuth();
   const isGuest = !isLoadingAuth && !user;
@@ -46,10 +49,19 @@ export default function DreamForm() {
   } = useDailyWeavingStatus({ enabled: !!user });
 
   // 게스트 → Google 로그인. 옮길 체험 이야기가 있으면 리다이렉트 전에 기록해 둔다.
+  // Google 로그인이 막히는 앱 내장 브라우저에서는 외부 브라우저로 이어갈 링크를 보여준다.
   const handleGuestLogin = async (guestDreamId?: string) => {
+    const next = guestDreamId ? "/library/dreams" : "/dreams/new";
+    if (inAppBrowser) {
+      const resume = new URL("/login", window.location.origin);
+      resume.searchParams.set("next", next);
+      if (guestDreamId) resume.searchParams.set("guest", guestDreamId);
+      setInAppResumeUrl(resume.toString());
+      return;
+    }
     if (guestDreamId) savePendingGuestDream(guestDreamId);
     setIsRedirectingToLogin(true);
-    await signInWithGoogle(guestDreamId ? "/library/dreams" : "/dreams/new");
+    await signInWithGoogle(next);
     setIsRedirectingToLogin(false);
   };
 
@@ -91,9 +103,9 @@ export default function DreamForm() {
 
     const result = await generateStory(dreamRequest);
 
-    // 성공 시에만 페이지 이동하고, 아침 꿈 알림을 한 번 제안한다.
-    if (result.success) {
-      router.push("/library/dreams");
+    // 성공하면 방금 엮은 이야기를 바로 보여주고, 아침 꿈 알림을 한 번 제안한다.
+    if (result.success && result.data) {
+      router.push(`/library/dreams/${result.data.dreamId}`);
       void offerMorningReminder((href) => router.push(href));
     }
   };
@@ -138,22 +150,24 @@ export default function DreamForm() {
         </article>
 
         <div className="text-center space-y-3 sm:space-y-4 p-4 sm:p-6 bg-gradient-to-b from-oneiri-violet/10 to-accent-primary/10 rounded-lg border border-oneiri-violet/20">
-          <p className="oneiri-text-primary/80 text-sm sm:text-base leading-relaxed">
-            이 이야기는 아직 별빛 서재 밖에 머물러 있어요.
-            <br />
-            로그인하면 서재에 담기고, 이 장면을 그린 꿈 그림도 받을 수 있어요.
+          <p className="oneiri-text-primary/80 text-sm sm:text-base leading-relaxed break-keep">
+            로그인하면 이 이야기가 서재에 저장되고, 장면 그림도 함께 그려져요.
           </p>
-          <button
-            onClick={() => handleGuestLogin(guestStory.id)}
-            disabled={isRedirectingToLogin}
-            className="w-full oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-['Inter'] font-medium py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
-          >
-            {isRedirectingToLogin ? (
-              <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-bg-primary border-t-transparent"></div>
-            ) : (
-              "Google로 로그인하고 서재에 저장하기 · 꿈 그림 받기"
-            )}
-          </button>
+          {inAppBrowser && inAppResumeUrl ? (
+            <InAppBrowserNotice browser={inAppBrowser} resumeUrl={inAppResumeUrl} />
+          ) : (
+            <button
+              onClick={() => handleGuestLogin(guestStory.id)}
+              disabled={isRedirectingToLogin}
+              className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-medium py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+            >
+              {isRedirectingToLogin ? (
+                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-bg-primary border-t-transparent"></div>
+              ) : (
+                "Google로 저장하고 그림 받기"
+              )}
+            </button>
+          )}
           <p className="text-xs oneiri-text-secondary">
             체험 이야기는 7일 동안 보관돼요.
           </p>
@@ -178,13 +192,17 @@ export default function DreamForm() {
               {guestLimitMessage}
             </p>
           </div>
-          <button
-            onClick={() => handleGuestLogin()}
-            disabled={isRedirectingToLogin}
-            className="w-full oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-['Inter'] font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
-          >
-            Google로 로그인하고 꿈 엮기
-          </button>
+          {inAppBrowser && inAppResumeUrl ? (
+            <InAppBrowserNotice browser={inAppBrowser} resumeUrl={inAppResumeUrl} />
+          ) : (
+            <button
+              onClick={() => handleGuestLogin()}
+              disabled={isRedirectingToLogin}
+              className="w-full min-h-12 oneiri-accent-bg hover:bg-accent-primary/90 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
+            >
+              Google로 로그인하고 꿈 기록하기
+            </button>
+          )}
         </div>
       </div>
     );

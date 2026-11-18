@@ -792,28 +792,11 @@ export interface GeneratedStory {
   image_suggestion: string;
 }
 
-export interface DreamResponse {
-  success: boolean;
-  data?: {
-    id: string;
-    title: string;
-    story: string;
-    image_suggestion: string;
-    created_at: string;
-    processing_time_ms: number;
-  };
-  error?: string;
-  // Oneiri 관련 추가 필드들
-  oneiri_message?: {
-    title: string;
-    content: string;
-  };
-  weaving_status?: {
-    current_count: number;
-    daily_limit: number;
-    remaining: number;
-    next_reset: string;
-  };
+/** 로그인 사용자의 꿈 이야기 생성 결과 */
+export interface DreamCreated {
+  dreamId: string;
+  /** 오늘 더 만들 수 있는 이야기 수 */
+  remaining: number;
 }
 
 export interface UserAnalytics {

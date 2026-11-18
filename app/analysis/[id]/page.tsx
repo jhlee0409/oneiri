@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { loginPath } from "@/lib/login-redirect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -188,7 +189,7 @@ async function AnalysisReportContent({
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      redirect("/login");
+      redirect(loginPath(`/analysis/${id}`));
     }
 
     // 리포트 데이터 조회

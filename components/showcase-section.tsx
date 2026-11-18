@@ -201,11 +201,7 @@ export function ShowcaseSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           }}
           cardData={selectedCard}
           onClick={() => {
-            if (isLoggedIn) {
-              router.push("/dreams/new");
-            } else {
-              router.push("/login");
-            }
+            router.push("/dreams/new");
 
             setShowRevelation(false);
             setSelectedCard(null);

@@ -31,6 +31,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import ThemeToggle from "./theme-toggle";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { loginPath } from "@/lib/login-redirect";
 
 // 사용자 프로필 인터페이스
 interface UserProfile {
@@ -271,7 +272,7 @@ export default function Header({ user: initialUser }: Props) {
                 />
               </Link>
             ) : (
-              <Link href="/login">
+              <Link href={loginPath(pathname)}>
                 <Button
                   variant="ghost"
                   className="text-label text-slate-300 hover:text-slate-100 hover:bg-navy-700 px-4 py-2 h-auto"
@@ -436,7 +437,7 @@ export default function Header({ user: initialUser }: Props) {
               ) : (
                 <div className="flex items-center gap-3 px-4 py-3">
                   <div className="flex-1">
-                    <Link href="/login" onClick={closeMobileMenu}>
+                    <Link href={loginPath(pathname)} onClick={closeMobileMenu}>
                       <Button className="w-full text-lg py-3">로그인</Button>
                     </Link>
                   </div>

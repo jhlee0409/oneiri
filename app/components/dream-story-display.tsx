@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Copy, Check, Heart, HeartOff } from "lucide-react";
+import { ArrowLeft, Copy, Check, Heart, HeartOff, PenLine } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -166,11 +166,11 @@ export default function DreamSharedDisplay({
             서재로 돌아가기
           </Link>
           <Link
-            href="/"
+            href="/dreams/new"
             className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            새로운 꿈 조각 기록하기
+            <PenLine className="w-4 h-4 mr-2" />
+            새 꿈 기록하기
           </Link>
         </nav>
 
