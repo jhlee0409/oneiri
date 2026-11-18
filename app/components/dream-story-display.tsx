@@ -17,6 +17,7 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import ViewPublicPageButton from "./view-public-page-button";
 import { findEmotion, findMood } from "@/lib/find";
+import DreamPostcardOffer from "./dream-postcard-offer";
 interface DreamStoryDisplayProps {
   dreamId: string;
 }
@@ -354,6 +355,8 @@ export default function DreamSharedDisplay({
             "{dream.dream_input_text || "꿈의 내용이 없습니다."}"
           </p>
         </section>
+
+        <DreamPostcardOffer dreamId={dreamId} ownerId={dream.user_id} />
 
         {/* 액션 버튼 */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">

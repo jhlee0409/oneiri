@@ -7,6 +7,7 @@ export type AnalyticsEvent =
   | "dream_created"
   | "image_generated"
   | "share"
+  | "dream_input_started"
   | "guest_dream_created"
   | "guest_dream_claimed"
   | "pattern_report_generated"

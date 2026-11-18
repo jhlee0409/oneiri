@@ -1,22 +1,48 @@
 import { createHash } from "node:crypto";
+import { isIP } from "node:net";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/server/supabase-admin";
 import { getUserFromRequest } from "@/lib/server/auth";
-import { getKstNow } from "@/lib/server/kst";
 import { DreamStoryError, generateDreamStory } from "@/lib/server/dream-story";
 import { parseDreamRequest } from "@/lib/server/dream-request";
 import { GUEST_DREAM_MAX_LENGTH } from "@/lib/guest-dream";
 
 export const maxDuration = 60;
 
-/** IP당 KST 하루 게스트 이야기 수 */
-const GUEST_DAILY_LIMIT_PER_IP = 1;
-/** 전체 게스트 이야기의 KST 하루 상한 (비용 보호) */
-const GUEST_DAILY_GLOBAL_LIMIT = 300;
+const GUEST_MAX_BODY_BYTES = 24 * 1024;
+const GUEST_MAX_OPTION_LENGTH = 200;
+const GUEST_MAX_KEYWORDS = 20;
+const GUEST_MAX_KEYWORD_LENGTH = 64;
 
-function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwardedFor || request.headers.get("x-real-ip")?.trim() || "unknown";
+async function readGuestBody(request: Request): Promise<string | null> {
+  if (!request.body) return "";
+  if (Number(request.headers.get("content-length")) > GUEST_MAX_BODY_BYTES) return null;
+
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let body = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) return body + decoder.decode();
+
+      bytes += value.byteLength;
+      // Cancelling a Node request stream can destroy the socket before the 413 is sent.
+      if (bytes > GUEST_MAX_BODY_BYTES) return null;
+      body += decoder.decode(value, { stream: true });
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+function getClientIp(request: Request): string | null {
+  if (process.env.NODE_ENV !== "production") return "127.0.0.1";
+  if (process.env.VERCEL !== "1") return null;
+
+  const ip = request.headers.get("x-vercel-forwarded-for")?.trim();
+  return ip && isIP(ip) !== 0 ? ip : null;
 }
 
 export async function POST(request: Request) {
@@ -37,7 +63,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const rawData = (await request.json()) as Record<string, unknown>;
+    const body = await readGuestBody(request);
+    if (body === null) {
+      return NextResponse.json(
+        {
+          error: "요청 본문이 너무 큽니다",
+          oneiri_message: "꿈 내용과 선택 입력을 줄여 다시 시도해주세요. 🌙",
+        },
+        { status: 413 }
+      );
+    }
+    const rawData = JSON.parse(body) as Record<string, unknown>;
     const requestData = parseDreamRequest(rawData);
     if (!requestData) {
       return NextResponse.json(
@@ -57,33 +93,48 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const supabase = createAdminClient();
-    const ipHash = createHash("sha256")
-      .update(ipSalt + getClientIp(request))
-      .digest("hex");
-    const kstMidnight = `${getKstNow().kstDateString}T00:00:00+09:00`;
-
-    const [ipCountResult, globalCountResult] = await Promise.all([
-      supabase
-        .from("guest_dreams")
-        .select("id", { count: "exact", head: true })
-        .eq("ip_hash", ipHash)
-        .gte("created_at", kstMidnight),
-      supabase
-        .from("guest_dreams")
-        .select("id", { count: "exact", head: true })
-        .gte("created_at", kstMidnight),
-    ]);
-    if (ipCountResult.error || globalCountResult.error) {
-      console.error(
-        "게스트 생성 횟수 조회 실패:",
-        ipCountResult.error ?? globalCountResult.error
+    const { dreamKeywords } = requestData;
+    const options = [
+      requestData.dreamEmotion,
+      requestData.storyPreferenceGenre,
+      requestData.storyPreferenceMood,
+      requestData.storyPreferenceLength,
+      requestData.dreamCharacters,
+      requestData.dreamObjects,
+    ];
+    if (
+      options.some((option) => option !== undefined && option.length > GUEST_MAX_OPTION_LENGTH) ||
+      (dreamKeywords &&
+        (dreamKeywords.length > GUEST_MAX_KEYWORDS ||
+          dreamKeywords.some((keyword) => keyword.length > GUEST_MAX_KEYWORD_LENGTH)))
+    ) {
+      return NextResponse.json(
+        {
+          error: "꿈의 선택 입력이 허용 범위를 초과했습니다",
+          oneiri_message: `키워드는 ${GUEST_MAX_KEYWORDS}개까지, 각 ${GUEST_MAX_KEYWORD_LENGTH}자 이하로 입력해주세요. 다른 선택 입력은 ${GUEST_MAX_OPTION_LENGTH}자까지 쓸 수 있어요. 🌙`,
+        },
+        { status: 400 }
       );
+    }
+
+    const ip = getClientIp(request);
+    if (!ip) {
+      console.error("게스트 생성 요청에 신뢰할 수 있는 IP가 없습니다.");
       throw new Error("게스트 생성 횟수 조회 중 오류가 발생했습니다.");
     }
 
-    if ((ipCountResult.count ?? 0) >= GUEST_DAILY_LIMIT_PER_IP) {
+    const supabase = createAdminClient();
+    const ipHash = createHash("sha256").update(ipSalt + ip).digest("hex");
+    const { data: reservation, error: reservationError } = await supabase.rpc(
+      "reserve_guest_dream_quota",
+      { p_ip_hash: ipHash }
+    );
+    if (reservationError) {
+      console.error("게스트 생성 횟수 예약 실패:", reservationError.code);
+      throw new Error("게스트 생성 횟수 조회 중 오류가 발생했습니다.");
+    }
+
+    if (reservation === "ip_limit") {
       return NextResponse.json(
         {
           error: "오늘의 체험 이야기를 이미 만들었습니다",
@@ -94,7 +145,7 @@ export async function POST(request: Request) {
         { status: 429 }
       );
     }
-    if ((globalCountResult.count ?? 0) >= GUEST_DAILY_GLOBAL_LIMIT) {
+    if (reservation === "global_limit") {
       return NextResponse.json(
         {
           error: "오늘의 게스트 체험이 모두 마감되었습니다",
@@ -104,10 +155,14 @@ export async function POST(request: Request) {
         { status: 429 }
       );
     }
+    if (reservation !== "reserved") {
+      console.error("게스트 생성 횟수 예약 결과를 확인할 수 없습니다.");
+      throw new Error("게스트 생성 횟수 조회 중 오류가 발생했습니다.");
+    }
 
     let story;
     try {
-      story = await generateDreamStory(requestData, geminiApiKey);
+      story = await generateDreamStory(requestData, geminiApiKey, "guest");
     } catch (storyError) {
       if (!(storyError instanceof DreamStoryError)) throw storyError;
       console.error("게스트 꿈 이야기 생성 실패:", storyError.message);

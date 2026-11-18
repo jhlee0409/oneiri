@@ -67,6 +67,7 @@ export async function GET(request: Request) {
         .from("dreams_with_details")
         .select("*")
         .eq("id", dreamId)
+        .or(`user_id.eq.${user.id},is_public.eq.true`)
         .single();
       if (queryError) {
         if (queryError.code === "PGRST116") throw new Error("Dream not found");

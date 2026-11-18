@@ -19,6 +19,11 @@ export interface GeminiPart {
 export interface GeminiResponse {
   candidates?: { content?: { parts?: GeminiPart[] } }[];
   error?: { message?: string };
+  usageMetadata?: {
+    promptTokenCount?: number;
+    candidatesTokenCount?: number;
+    thoughtsTokenCount?: number;
+  };
 }
 
 /** thinking 파트를 제외한 응답 텍스트를 이어 붙인다. */
