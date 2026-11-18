@@ -17,6 +17,8 @@ import {
   getDreamStreak,
   getDreamPatternReport,
   generateDreamPatternReport,
+  getDreamSymbolReading,
+  createDreamSymbolReading,
 } from "@/lib/api";
 import {
   DreamRequest,
@@ -554,6 +556,32 @@ export function useGenerateDreamPatternReport() {
     onError: (error) => {
       console.error("Dream pattern report error:", error);
       toast.error("네트워크 오류가 발생했습니다.");
+    },
+  });
+}
+
+/**
+ * 이 꿈에 연결된 상징 리포트 id 조회 Hook (없으면 null)
+ */
+export function useDreamSymbolReading(dreamId: string) {
+  return useQuery({
+    queryKey: ["dream-symbol-reading", dreamId],
+    queryFn: () => getDreamSymbolReading(dreamId),
+    staleTime: 5 * 60 * 1000, // 5분
+  });
+}
+
+/**
+ * 꿈 상징 리포트 생성 Hook. 변수는 dreamId.
+ */
+export function useCreateDreamSymbolReading() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createDreamSymbolReading,
+    onSuccess: ({ reportId }, dreamId) => {
+      queryClient.setQueryData(["dream-symbol-reading", dreamId], reportId);
+      queryClient.invalidateQueries({ queryKey: ["user-analysis-reports"] });
     },
   });
 }

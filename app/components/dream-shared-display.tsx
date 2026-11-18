@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import {
-  PenLine,
   ArrowLeft,
   Heart,
   MessageCircle,
-  Share2,
+  Link2,
   Send,
   Edit2,
   Trash2,
@@ -18,17 +17,33 @@ import {
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import { loginPath } from "@/lib/login-redirect";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useDreamById } from "@/hooks/use-dream-api";
-import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import Zoom from "react-medium-image-zoom";
-import "react-medium-image-zoom/dist/styles.css";
 import { supabase } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { cn } from "@/lib/utils";
 import { findEmotion, findMood } from "@/lib/find";
 import { getUserProfile, getUserProfiles } from "@/lib/user-profile-cache";
+import DreamPage from "./dream-page";
+
+const quietAction =
+  "inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50";
+
+const iconAction =
+  "inline-flex h-11 w-11 items-center justify-center rounded-md text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50";
+
+function BackToExplore() {
+  return (
+    <Link
+      href="/dreams"
+      className="inline-flex min-h-11 items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+    >
+      <ArrowLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+      둘러보기
+    </Link>
+  );
+}
 
 interface SharedDreamDisplayProps {
   dreamId: string;
@@ -98,7 +113,6 @@ export default function SharedDreamDisplay({
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isCreatingStoryImage, setIsCreatingStoryImage] = useState(false);
 
-  const router = useRouter();
   const { user } = useAuth();
 
   const { data: dream, isLoading, error } = useDreamById(dreamId);
@@ -131,6 +145,25 @@ export default function SharedDreamDisplay({
       console.error("댓글 수 직접 업데이트 실패:", error);
     }
   };
+
+  // 작성자 이름은 소셜 데이터(IP 조회 포함)를 기다리지 않고 바로 불러온다.
+  useEffect(() => {
+    if (!dream?.id) return;
+    if (!dream.user_id) {
+      setAuthorDisplayName("익명의 꿈꾸는자");
+      return;
+    }
+
+    let cancelled = false;
+    getUserProfile(dream.user_id)
+      .then((profile) => {
+        if (!cancelled) setAuthorDisplayName(profile.display_name);
+      })
+      .catch((error) => console.error("작성자 정보 로드 실패:", error));
+    return () => {
+      cancelled = true;
+    };
+  }, [dream?.id, dream?.user_id]);
 
   // 좋아요 상태와 댓글 로드
   useEffect(() => {
@@ -182,14 +215,6 @@ export default function SharedDreamDisplay({
         setLikesCount(userLikesCountData || 0);
         setGuestLikesCount(guestLikesCountData || 0);
         setCommentsCount(commentsCountData || 0);
-
-        // 🚀 최적화: 작성자 정보 로드 (캐싱 적용)
-        if (dream.user_id) {
-          const authorProfile = await getUserProfile(dream.user_id);
-          setAuthorDisplayName(authorProfile.display_name);
-        } else {
-          setAuthorDisplayName("익명의 꿈꾸는자");
-        }
 
         // 댓글 로드 시작
         setIsLoadingComments(true);
@@ -311,7 +336,7 @@ export default function SharedDreamDisplay({
       }
     } catch (error) {
       console.error("좋아요 처리 실패:", error);
-      toast.error("좋아요 처리 중 오류가 발생했습니다.");
+      toast.error("좋아요를 반영하지 못했어요. 다시 시도해 주세요.");
     } finally {
       setIsTogglingLike(false);
     }
@@ -379,10 +404,10 @@ export default function SharedDreamDisplay({
         await updateCommentsCountFallback(dreamId);
       }
 
-      toast.success("댓글이 작성되었습니다.");
+      toast.success("댓글을 남겼어요.");
     } catch (error) {
       console.error("댓글 작성 실패:", error);
-      toast.error("댓글 작성 중 오류가 발생했습니다.");
+      toast.error("댓글을 남기지 못했어요. 다시 시도해 주세요.");
     } finally {
       setIsSubmittingComment(false);
     }
@@ -394,11 +419,11 @@ export default function SharedDreamDisplay({
     try {
       const shareUrl = `${window.location.origin}/shared/${dream.id}`;
       await navigator.clipboard.writeText(shareUrl);
-      toast.success("링크가 복사되었습니다!");
+      toast.success("링크를 복사했어요.");
       trackEvent("share", { method: "copy_link", content_type: "dream" });
     } catch (error) {
       console.error("공유 링크 복사 실패:", error);
-      toast.error("링크 복사에 실패했습니다.");
+      toast.error("링크를 복사하지 못했어요.");
     }
   };
 
@@ -447,13 +472,13 @@ export default function SharedDreamDisplay({
         link.click();
         link.remove();
         URL.revokeObjectURL(objectUrl);
-        toast.success("스토리 이미지를 저장했습니다.");
+        toast.success("스토리 이미지를 저장했어요.");
       }
 
       trackEvent("share", { method: "story_image", content_type: "dream" });
     } catch (error) {
       console.error("스토리 이미지 공유 실패:", error);
-      toast.error("스토리 이미지를 만들지 못했습니다.");
+      toast.error("스토리 이미지를 만들지 못했어요.");
     } finally {
       setIsCreatingStoryImage(false);
     }
@@ -526,10 +551,10 @@ export default function SharedDreamDisplay({
 
       setEditingCommentId(null);
       setEditingCommentText("");
-      toast.success("댓글이 수정되었습니다.");
+      toast.success("댓글을 고쳤어요.");
     } catch (error) {
       console.error("댓글 수정 실패:", error);
-      toast.error("댓글 수정 중 오류가 발생했습니다.");
+      toast.error("댓글을 고치지 못했어요. 다시 시도해 주세요.");
     } finally {
       setIsUpdatingComment(false);
     }
@@ -540,10 +565,10 @@ export default function SharedDreamDisplay({
 
     const dreamId = dream.id; // 스코프 이슈 방지를 위해 미리 저장
 
-    toast("이 댓글을 삭제하시겠습니까?", {
-      description: "삭제된 댓글은 복구할 수 없습니다.",
+    toast("이 댓글을 지울까요?", {
+      description: "지운 댓글은 되돌릴 수 없어요.",
       action: {
-        label: "삭제",
+        label: "지우기",
         onClick: async () => {
           setIsDeletingComment(commentId);
 
@@ -573,10 +598,10 @@ export default function SharedDreamDisplay({
               await updateCommentsCountFallback(dreamId);
             }
 
-            toast.success("댓글이 삭제되었습니다.");
+            toast.success("댓글을 지웠어요.");
           } catch (error) {
             console.error("댓글 삭제 실패:", error);
-            toast.error("댓글 삭제 중 오류가 발생했습니다.");
+            toast.error("댓글을 지우지 못했어요. 다시 시도해 주세요.");
           } finally {
             setIsDeletingComment(null);
           }
@@ -591,390 +616,295 @@ export default function SharedDreamDisplay({
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="flex justify-center items-center py-24">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary"></div>
+      <div className="mx-auto max-w-[720px] pb-16 sm:px-6 sm:pt-4">
+        <div className="px-6 sm:px-0">
+          <BackToExplore />
+        </div>
+        <div role="status" className="overflow-hidden bg-paper sm:rounded-lg">
+          <div className="aspect-video w-full animate-pulse bg-ink/[0.06] motion-reduce:animate-none" />
+          <p className="px-6 py-10 text-sm text-ink/70 sm:px-12">
+            이야기를 펼치고 있어요…
+          </p>
         </div>
       </div>
     );
   }
 
-  if (error || !dream) {
+  if (error || !dream || !dream.is_public) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center py-24">
-          <h2 className="text-xl font-medium oneiri-text-primary mb-4">
-            꿈 이야기를 찾을 수 없습니다
-          </h2>
-          <p className="oneiri-text-secondary mb-6">
-            요청하신 꿈 이야기가 존재하지 않거나 비공개 상태입니다.
-          </p>
-          <Link
-            href="/shared"
-            className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            공유된 꿈으로 돌아가기
-          </Link>
-        </div>
+      <div className="mx-auto max-w-[720px] px-6 py-24 text-center">
+        <h2 className="font-serif text-xl text-text-primary">
+          {dream && !dream.is_public
+            ? "비공개로 바뀐 꿈 이야기예요"
+            : "이 꿈 이야기를 찾을 수 없어요"}
+        </h2>
+        <p className="mt-3 text-text-secondary break-keep">
+          {dream && !dream.is_public
+            ? "꿈을 꾼 사람이 혼자 간직하기로 했어요."
+            : "지워졌거나 비공개로 바뀌었을 수 있어요."}
+        </p>
+        <Link
+          href="/dreams"
+          className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-text-primary underline underline-offset-4"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          둘러보기로 돌아가기
+        </Link>
       </div>
     );
   }
 
-  // 공개 상태가 아닌 경우
-  if (!dream.is_public) {
-    return (
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center py-24">
-          <h2 className="text-xl font-medium oneiri-text-primary mb-4">
-            비공개 꿈 이야기입니다
-          </h2>
-          <p className="oneiri-text-secondary mb-6">
-            이 꿈 이야기는 작성자가 비공개로 설정했습니다.
-          </p>
-          <Link
-            href="/shared"
-            className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            공유된 꿈으로 돌아가기
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const isLikedByViewer = user ? isLiked : isGuestLiked;
+  const totalLikes = likesCount + guestLikesCount;
 
   return (
-    <div className="min-h-screen oneiri-bg-primary">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* 뒤로 가기 네비게이션 */}
-        <nav className="flex flex-col sm:flex-row gap-3 sm:gap-6 mb-8 sm:mb-12 pb-4 sm:pb-6 border-b border-line">
-          <Link
-            href="/shared"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
-          >
-            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            공유된 꿈으로 돌아가기
-          </Link>
+    <div className="mx-auto max-w-[720px] pb-16 sm:px-6 sm:pt-4">
+      <nav aria-label="이전 화면" className="px-6 sm:px-0">
+        <BackToExplore />
+      </nav>
+
+      <DreamPage
+        title={dream.generated_story_title}
+        createdAt={dream.created_at}
+        content={dream.generated_story_content}
+        imageUrl={dream.generated_image_url}
+        imageState={dream.generated_image_url ? "ready" : "none"}
+        details={[
+          dream.dream_emotion
+            ? findEmotion(dream.dream_emotion)?.label || dream.dream_emotion
+            : null,
+          dream.story_preference_mood
+            ? findMood(dream.story_preference_mood)?.label ||
+              dream.story_preference_mood
+            : null,
+        ]}
+        byline={
+          <div className="mt-4 flex min-h-8 items-center gap-2 text-sm text-ink/80">
+            <UserAvatar
+              userId={dream.user_id ?? undefined}
+              displayName={authorDisplayName ?? undefined}
+              size="md"
+            />
+            <span className="line-clamp-1">{authorDisplayName}</span>
+          </div>
+        }
+        sourceLabel="꿈꾼 이가 적은 꿈"
+        sourceText={dream.dream_input_text}
+        keywords={dream.dream_keywords}
+      />
+
+      <div className="mx-6 mt-8 flex flex-wrap items-center border-y border-line py-1 sm:mx-0">
+        <button
+          type="button"
+          onClick={handleToggleLike}
+          disabled={isTogglingLike}
+          aria-pressed={isLikedByViewer}
+          className={cn(
+            quietAction,
+            "-ml-3",
+            isLikedByViewer && "text-text-primary"
+          )}
+        >
+          <Heart
+            className={cn(
+              "h-4 w-4",
+              isLikedByViewer && "fill-current text-accent-primary"
+            )}
+            strokeWidth={1.5}
+            aria-hidden
+          />
+          좋아요 <span className="tabular-nums">{totalLikes}</span>
+        </button>
+
+        <a href="#comments" className={quietAction}>
+          <MessageCircle className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          댓글 <span className="tabular-nums">{commentsCount}</span>
+        </a>
+
+        <button
+          type="button"
+          onClick={handleShare}
+          className={cn(quietAction, "sm:ml-auto")}
+        >
+          <Link2 className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          링크 복사
+        </button>
+
+        <button
+          type="button"
+          onClick={handleShareStoryImage}
+          disabled={isCreatingStoryImage}
+          className={cn(quietAction, "sm:-mr-3")}
+        >
+          {isCreatingStoryImage ? (
+            <Loader2
+              className="h-4 w-4 animate-spin motion-reduce:animate-none"
+              strokeWidth={1.5}
+              aria-hidden
+            />
+          ) : (
+            <ImageDown className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+          )}
+          스토리 이미지로 공유
+        </button>
+      </div>
+
+      {user?.id !== dream.user_id && (
+        <aside className="mx-6 mt-12 border-b border-line pb-12 text-center sm:mx-0">
+          <p className="font-serif text-xl text-text-primary">
+            어젯밤 꾼 꿈이 있나요?
+          </p>
+          <p className="mt-2 text-sm text-text-secondary break-keep">
+            기억나는 장면 한 줄이면 이런 이야기가 돼요. 로그인 없이 바로 만들어
+            볼 수 있어요.
+          </p>
           <Link
             href="/dreams/new"
-            className="inline-flex items-center oneiri-text-secondary hover:oneiri-accent transition-colors text-sm sm:text-base"
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-accent-primary px-5 font-medium text-bg-primary transition-colors hover:bg-accent-primary/90"
           >
-            <PenLine className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-            내 꿈도 기록하기
+            내 꿈도 이야기로 만들기
           </Link>
-        </nav>
+        </aside>
+      )}
 
-        {/* 생성된 이미지 */}
-        {dream.generated_image_url && (
-          <div className="mb-12">
-            <div className="relative group flex justify-center">
-              <Zoom>
-                <ImageWithFallback
-                  src={dream.generated_image_url}
-                  alt={dream.generated_story_title || "꿈의 풍경"}
-                  className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform"
-                  width={1024}
-                  height={1024}
-                  fallbackMessage="꿈의 풍경"
-                />
-              </Zoom>
-            </div>
-          </div>
-        )}
+      <section
+        id="comments"
+        aria-labelledby="comments-heading"
+        className="mx-6 mt-12 scroll-mt-20 sm:mx-0"
+      >
+        <h2
+          id="comments-heading"
+          className="text-base font-medium text-text-primary"
+        >
+          댓글{" "}
+          <span className="tabular-nums text-text-secondary">
+            {commentsCount}
+          </span>
+        </h2>
 
-        {/* 스토리 제목 */}
-        <header className="mb-6 sm:mb-8">
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-medium oneiri-text-primary leading-tight mb-3 sm:mb-4">
-            {dream.generated_story_title || "무제"}
-          </h1>
-
-          {/* 꿈 메타데이터 */}
-          <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm oneiri-text-secondary flex-wrap">
-            {authorDisplayName && (
-              <span className="flex items-center gap-2">
-                <span className="text-lg">✍️</span>
-                <span className="oneiri-text-primary font-medium leading line-clamp-1">
-                  {authorDisplayName}
-                </span>
-              </span>
-            )}
-            {dream.dream_emotion && (
-              <span className="flex items-center gap-2">
-                <span className="text-lg">
-                  {findEmotion(dream.dream_emotion)?.emoji ||
-                    dream.dream_emotion}
-                </span>
-                <span>
-                  {findEmotion(dream.dream_emotion)?.label ||
-                    dream.dream_emotion}
-                </span>
-              </span>
-            )}
-            {dream.story_preference_mood && (
-              <span className="px-3 py-1 oneiri-bg-secondary oneiri-text-primary rounded-full text-xs">
-                {findMood(dream.story_preference_mood)?.label ||
-                  dream.story_preference_mood}
-              </span>
-            )}
-            {dream.dream_keywords && dream.dream_keywords.length > 0 && (
-              <div className="flex gap-2">
-                {dream.dream_keywords.map((keyword, index) => (
-                  <span key={index} className="oneiri-text-secondary">
-                    #{keyword}
-                  </span>
-                ))}
-              </div>
-            )}
-            <span className="oneiri-text-secondary/70">
-              {dream.created_at && formatDate(dream.created_at)}
-            </span>
-          </div>
-        </header>
-
-        {/* 메인 스토리 콘텐츠 */}
-        <main className="mb-8 sm:mb-12">
-          <div className="prose prose-lg max-w-none">
-            {dream.generated_story_content ? (
-              dream.generated_story_content
-                .split("\n\n")
-                .map((paragraph, index) => (
-                  <p
-                    key={index}
-                    className="oneiri-text-primary leading-relaxed mb-4 sm:mb-6 last:mb-0 text-base sm:text-lg"
-                  >
-                    {paragraph}
-                  </p>
-                ))
-            ) : (
-              <p className="oneiri-text-secondary italic text-sm sm:text-base">
-                아직 이야기가 생성되지 않았습니다.
-              </p>
-            )}
-          </div>
-        </main>
-
-        {/* 원본 꿈 입력 */}
-        <section className="oneiri-bg-secondary p-4 sm:p-6 mb-8 sm:mb-12 rounded-lg">
-          <h2 className="text-base sm:text-lg font-medium oneiri-text-primary mb-3">
-            꿈꾸는 자가 속삭여준 꿈의 조각들
-          </h2>
-          <p className="oneiri-text-primary/80 leading-relaxed italic text-sm sm:text-base">
-            "{dream.dream_input_text || "꿈의 내용이 없습니다."}"
-          </p>
-        </section>
-
-        {/* 소셜 액션 버튼 */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-6 py-4 sm:py-6 border-t border-b border-line mb-8 sm:mb-12 text-sm sm:text-base">
-          <button
-            onClick={handleToggleLike}
-            disabled={isTogglingLike}
-            className={`flex items-center gap-2 transition-colors ${
-              user
-                ? isLiked
-                  ? "text-accent-primary"
-                  : "oneiri-text-secondary hover:text-accent-primary"
-                : isGuestLiked
-                ? "text-text-primary"
-                : "oneiri-text-secondary hover:text-text-primary"
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            <Heart
-              className={`w-5 h-5 ${
-                user
-                  ? isLiked
-                    ? "fill-current"
-                    : ""
-                  : isGuestLiked
-                  ? "fill-current"
-                  : ""
-              }`}
+        {user ? (
+          <form onSubmit={handleSubmitComment} className="mt-4">
+            <label htmlFor="comment-input" className="sr-only">
+              댓글
+            </label>
+            <textarea
+              id="comment-input"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="이 꿈을 읽고 떠오른 것을 남겨 보세요"
+              className="w-full resize-none rounded-md border border-line bg-transparent px-3 py-2.5 text-[15px] leading-relaxed text-text-primary placeholder:text-text-secondary/70"
+              rows={3}
+              maxLength={500}
             />
-            <span>{likesCount + guestLikesCount} 좋아요</span>
-          </button>
-
-          <div className="flex items-center gap-2 oneiri-text-secondary">
-            <MessageCircle className="w-5 h-5" />
-            <span>{commentsCount} 댓글</span>
-          </div>
-
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 oneiri-text-secondary hover:oneiri-accent transition-colors ml-auto"
-          >
-            <Share2 className="w-5 h-5" />
-            <span>공유하기</span>
-          </button>
-
-          <button
-            onClick={handleShareStoryImage}
-            disabled={isCreatingStoryImage}
-            className="flex items-center gap-2 oneiri-text-secondary hover:oneiri-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isCreatingStoryImage ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <ImageDown className="w-5 h-5" />
-            )}
-            <span>스토리 이미지로 공유</span>
-          </button>
-        </div>
-
-        {user?.id !== dream.user_id && (
-          <aside className="mb-8 sm:mb-12 rounded-lg border border-line p-5 sm:p-6 text-center space-y-3">
-            <p className="oneiri-text-primary font-medium">어젯밤 꾼 꿈이 있나요?</p>
-            <p className="oneiri-text-secondary text-sm break-keep">
-              기억나는 장면 한 줄이면 이런 이야기가 돼요. 로그인 없이 바로 만들어 볼 수 있어요.
-            </p>
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <span className="text-xs tabular-nums text-text-secondary">
+                {commentText.length}/500
+              </span>
+              <button
+                type="submit"
+                disabled={!commentText.trim() || isSubmittingComment}
+                className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line px-4 text-sm text-text-primary transition-colors hover:bg-line/40 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+                {isSubmittingComment ? "남기는 중…" : "남기기"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p className="mt-4 text-sm text-text-secondary break-keep">
             <Link
-              href="/dreams/new"
-              className="inline-flex min-h-11 items-center justify-center rounded-lg oneiri-accent-bg px-5 font-medium text-bg-primary"
+              href={loginPath(`/shared/${dream.id}`)}
+              className="text-text-primary underline underline-offset-4"
             >
-              내 꿈도 이야기로 만들기
+              로그인
             </Link>
-          </aside>
+            하면 감상을 남길 수 있어요.
+          </p>
         )}
 
-        {/* 댓글 섹션 */}
-        <section className="mb-8 sm:mb-12">
-          <h2 className="text-lg sm:text-xl font-medium oneiri-text-primary mb-4 sm:mb-6">
-            댓글 {commentsCount}개
-          </h2>
+        {isLoadingComments ? (
+          <p role="status" className="mt-6 text-sm text-text-secondary">
+            댓글을 불러오고 있어요…
+          </p>
+        ) : comments.length === 0 ? (
+          <p className="mt-6 text-sm text-text-secondary break-keep">
+            아직 댓글이 없어요. 처음으로 감상을 남겨 보세요.
+          </p>
+        ) : (
+          <ul className="mt-6 divide-y divide-line border-t border-line">
+            {comments.map((comment) => {
+              const name = comment.display_name || "익명의 꿈꾸는자";
+              const isMine = !!user && user.id === comment.user_id;
+              const isEditing = editingCommentId === comment.id;
 
-          {/* 댓글 작성 폼 - 로그인한 경우만 표시 */}
-          {user ? (
-            <form onSubmit={handleSubmitComment} className="mb-8">
-              <div className="mb-4">
-                <textarea
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="이 꿈에 대한 생각을 공유해보세요..."
-                  className="w-full px-4 py-3 oneiri-bg-secondary border border-line focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder-text-secondary rounded-lg"
-                  rows={3}
-                  maxLength={500}
-                />
-                <div className="text-right text-xs oneiri-text-secondary mt-2">
-                  {commentText.length}/500
-                </div>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={!commentText.trim() || isSubmittingComment}
-                  className="oneiri-accent-bg hover:brightness-110 disabled:bg-text-secondary disabled:cursor-not-allowed text-bg-primary font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  {isSubmittingComment ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-bg-primary border-t-transparent"></div>
-                      작성중...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      댓글 작성
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="mb-8 p-4 oneiri-bg-secondary rounded-lg border border-line">
-              <p className="oneiri-text-secondary text-center">
-                댓글을 작성하려면{" "}
-                <Link
-                  href={loginPath(`/shared/${dream.id}`)}
-                  className="oneiri-accent hover:text-accent-primary/80 underline"
-                >
-                  로그인
-                </Link>
-                이 필요합니다.
-              </p>
-            </div>
-          )}
-
-          {/* 댓글 목록 */}
-          <div className="space-y-6">
-            {isLoadingComments ? (
-              <div className="text-center py-12 oneiri-text-secondary">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary mx-auto mb-4"></div>
-                <p>댓글을 불러오는 중...</p>
-              </div>
-            ) : comments.length === 0 ? (
-              <div className="text-center py-12 oneiri-text-secondary">
-                <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>아직 댓글이 없습니다.</p>
-                <p className="text-sm mt-2">첫 번째 댓글을 남겨보세요!</p>
-              </div>
-            ) : (
-              comments.map((comment) => (
-                <div
-                  key={comment.id}
-                  className="border-b border-line pb-6 last:border-0"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
+              return (
+                <li key={comment.id} className="py-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       <UserAvatar
                         userId={comment.user_id}
-                        displayName={comment.display_name || "익명의 꿈꾸는자"}
-                        size="sm"
-                        className="w-8 h-8"
+                        displayName={name}
+                        size="md"
+                        className="shrink-0"
                       />
-                      <div>
-                        <span className="font-medium oneiri-text-primary text-sm">
-                          {comment.display_name || "익명의 꿈꾸는자"}
+                      <p className="min-w-0 text-sm">
+                        <span className="font-medium text-text-primary">
+                          {name}
                         </span>
-                        <span className="oneiri-text-secondary text-xs ml-2">
-                          {formatRelativeTime(comment.created_at)}
+                        <span className="ml-2 text-xs text-text-secondary">
+                          <time dateTime={comment.created_at}>
+                            {formatRelativeTime(comment.created_at)}
+                          </time>
                           {comment.updated_at &&
-                            comment.updated_at !== comment.created_at && (
-                              <span className="text-oneiri-accent ml-1">
-                                • 수정됨
-                              </span>
-                            )}
+                            comment.updated_at !== comment.created_at &&
+                            " · 수정됨"}
                         </span>
-                      </div>
+                      </p>
                     </div>
 
-                    {/* 수정/삭제 버튼 - 본인 댓글만 표시 */}
-                    {user && user.id === comment.user_id && (
-                      <div className="flex items-center gap-2">
-                        {editingCommentId === comment.id ? (
+                    {isMine && (
+                      <div className="-my-2 -mr-3 flex shrink-0">
+                        {isEditing ? (
                           <>
                             <button
+                              type="button"
                               onClick={() => handleUpdateComment(comment.id)}
                               disabled={
                                 !editingCommentText.trim() || isUpdatingComment
                               }
-                              className="p-1 oneiri-text-secondary hover:text-accent-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="수정 완료"
+                              className={iconAction}
+                              aria-label="수정 저장"
                             >
-                              <Check className="w-4 h-4" />
+                              <Check className="h-4 w-4" strokeWidth={1.5} />
                             </button>
                             <button
+                              type="button"
                               onClick={handleCancelEdit}
                               disabled={isUpdatingComment}
-                              className="p-1 oneiri-text-secondary hover:text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="수정 취소"
+                              className={iconAction}
+                              aria-label="수정 취소"
                             >
-                              <X className="w-4 h-4" />
+                              <X className="h-4 w-4" strokeWidth={1.5} />
                             </button>
                           </>
                         ) : (
                           <>
                             <button
+                              type="button"
                               onClick={() => handleEditComment(comment)}
-                              className="p-1 oneiri-text-secondary hover:oneiri-accent transition-colors"
-                              title="댓글 수정"
+                              className={iconAction}
+                              aria-label="댓글 수정"
                             >
-                              <Edit2 className="w-4 h-4" />
+                              <Edit2 className="h-4 w-4" strokeWidth={1.5} />
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleDeleteComment(comment.id)}
                               disabled={isDeletingComment === comment.id}
-                              className="p-1 oneiri-text-secondary hover:text-danger transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="댓글 삭제"
+                              className={cn(iconAction, "hover:text-danger")}
+                              aria-label="댓글 삭제"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                             </button>
                           </>
                         )}
@@ -982,32 +912,32 @@ export default function SharedDreamDisplay({
                     )}
                   </div>
 
-                  {/* 댓글 내용 또는 수정 폼 */}
-                  {editingCommentId === comment.id ? (
-                    <div className="ml-11">
+                  {isEditing ? (
+                    <div className="mt-2 pl-11">
                       <textarea
+                        aria-label="댓글 수정"
                         value={editingCommentText}
                         onChange={(e) => setEditingCommentText(e.target.value)}
-                        className="w-full px-3 py-2 oneiri-bg-secondary border border-line focus:border-accent-primary focus:outline-none resize-none oneiri-text-primary placeholder-text-secondary rounded-lg text-sm"
+                        className="w-full resize-none rounded-md border border-line bg-transparent px-3 py-2 text-[15px] leading-relaxed text-text-primary"
                         rows={3}
                         maxLength={500}
                         autoFocus
                       />
-                      <div className="text-right text-xs oneiri-text-secondary mt-1">
+                      <div className="mt-1 text-right text-xs tabular-nums text-text-secondary">
                         {editingCommentText.length}/500
                       </div>
                     </div>
                   ) : (
-                    <p className="oneiri-text-primary leading-relaxed ml-11">
+                    <p className="mt-2 pl-11 text-[15px] leading-relaxed text-text-primary whitespace-pre-line break-keep">
                       {comment.content}
                     </p>
                   )}
-                </div>
-              ))
-            )}
-          </div>
-        </section>
-      </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

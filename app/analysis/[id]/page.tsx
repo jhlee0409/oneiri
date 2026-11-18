@@ -1,4 +1,5 @@
-import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { notFound, redirect, unstable_rethrow } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { loginPath } from "@/lib/login-redirect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import {
   Lightbulb,
   Sparkles,
   CreditCard,
+  ArrowLeft,
 } from "lucide-react";
 import { ArchetypeCard } from "@/components/ui/archetype-card";
 import { RelatedSymbols } from "@/components/ui/related-symbols";
@@ -21,6 +23,8 @@ interface AnalysisReport {
   user_id: string;
   created_at: string;
   input_text: string;
+  /** 저장된 꿈에서 만든 리포트면 그 꿈의 id */
+  dream_id: string | null;
   report_data: {
     keySymbols: string[];
     emotionalFlow: string;
@@ -120,7 +124,7 @@ function AnalysisReportSkeleton() {
         </div>
 
         {/* Oneiri의 종합 해석 스켈레톤 */}
-        <Card className="border-primary/20 shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5 backdrop-blur">
+        <Card className="border-line bg-bg-secondary">
           <CardHeader className="pb-3 sm:pb-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded" />
@@ -128,7 +132,7 @@ function AnalysisReportSkeleton() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="bg-primary/10 p-4 sm:p-6 rounded-lg border border-primary/20 space-y-2">
+            <div className="p-4 sm:p-6 rounded-lg border border-line space-y-2">
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-3/4" />
@@ -237,6 +241,15 @@ async function AnalysisReportContent({
 
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-4xl">
+        {reportData.dream_id && (
+          <Link
+            href={`/library/dreams/${reportData.dream_id}`}
+            className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden />
+            이 꿈으로 돌아가기
+          </Link>
+        )}
         <div className="mb-6 sm:mb-8 text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3">
             꿈 분석 리포트
@@ -334,7 +347,7 @@ async function AnalysisReportContent({
           </div>
 
           {/* Oneiri의 종합 해석 */}
-          <Card className="border-primary/20 shadow-xl bg-gradient-to-br from-primary/5 to-secondary/5 backdrop-blur">
+          <Card className="border-line bg-bg-secondary">
             <CardHeader className="pb-3 sm:pb-4">
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <MoonStar className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -342,7 +355,7 @@ async function AnalysisReportContent({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-primary/10 p-4 sm:p-6 rounded-lg border border-primary/20">
+              <div className="p-4 sm:p-6 rounded-lg border border-line">
                 <p className="leading-relaxed font-medium text-sm sm:text-base">
                   {reportData.report_data.oneiriSynthesis}
                 </p>
@@ -356,7 +369,7 @@ async function AnalysisReportContent({
               <CardHeader className="pb-3 sm:pb-4">
                 <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                   <CreditCard className="h-5 w-5 sm:h-6 sm:w-6" />
-                  🃏 당신의 꿈 원형 카드
+                  당신의 꿈 원형 카드
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-2">
                   AI가 분석한 당신의 꿈에서 가장 핵심적인 심리적 테마를 대표하는
@@ -413,6 +426,8 @@ async function AnalysisReportContent({
       </div>
     );
   } catch (error) {
+    // redirect()/notFound() throw; let Next handle them instead of turning a login redirect into 404.
+    unstable_rethrow(error);
     console.error("Page error:", error);
     notFound();
   }

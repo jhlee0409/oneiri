@@ -879,3 +879,56 @@ export async function generateDreamPatternReport(): Promise<
     };
   }
 }
+
+export interface DreamSymbolReadingResult {
+  reportId: string;
+  /** 이미 있던 리포트를 돌려줬는지 (새로 읽지 않음) */
+  existing: boolean;
+}
+
+/**
+ * 이 꿈에 연결된 상징 리포트 id. 아직 없으면 null.
+ * RLS가 본인 리포트만 보여 준다.
+ */
+export async function getDreamSymbolReading(dreamId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("analysis_reports")
+    .select("id")
+    .eq("dream_id", dreamId)
+    .maybeSingle();
+  if (error) {
+    console.error("Get dream symbol reading failed:", error);
+    throw new Error("상징 리포트를 불러오지 못했어요");
+  }
+  return (data?.id as string | undefined) ?? null;
+}
+
+/**
+ * 저장된 꿈의 상징 리포트를 만든다. 이미 있으면 서버가 기존 id를 돌려준다.
+ */
+export async function createDreamSymbolReading(
+  dreamId: string
+): Promise<DreamSymbolReadingResult> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) throw new Error("로그인이 필요해요");
+
+  const response = await fetch("/api/analysis-report", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ dreamId }),
+  });
+  const body = (await response.json().catch(() => ({}))) as {
+    reportId?: string;
+    existing?: boolean;
+    error?: string;
+  };
+  if (!response.ok || !body.reportId) {
+    throw new Error(body.error || "상징을 읽지 못했어요");
+  }
+  return { reportId: body.reportId, existing: body.existing === true };
+}
