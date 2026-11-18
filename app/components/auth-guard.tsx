@@ -67,8 +67,9 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen oneiri-bg-primary flex items-center justify-center" role="status" aria-label="불러오는 중">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary"></div>
+      <div className="min-h-screen oneiri-bg-primary flex items-center justify-center" role="status">
+        <span className="sr-only">불러오는 중이에요</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-text-secondary border-t-accent-primary" aria-hidden="true"></div>
       </div>
     );
   }

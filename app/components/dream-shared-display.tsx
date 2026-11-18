@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft,
   Heart,
@@ -25,7 +25,26 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { cn } from "@/lib/utils";
 import { findEmotion, findMood } from "@/lib/find";
 import { getUserProfile, getUserProfiles } from "@/lib/user-profile-cache";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import DreamPage from "./dream-page";
+
+const commentEditButtonId = (commentId: string) => `comment-edit-${commentId}`;
+
+/** 수정 칸이 닫힌 뒤 그 댓글의 "수정" 버튼으로 포커스를 돌려 놓는다. */
+function focusCommentEditButton(commentId: string) {
+  requestAnimationFrame(() =>
+    document.getElementById(commentEditButtonId(commentId))?.focus()
+  );
+}
 
 const quietAction =
   "inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50";
@@ -112,6 +131,13 @@ export default function SharedDreamDisplay({
   );
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isCreatingStoryImage, setIsCreatingStoryImage] = useState(false);
+  const [pendingDeleteCommentId, setPendingDeleteCommentId] = useState<
+    string | null
+  >(null);
+  const commentsHeadingRef = useRef<HTMLHeadingElement>(null);
+  const deletedCommentRef = useRef(false);
+  // 트리거 없이 여는 대화상자라 닫을 때 돌아갈 버튼을 직접 기억한다.
+  const deleteTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const { user } = useAuth();
 
@@ -515,6 +541,7 @@ export default function SharedDreamDisplay({
   };
 
   const handleCancelEdit = () => {
+    if (editingCommentId) focusCommentEditButton(editingCommentId);
     setEditingCommentId(null);
     setEditingCommentText("");
   };
@@ -551,6 +578,7 @@ export default function SharedDreamDisplay({
 
       setEditingCommentId(null);
       setEditingCommentText("");
+      focusCommentEditButton(commentId);
       toast.success("댓글을 고쳤어요.");
     } catch (error) {
       console.error("댓글 수정 실패:", error);
@@ -560,58 +588,48 @@ export default function SharedDreamDisplay({
     }
   };
 
-  const handleDeleteComment = (commentId: string) => {
-    if (!user || isDeletingComment || !dream?.id) return;
+  // 지우기 확인은 사라지는 토스트가 아니라 대화상자에서 받는다.
+  const handleDeleteComment = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    const commentId = pendingDeleteCommentId;
+    if (!commentId || !user || isDeletingComment || !dream?.id) return;
 
     const dreamId = dream.id; // 스코프 이슈 방지를 위해 미리 저장
+    setIsDeletingComment(commentId);
 
-    toast("이 댓글을 지울까요?", {
-      description: "지운 댓글은 되돌릴 수 없어요.",
-      action: {
-        label: "지우기",
-        onClick: async () => {
-          setIsDeletingComment(commentId);
+    try {
+      const { error } = await supabase
+        .from("dream_comments")
+        .delete()
+        .eq("id", commentId)
+        .eq("user_id", user.id);
 
-          try {
-            const { error } = await supabase
-              .from("dream_comments")
-              .delete()
-              .eq("id", commentId)
-              .eq("user_id", user.id);
+      if (error) throw error;
 
-            if (error) throw error;
+      // 로컬 상태 업데이트
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      setCommentsCount((prev) => Math.max(0, prev - 1));
 
-            // 로컬 상태 업데이트
-            setComments((prev) =>
-              prev.filter((comment) => comment.id !== commentId)
-            );
-            setCommentsCount((prev) => Math.max(0, prev - 1));
+      // dreams 테이블의 comments_count도 감소
+      try {
+        await supabase.rpc("decrement_comments_count", {
+          dream_id: dreamId,
+        });
+      } catch (rpcError) {
+        // RPC가 없다면 직접 업데이트
+        console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
+        await updateCommentsCountFallback(dreamId);
+      }
 
-            // dreams 테이블의 comments_count도 감소
-            try {
-              await supabase.rpc("decrement_comments_count", {
-                dream_id: dreamId,
-              });
-            } catch (rpcError) {
-              // RPC가 없다면 직접 업데이트
-              console.log("RPC 함수가 없어서 직접 업데이트:", rpcError);
-              await updateCommentsCountFallback(dreamId);
-            }
-
-            toast.success("댓글을 지웠어요.");
-          } catch (error) {
-            console.error("댓글 삭제 실패:", error);
-            toast.error("댓글을 지우지 못했어요. 다시 시도해 주세요.");
-          } finally {
-            setIsDeletingComment(null);
-          }
-        },
-      },
-      cancel: {
-        label: "취소",
-        onClick: () => console.log("댓글 삭제 취소됨"),
-      },
-    });
+      deletedCommentRef.current = true;
+      toast.success("댓글을 지웠어요.");
+    } catch (error) {
+      console.error("댓글 삭제 실패:", error);
+      toast.error("댓글을 지우지 못했어요. 다시 시도해 주세요.");
+    } finally {
+      setIsDeletingComment(null);
+      setPendingDeleteCommentId(null);
+    }
   };
 
   if (isLoading) {
@@ -633,11 +651,11 @@ export default function SharedDreamDisplay({
   if (error || !dream || !dream.is_public) {
     return (
       <div className="mx-auto max-w-[720px] px-6 py-24 text-center">
-        <h2 className="font-serif text-xl text-text-primary">
+        <h1 className="font-serif text-xl text-text-primary">
           {dream && !dream.is_public
             ? "비공개로 바뀐 꿈 이야기예요"
             : "이 꿈 이야기를 찾을 수 없어요"}
-        </h2>
+        </h1>
         <p className="mt-3 text-text-secondary break-keep">
           {dream && !dream.is_public
             ? "꿈을 꾼 사람이 혼자 간직하기로 했어요."
@@ -697,7 +715,7 @@ export default function SharedDreamDisplay({
         <button
           type="button"
           onClick={handleToggleLike}
-          disabled={isTogglingLike}
+          aria-busy={isTogglingLike}
           aria-pressed={isLikedByViewer}
           className={cn(
             quietAction,
@@ -774,7 +792,9 @@ export default function SharedDreamDisplay({
       >
         <h2
           id="comments-heading"
-          className="text-base font-medium text-text-primary"
+          ref={commentsHeadingRef}
+          tabIndex={-1}
+          className="text-base font-medium text-text-primary focus:outline-none"
         >
           댓글{" "}
           <span className="tabular-nums text-text-secondary">
@@ -792,7 +812,7 @@ export default function SharedDreamDisplay({
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="이 꿈을 읽고 떠오른 것을 남겨 보세요"
-              className="w-full resize-none rounded-md border border-line bg-transparent px-3 py-2.5 text-[15px] leading-relaxed text-text-primary placeholder:text-text-secondary/70"
+              className="w-full resize-none rounded-md border border-text-secondary/70 bg-transparent px-3 py-2.5 text-[15px] leading-relaxed text-text-primary placeholder:text-text-secondary"
               rows={3}
               maxLength={500}
             />
@@ -802,8 +822,8 @@ export default function SharedDreamDisplay({
               </span>
               <button
                 type="submit"
-                disabled={!commentText.trim() || isSubmittingComment}
-                className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line px-4 text-sm text-text-primary transition-colors hover:bg-line/40 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-disabled={!commentText.trim() || isSubmittingComment || undefined}
+                className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line px-4 text-sm text-text-primary transition-colors hover:bg-line/40 aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
               >
                 <Send className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                 {isSubmittingComment ? "남기는 중…" : "남기기"}
@@ -875,7 +895,7 @@ export default function SharedDreamDisplay({
                               className={iconAction}
                               aria-label="수정 저장"
                             >
-                              <Check className="h-4 w-4" strokeWidth={1.5} />
+                              <Check className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                             </button>
                             <button
                               type="button"
@@ -884,27 +904,31 @@ export default function SharedDreamDisplay({
                               className={iconAction}
                               aria-label="수정 취소"
                             >
-                              <X className="h-4 w-4" strokeWidth={1.5} />
+                              <X className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                             </button>
                           </>
                         ) : (
                           <>
                             <button
                               type="button"
+                              id={commentEditButtonId(comment.id)}
                               onClick={() => handleEditComment(comment)}
                               className={iconAction}
                               aria-label="댓글 수정"
                             >
-                              <Edit2 className="h-4 w-4" strokeWidth={1.5} />
+                              <Edit2 className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleDeleteComment(comment.id)}
+                              onClick={(event) => {
+                                deleteTriggerRef.current = event.currentTarget;
+                                setPendingDeleteCommentId(comment.id);
+                              }}
                               disabled={isDeletingComment === comment.id}
                               className={cn(iconAction, "hover:text-danger")}
                               aria-label="댓글 삭제"
                             >
-                              <Trash2 className="h-4 w-4" strokeWidth={1.5} />
+                              <Trash2 className="h-4 w-4" strokeWidth={1.5} aria-hidden />
                             </button>
                           </>
                         )}
@@ -918,7 +942,7 @@ export default function SharedDreamDisplay({
                         aria-label="댓글 수정"
                         value={editingCommentText}
                         onChange={(e) => setEditingCommentText(e.target.value)}
-                        className="w-full resize-none rounded-md border border-line bg-transparent px-3 py-2 text-[15px] leading-relaxed text-text-primary"
+                        className="w-full resize-none rounded-md border border-text-secondary/70 bg-transparent px-3 py-2 text-[15px] leading-relaxed text-text-primary"
                         rows={3}
                         maxLength={500}
                         autoFocus
@@ -938,6 +962,48 @@ export default function SharedDreamDisplay({
           </ul>
         )}
       </section>
+
+      <AlertDialog
+        open={pendingDeleteCommentId !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeletingComment) setPendingDeleteCommentId(null);
+        }}
+      >
+        <AlertDialogContent
+          className="w-[calc(100%-2rem)] max-w-md rounded-lg border-line bg-bg-secondary"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            // 지운 댓글의 버튼은 사라졌으므로 댓글 제목으로, 아니면 누른 삭제 버튼으로 돌아간다.
+            if (deletedCommentRef.current) {
+              deletedCommentRef.current = false;
+              commentsHeadingRef.current?.focus();
+            } else {
+              deleteTriggerRef.current?.focus();
+            }
+          }}
+        >
+          <AlertDialogHeader className="text-left">
+            <AlertDialogTitle className="font-serif text-xl font-normal text-text-primary">
+              이 댓글을 지울까요?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-text-secondary break-keep">
+              지운 댓글은 되돌릴 수 없어요.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:space-x-0">
+            <AlertDialogCancel className="mt-0 min-h-11 border-line bg-transparent text-text-primary hover:bg-line/40 hover:text-text-primary sm:mt-0">
+              취소
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteComment}
+              disabled={isDeletingComment !== null}
+              className="min-h-11 border border-danger/40 bg-transparent text-danger hover:bg-danger/10"
+            >
+              {isDeletingComment ? "지우는 중…" : "지우기"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -29,15 +29,15 @@ export default async function DreamPage(props: PageProps) {
       <div className="min-h-screen oneiri-bg-primary">
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className="text-center py-24">
-            <h2 className="text-xl font-medium oneiri-text-primary mb-4">
+            <h1 className="text-xl font-medium oneiri-text-primary mb-4">
               잘못된 링크입니다
-            </h2>
+            </h1>
             <p className="oneiri-text-secondary mb-6">
               올바른 꿈 이야기 링크가 아닙니다.
             </p>
             <Link
               href="/library/dreams"
-              className="inline-flex items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
+              className="inline-flex min-h-11 items-center oneiri-accent hover:text-accent-primary/80 transition-colors"
             >
               꿈 서재로 돌아가기
             </Link>

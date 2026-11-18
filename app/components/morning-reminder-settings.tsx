@@ -54,7 +54,11 @@ export default function MorningReminderSettings() {
 
     // 꿈을 엮은 뒤 '알림 켜기'로 들어오면 이 섹션으로 스크롤한다.
     if (window.location.hash === `#${REMINDER_SETTINGS_ANCHOR}`) {
-      sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      sectionRef.current?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
     }
 
     return () => {
@@ -126,7 +130,7 @@ export default function MorningReminderSettings() {
       className="oneiri-bg-secondary p-4 sm:p-6 rounded-lg scroll-mt-24"
     >
       <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-        <BellRing className="w-4 h-4 sm:w-5 sm:h-5 oneiri-accent" />
+        <BellRing className="w-4 h-4 sm:w-5 sm:h-5 oneiri-accent" aria-hidden="true" />
         <h2 className="text-lg sm:text-xl font-semibold oneiri-text-primary">
           아침 꿈 알림
         </h2>
@@ -166,7 +170,7 @@ export default function MorningReminderSettings() {
             value={hour}
             disabled={support !== "supported" || isLoading || isSaving}
             onChange={(e) => handleHourChange(Number(e.target.value))}
-            className="p-2 rounded-lg border border-line focus:border-accent-primary focus:outline-none oneiri-bg-primary oneiri-text-primary text-sm disabled:opacity-50"
+            className="min-h-11 px-2 rounded-lg border border-text-secondary/70 focus:border-accent-primary oneiri-bg-primary oneiri-text-primary text-sm disabled:opacity-50"
           >
             {REMINDER_HOURS.map((h) => (
               <option key={h} value={h}>

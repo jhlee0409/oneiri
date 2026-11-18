@@ -84,9 +84,9 @@ export default function TermsPage() {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-semibold oneiri-text-primary mb-3">
+                  <h3 className="font-semibold oneiri-text-primary mb-3">
                     일반적 금지사항
-                  </h4>
+                  </h3>
                   <ul className="list-disc pl-8 space-y-2">
                     <li>법령 및 본 약관을 위반하는 행위</li>
                     <li>타인의 권리 침해(지식재산권, 명예훼손 등)</li>
@@ -103,9 +103,9 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-bg-secondary border border-danger/40 rounded-lg p-6">
-                  <h4 className="font-semibold text-danger mb-3">
+                  <h3 className="font-semibold text-danger mb-3">
                     AI 생성 콘텐츠 관련 금지사항
-                  </h4>
+                  </h3>
                   <ul className="list-disc pl-8 space-y-2 text-text-secondary">
                     <li>
                       <strong>상업적 이용 금지:</strong> AI가 생성한 꿈 이야기
@@ -131,9 +131,9 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-bg-secondary border border-line rounded-lg p-6">
-                  <h4 className="font-semibold text-text-primary mb-3">
+                  <h3 className="font-semibold text-text-primary mb-3">
                     부적절한 콘텐츠 생성 금지
-                  </h4>
+                  </h3>
                   <ul className="list-disc pl-8 space-y-2 text-text-secondary">
                     <li>
                       <strong>불법 콘텐츠:</strong> 폭력, 혐오, 음란물, 불법
@@ -159,9 +159,9 @@ export default function TermsPage() {
                 </div>
 
                 <div className="bg-bg-secondary border border-line rounded-lg p-6">
-                  <h4 className="font-semibold text-accent-primary mb-3">
+                  <h3 className="font-semibold text-accent-primary mb-3">
                     AI 생성물 사용 시 준수사항
-                  </h4>
+                  </h3>
                   <ul className="list-disc pl-8 space-y-2 text-text-secondary">
                     <li>
                       <strong>출처 표기:</strong> AI 생성 콘텐츠를 공유 시
@@ -203,18 +203,18 @@ export default function TermsPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold oneiri-text-primary mb-2">
+                  <h3 className="font-semibold oneiri-text-primary mb-2">
                     Oneiri 서비스 저작권
-                  </h4>
+                  </h3>
                   <p>
                     Oneiri 서비스의 디자인, 소프트웨어, 로고, 서비스명 등은
                     Oneiri의 지적재산권으로 보호됩니다.
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-semibold oneiri-text-primary mb-2">
+                  <h3 className="font-semibold oneiri-text-primary mb-2">
                     AI 생성 콘텐츠 권리
-                  </h4>
+                  </h3>
                   <p>
                     AI가 생성한 꿈 이야기 및 관련 콘텐츠는 이용자가 개인적,
                     비상업적 목적으로 사용할 수 있습니다. 상업적 이용을 원할

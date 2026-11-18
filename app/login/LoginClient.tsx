@@ -4,7 +4,6 @@ import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import GoogleLoginForm from "../components/google-login-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { toast } from "sonner";
 import { safeNextPath } from "@/lib/login-redirect";
 import { savePendingGuestDream } from "@/lib/guest-dream";
 import { supabase } from "@/utils/supabase/client";
@@ -28,14 +27,11 @@ export function LoginClient() {
   const next = safeNextPath(searchParams?.get("next"));
   const guestDreamId = searchParams?.get("guest");
 
-  useEffect(() => {
-    if (error === "withdrawn_user") {
-      toast.error(
-        message ||
-          "탈퇴된 계정입니다. 30일 후 동일한 이메일로 재가입이 가능합니다."
-      );
-    }
-  }, [error, message]);
+  // 탈퇴한 계정 안내는 사라지는 토스트 대신 로그인 버튼 위에 남겨 둔다.
+  const withdrawnMessage =
+    error === "withdrawn_user"
+      ? message || "탈퇴된 계정입니다. 30일 후 동일한 이메일로 재가입이 가능합니다."
+      : null;
 
   // 앱 내장 브라우저에서 넘어온 체험 이야기를 이 브라우저에서 이어서 저장한다.
   useEffect(() => {
@@ -68,6 +64,14 @@ export function LoginClient() {
             {reasonFor(next)}
           </p>
         </div>
+        {withdrawnMessage && (
+          <p
+            role="alert"
+            className="mb-6 rounded-lg border border-danger/40 p-4 text-sm text-text-primary break-keep"
+          >
+            {withdrawnMessage}
+          </p>
+        )}
         <GoogleLoginForm next={next ?? "/library/dreams"} />
       </div>
     </div>

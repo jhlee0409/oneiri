@@ -112,15 +112,16 @@ export default function DreamStoryDisplay({ dreamId }: DreamStoryDisplayProps) {
     }
   }, [dream?.generated_story_content]);
 
+  // 저장하는 동안 컨트롤을 disabled로 바꾸면 키보드 포커스가 body로 빠지므로, 중복 요청만 막는다.
   const handleTogglePublic = useCallback(() => {
-    if (!dream?.id) return;
+    if (!dream?.id || isTogglingPublic) return;
     togglePublic(dream.id, dream.is_public || false);
-  }, [dream?.id, dream?.is_public, togglePublic]);
+  }, [dream?.id, dream?.is_public, isTogglingPublic, togglePublic]);
 
   const handleToggleFavorite = useCallback(() => {
-    if (!dream?.id) return;
+    if (!dream?.id || isToggling) return;
     toggleFavorite(dream.id, dream.is_favorite || false);
-  }, [dream?.id, dream?.is_favorite, toggleFavorite]);
+  }, [dream?.id, dream?.is_favorite, isToggling, toggleFavorite]);
 
   const handleDelete = useCallback(
     (event: React.MouseEvent) => {
@@ -161,9 +162,9 @@ export default function DreamStoryDisplay({ dreamId }: DreamStoryDisplayProps) {
   if (error || !dream) {
     return (
       <div className="mx-auto max-w-[720px] px-6 py-24 text-center">
-        <h2 className="font-serif text-xl text-text-primary">
+        <h1 className="font-serif text-xl text-text-primary">
           이 꿈 이야기를 찾을 수 없어요
-        </h2>
+        </h1>
         <p className="mt-3 text-text-secondary break-keep">
           이미 지웠거나 주소가 잘못되었을 수 있어요.
         </p>
@@ -219,7 +220,7 @@ export default function DreamStoryDisplay({ dreamId }: DreamStoryDisplayProps) {
             id="dream-public"
             checked={isPublic}
             onCheckedChange={handleTogglePublic}
-            disabled={isTogglingPublic}
+            aria-busy={isTogglingPublic}
           />
           <Label
             htmlFor="dream-public"
@@ -255,7 +256,7 @@ export default function DreamStoryDisplay({ dreamId }: DreamStoryDisplayProps) {
           <button
             type="button"
             onClick={handleToggleFavorite}
-            disabled={isToggling}
+            aria-busy={isToggling}
             aria-pressed={isFavorite}
             className={cn(quietAction, isFavorite && "text-text-primary")}
           >

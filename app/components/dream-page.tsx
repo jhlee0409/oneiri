@@ -169,7 +169,7 @@ export default function DreamPage({
             {sourceText}
           </blockquote>
           {keywords && keywords.length > 0 && (
-            <p className="mt-3 pl-4 text-xs text-text-secondary/80 break-keep">
+            <p className="mt-3 pl-4 text-xs text-text-secondary break-keep">
               {keywords.join(" · ")}
             </p>
           )}
