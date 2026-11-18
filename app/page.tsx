@@ -1,7 +1,6 @@
 import { HeroSection } from "@/components/hero-section";
 import { EmpathySection } from "@/components/empathy-section";
 import { SolutionSection } from "@/components/solution-section";
-import { ShowcaseSection } from "@/components/showcase-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
@@ -56,14 +55,12 @@ export default async function LandingPage() {
   // 다시 찾아온 사용자는 마케팅 화면 대신 서재에서 바로 오늘 꿈을 기록한다.
   if (user) redirect("/library/dreams");
 
-  const isLoggedIn = false;
   return (
     <>
-      <HeroSection key="hero" />
-      <EmpathySection key="empathy" />
-      <SolutionSection key="solution" />
-      <ShowcaseSection key="showcase" isLoggedIn={isLoggedIn} />
-      <FinalCTASection key="cta" />
+      <HeroSection />
+      <EmpathySection />
+      <SolutionSection />
+      <FinalCTASection />
     </>
   );
 }

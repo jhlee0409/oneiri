@@ -187,12 +187,8 @@ export default function Header({ user: initialUser }: Props) {
     <>
       <header
         className={cn(
-          "transition-all duration-300",
-          isScrolled
-            ? "backdrop-blur-custom oneiri-bg-secondary"
-            : "bg-transparent",
-          isHomePage && "fixed top-0 left-0 right-0 z-50",
-          !isHomePage && "oneiri-bg-secondary sticky top-0 left-0 right-0 z-50"
+          "sticky top-0 left-0 right-0 z-50 transition-colors duration-300",
+          isHomePage && !isScrolled ? "oneiri-bg-primary" : "oneiri-bg-secondary"
         )}
       >
         <div className="container mx-auto px-8 h-20 flex items-center justify-between">

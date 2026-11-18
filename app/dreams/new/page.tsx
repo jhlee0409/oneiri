@@ -19,17 +19,17 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <div className="min-h-screen oneiri-bg-primary">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <header className="text-center mb-8 sm:mb-12">
-          <h1 className="font-['Inter'] text-2xl sm:text-4xl md:text-5xl font-medium oneiri-accent mb-3 sm:mb-4">
-            오늘의 꿈 조각
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-5 sm:py-12">
+        <header className="mb-4 sm:mb-8">
+          {/* 본문 입력칸의 보이는 이름 (dream-form.tsx DREAM_FORM_HEADING_ID) */}
+          <h1
+            id="dream-form-heading"
+            className="font-serif text-2xl sm:text-4xl font-bold oneiri-text-primary"
+          >
+            어떤 꿈을 꿨나요?
           </h1>
-          <p className="oneiri-text-primary text-base sm:text-lg mb-2">
-            어떤 꿈의 조각들을 가져오셨나요?
-          </p>
-          <p className="oneiri-text-secondary text-xs sm:text-sm">
-            안개 낀 숲, 낯선 속삭임, 알 수 없는 그리움처럼… 떠오르는 모든 것이
-            특별한 이야기가 됩니다 ✨
+          <p className="mt-1 sm:mt-2 oneiri-text-secondary text-sm sm:text-base break-keep">
+            기억나는 대로 적으면 한 편의 이야기로 만들어 드려요.
           </p>
         </header>
 
